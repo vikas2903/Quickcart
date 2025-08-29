@@ -3,7 +3,7 @@
 client_id = "ca722b701375746fc3f5405ff1d19521"
 name = "quickcart"
 handle = "quickcart-5"
-application_url = "https://reynolds-colony-constitutional-ex.trycloudflare.com"
+application_url = "https://affects-graphs-adjacent-cope.trycloudflare.com"
 embedded = true
 
 [build]
@@ -26,7 +26,7 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://reynolds-colony-constitutional-ex.trycloudflare.com/auth/callback", "https://reynolds-colony-constitutional-ex.trycloudflare.com/auth/shopify/callback", "https://reynolds-colony-constitutional-ex.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://affects-graphs-adjacent-cope.trycloudflare.com/auth/callback", "https://affects-graphs-adjacent-cope.trycloudflare.com/auth/shopify/callback", "https://affects-graphs-adjacent-cope.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false

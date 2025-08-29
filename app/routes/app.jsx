@@ -8,7 +8,16 @@ import { authenticate } from "../shopify.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
+
+  // Authenticate Shopify Admin
   await authenticate.admin(request);
+  const {session} = await authenticate.admin(request);
+
+  const shop = session.shop;
+  const accessToken = session.accessToken;
+
+  console.log("#StoreName:", shop);
+  console.log("#StoreAccessToken:", accessToken);
 
   return { apiKey: process.env.SHOPIFY_API_KEY || "" };
 };
@@ -19,10 +28,11 @@ export default function App() {
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
-        <Link to="/app" rel="home">
-          Home
-        </Link>
-        <Link to="/app/additional">Additional page</Link>
+        <Link to="/app" rel="home"> Upcart</Link>
+        <Link to="/app/progressbar">Unlock Offers</Link>
+        <Link to="/app/progressbaron1">Buy X Get Y</Link>
+        <Link to="/app/help">Help</Link>
+        {/* <Link to="/app/additional">Additional page</Link> */}
       </NavMenu>
       <Outlet />
     </AppProvider>

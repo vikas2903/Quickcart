@@ -1,22 +1,25 @@
 import { useEffect } from "react";
 import { useFetcher } from "@remix-run/react";
+import css from './assests/style.css';
 import {
   Page,
   Layout,
-  Text,
-  Card,
-  Button,
   BlockStack,
-  Box,
-  List,
-  Link,
-  InlineStack,
+  Banner,
+  Grid,
+  LegacyCard,
+  Text,
+  Button
 } from "@shopify/polaris";
+
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
+
+  const { session } = await authenticate.admin(request);
+  console.log(session);
 
   return null;
 };
@@ -106,15 +109,30 @@ export default function Index() {
 
   return (
     <Page>
-      <TitleBar title="Remix app template">
-        <button variant="primary" onClick={generateProduct}>
+      <TitleBar title="Dashboard">
+        {/* <button variant="primary" onClick={generateProduct}>
           Generate a product
-        </button>
+        </button> */}
       </TitleBar>
       <BlockStack gap="500">
+
         <Layout>
-          <Layout.Section>
-            <Card>
+  
+          <Layout.Section sectioned> 
+            <Banner
+              title="You need to integrate app into your Shopify theme"
+              tone="warning"
+              action={{ content: "Activate extension in theme", url: "" }}
+              secondaryAction={{ content: "Learn more", url: "" }}
+              // onDismiss={() => {}}
+            >
+              <p>
+                Your settings have been saved. However, you need to activate the
+                app in Shopify's Theme Editor to make app visible on your store.
+              </p>
+            </Banner>
+
+            {/* <Card>
               <BlockStack gap="500">
                 <BlockStack gap="200">
                   <Text as="h2" variant="headingMd">
@@ -217,9 +235,43 @@ export default function Index() {
                   </>
                 )}
               </BlockStack>
-            </Card>
+            </Card> */}
           </Layout.Section>
-          <Layout.Section variant="oneThird">
+
+          <Layout.Section >
+    
+          <h4 className="i-gs-section-title">Get Started</h4>
+
+            <Grid>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 4, xl: 4}}>
+                <LegacyCard sectioned>
+                <img className="i-gs-img" src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg" alt="" />
+                <h4 class="i-gs-grid-heading">1. Create Progress Bar</h4>
+                <p class="i-gs-grid-subheading">A Progress bar based condition of Percentage of total order price & Product price.</p>
+                <Button fullWidth>Setup progress Bar </Button>
+                
+                </LegacyCard>
+              </Grid.Cell>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 4, xl: 4}}>
+                <LegacyCard sectioned>
+                <img className="i-gs-img" src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg" alt="" />
+                <h4 class="i-gs-grid-heading">2. Create Progress Bar</h4>
+                <p class="i-gs-grid-subheading">A Progress bar based condition of Percentage of total order price & Product price.</p>
+                <Button fullWidth>Setup progress Bar </Button>
+                </LegacyCard>
+              </Grid.Cell>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 4, xl: 4}}>
+                <LegacyCard  sectioned>
+                <img className="i-gs-img" src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-3.svg" alt="" />
+                <h4 class="i-gs-grid-heading">Integrate with theme</h4>
+                <p class="i-gs-grid-subheading">Activate the app in Shopify's Theme Editor to make Sticky Add To Cart visible on your store.</p>
+                <Button fullWidth variant="primary">Activate Theme</Button>
+                </LegacyCard>
+
+              </Grid.Cell>
+            </Grid>
+          </Layout.Section>
+          {/* <Layout.Section variant="oneThird">
             <BlockStack gap="500">
               <Card>
                 <BlockStack gap="200">
@@ -320,7 +372,7 @@ export default function Index() {
                 </BlockStack>
               </Card>
             </BlockStack>
-          </Layout.Section>
+          </Layout.Section> */}
         </Layout>
       </BlockStack>
     </Page>

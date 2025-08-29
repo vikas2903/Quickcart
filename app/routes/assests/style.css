@@ -1,0 +1,24 @@
+.i-gs-img{
+    display: block;
+    max-width: 100px;
+    margin: auto auto 10px ;
+}
+.i-gs-grid-heading {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 2.8;
+}
+.i-gs-grid-subheading {
+    text-align: center;
+    line-height: 1.4;
+    opacity: .8;
+    margin-bottom: 10px;
+}
+.i-gs-section-title {
+    display: block;
+    line-height: 3;
+    font-size: 24px;
+    font-weight: 500;
+}
