@@ -1,0 +1,166 @@
+{% if show_countdown %}
+<style>
+  :root {
+    --timer-bg: #000;
+    --timer-chip-bg: #ffffff;
+    --timer-text: #fff;
+    --timer-accent: #c73942;
+    --banner-bg: #000;
+    --banner-text: #fff;
+    --radius: 10px;
+  }
+
+  /* ===== COUNTDOWN ===== */
+  .sr-countdown {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    padding: .6rem .8rem;
+    color: var(--timer-text);
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    font: 600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    box-shadow: 0 1px 0 rgba(0,0,0,.05) inset;
+    flex-wrap: wrap;
+    height: fit-content;
+  }
+
+  .sr-countdown__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px; width: 20px;
+    border-radius: 6px;
+    background: #fff;
+    color: var(--timer-accent);
+    font-size: 12px;
+  }
+
+  .sr-countdown__label {
+    color: var(--timer-text);
+    font-weight: 700;
+    letter-spacing: .2px;
+  }
+
+  .sr-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .sr-chip {
+    min-width: 44px;
+    padding: 6px 10px;
+    text-align: center;
+    background: var(--timer-chip-bg);
+    border-radius: 8px;
+    font: 700 14px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    box-shadow: 0 1px 0 rgba(0,0,0,.06);
+  }
+  .sr-sep {
+    font-weight: 600;
+    opacity: 1;
+    margin: 0 2px;
+  }
+
+  @media (max-width: 480px) {
+    .sr-countdown { gap: .25rem; padding: .5rem .6rem; }
+    .sr-chip { min-width: 38px; padding: 4px 8px; font-size: 13px; }
+    .sr-countdown__label { font-size: 12px; }
+    .sr-countdown__icon { height: 18px; width: 18px; }
+  }
+
+  /* ===== PROMO BANNER (MARQUEE) ===== */
+  .sr-banner {
+    background: var(--banner-bg);
+    color: var(--banner-text);
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .sr-marquee {
+    white-space: nowrap;
+    display: block;
+    padding: 2px 0;
+  }
+  .sr-marquee__track {
+    display: inline-block;
+    padding-left: 100%;
+    animation: sr-marquee 15s linear infinite;
+  }
+  .sr-marquee__item {
+    display: inline-block;
+    padding: 0 2rem;
+    font: 600 14px/2.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    letter-spacing: .2px;
+  }
+  .sr-banner:hover .sr-marquee__track { animation-play-state: paused; }
+
+  @keyframes sr-marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .sr-marquee__track { animation: none; padding-left: 0; }
+  }
+</style>
+
+<!-- COUNTDOWN (to midnight IST) -->
+<div class="sr-countdown" role="status" aria-live="polite">
+  <span class="sr-countdown__icon" aria-hidden="true">⏳</span>
+  <span class="sr-countdown__label">Hurry! Offer ends in</span>
+  <span class="sr-time" aria-label="Time remaining">
+    <span class="sr-chip" id="srHrs">00</span>
+    <span class="sr-sep">:</span>
+    <span class="sr-chip" id="srMin">00</span>
+    <span class="sr-sep">:</span>
+    <span class="sr-chip" id="srSec">00</span>
+  </span>
+</div>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const elH = document.getElementById('srHrs');
+    const elM = document.getElementById('srMin');
+    const elS = document.getElementById('srSec');
+
+    function secondsUntilMidnightIST() {
+      const now = new Date();
+      // Convert to UTC ms
+      const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+      // IST offset +5:30
+      const istMs = utcMs + (5.5 * 60 * 60 * 1000);
+      const ist = new Date(istMs);
+
+      const midnightIST = new Date(ist);
+      midnightIST.setHours(24, 0, 0, 0); // end of current IST day
+      let secs = Math.floor((midnightIST - ist) / 1000);
+      if (secs < 0) secs = 0; // safety
+      return secs;
+    }
+
+    function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function render() {
+      let secs = secondsUntilMidnightIST();
+      const h = Math.floor(secs / 3600);
+      secs %= 3600;
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+
+      if (elH) elH.textContent = pad2(h);
+      if (elM) elM.textContent = pad2(m);
+      if (elS) elS.textContent = pad2(s);
+    }
+
+    render();
+    setInterval(render, 1000);
+  });
+</script>
+
+{%  endif %}

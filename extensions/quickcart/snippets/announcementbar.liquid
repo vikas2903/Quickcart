@@ -1,0 +1,83 @@
+
+{% if show_announcementbar %}
+<style>
+    :root{
+        --sr-banner-background-color: #7c3444;
+        --sr-banner-text-color: #ffffff;
+    }
+
+.sr-cart-banner-container {
+    color: var(--sr-banner-text-color);
+    text-align: center;
+    height: 28px;
+    align-items: center;
+    align-content: center;
+}
+.sr-banner-carousel-css {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    height: 25px;
+    align-items: center;
+}
+.sr-banner-carousel-css span {
+    display: inline-block;
+    width: 100%;
+    opacity: 0;
+    transform: translateX(100%);
+    animation: sr-slideIn 6s infinite;
+    animation-delay: calc(var(--index) * 3s);
+    text-align: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    line-height: 20px;
+    color: #fff;
+    font-size:14px;
+    opacity: 1;
+    font-weight: 500;
+    Content unavailable. Resource was not cached
+}
+@keyframes sr-slideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  5% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  25% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  30% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+</style>
+
+{% assign announcementbar_text = announcementbar_text | split: ',' %}
+
+
+<div class="sr-cart-banner-container" id="sr-cart-banner" style="display: block; font-size: 14px;">
+  <div class="sr-banner-carousel-css">
+{% for text in announcementbar_text %}
+  <span class="sr-banner-carousel-span" style="--index: {{ forloop.index}}">
+    {{ text | strip }}
+  </span>
+{% endfor %}
+
+  
+  </div>
+</div>
+
+{% endif %}

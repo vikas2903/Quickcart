@@ -1,0 +1,337 @@
+
+{{ 'premimum-cart.css' | asset_url | stylesheet_tag }}
+<style>
+:root{
+  --bg_color:{{block.settings.primary_color}};
+  --border_radius:{{block.settings.border_radius}}px;
+  --count_down_bg:{{block.settings.count_down_bg}}; 
+
+}
+.sr-countdown{background:var(--count_down_bg);}
+.sr-chip{color:var(--count_down_bg);}
+.sr-cart-banner-container {background: var(--bg_color);}
+.cdp-checkout {background: var(--bg_color);   border-radius:var(--border_radius);}
+.cdp-u-add {background: var(--bg_color); border-radius:var(--border_radius); text-align:center;}
+.cdp-line{border-radius:var(--border_radius);}
+.cdp-line-media img{border-radius:var(--border_radius);}
+.cdp-u-select{border-radius:var(--border_radius);}
+
+@media(max-width:767px){
+  .mobile-upsell-btn {
+      font-size: 1rem;
+      display:block !important;
+      text-align: center;
+      padding: .2rem 0;
+      border-top-left-radius: var(--border_radius);
+      border-top-right-radius: var(--border_radius);
+      background: var(--bg_color);
+      color: #fff;
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      right: 0;
+
+  }
+  .mobile-upsell-btn>span {
+    text-decoration: underline;
+  }
+  .upsell-mob-close-icon {
+    display: block !important;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -40px;
+    z-index: 99;
+    background: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.8;
+}
+}
+</style>
+
+<section
+  id="CartDrawerPremium"
+  class="cdp-drawer{% if cart == empty %} cdp-empty{% endif %}"
+  aria-hidden="true"
+  tabindex="-1"
+  data-open-class="cdp-open"
+  data-money-format="{{ shop.money_format | escape }}"
+  data-currency="{{ shop.currency }}"
+>
+  <div class="cdp-overlay" data-close></div>
+  <aside class="cdp-upsell">
+        <div class="cdp-upsell-head">
+          <span>UpSell</span>
+          <span class="upsell-mob-close-icon" style="display:none;">✕</span>
+          <div class="cdp-v-ctrls">
+            <button class="cdp-v-btn" data-v-prev aria-label="Previous">▲</button>
+            <button class="cdp-v-btn" data-v-next aria-label="Next">▼</button>
+          </div>
+        </div>
+
+        <div class="cdp-v-slider" data-v-slider>
+          <div class="cdp-v-track">
+            {% if block.settings.upsell_collection != blank %}
+              {% assign usell = collections[block.settings.upsell_collection] %}
+              {% for p in usell.products limit: 12 %}
+                <article class="cdp-u-card" data-upsell-card>
+                  <div class="cdp-u-media">
+                    <img
+                      loading="lazy"
+                      src="{{ p.featured_image | image_url: width: 200 }}"
+                      alt="{{ p.title | escape }}"
+                      width="200"
+                      height="200"
+                    >
+                  </div>
+                  <div class="cdp-u-info">
+                    <div class="cdp-u-title">{{ p.title | escape | truncate:20  }}</div>
+                    <div class="cdp-u-price">
+                      {% if p.compare_at_price_min > p.price_min %}
+                        <span class="cdp-u-compare">{{ p.compare_at_price_min | money_without_trailing_zeros  }}</span>
+                      {% endif %}
+                      <span class="cdp-u-final">{{ p.price_min | monemoney_without_trailing_zeros }}</span>
+                    </div>
+
+                    {% if p.variants.size > 1 %}
+                      {% assign has_multiple = true %}
+                    {% else %}
+                      {% assign has_multiple = false %}
+                    {% endif %}
+
+                    <div class="cdp-u-variants">
+                      <select class="cdp-u-select" data-variant-select>
+                        {% for v in p.variants %}
+                          <option
+                            value="{{ v.id }}"
+                            {% unless v.available %}
+                              disabled
+                            {% endunless %}
+                          >
+                            {% if v.title != 'Default Title' %}{{ v.title | escape }} — {% endif -%}
+                            {{- v.price | money -}}
+                            {%- unless v.available %} (Sold out){% endunless %}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <button
+                      class="cdp-u-add"
+                      data-upsell-add
+                      {% unless p.first_available_variant.available %}
+                        disabled
+                      {% endunless %}
+                    >
+                      {% if has_multiple %}Add Selected{% else %}+ Add{% endif %}
+                    </button>
+                  </div>
+                </article>
+              {% endfor %}
+            {% else %}
+              <div class="cdp-u-empty">Add an upsell collection in settings</div>
+            {% endif %}
+          </div>
+        </div>
+      </aside>
+
+  <div class="cdp-panel color-{{ settings.cart_color_scheme | default: 'background-1' }}">
+
+
+<div class="quick-cart-header-section">
+    <!-- Header (fixed) -->
+    <header class="cdp-header">
+      <div class="cdp-h-left">
+        <span class="cdp-h-title">Your Cart</span>
+        <span class="cdp-h-count" data-cart-count>({{ cart.item_count }})</span>
+      </div>
+      <button class="cdp-close" aria-label="Close" data-close>&#10005;</button>
+    </header>
+    {% render 'announcementbar' show_announcementbar:block.settings.show_announcementbar_text,  announcementbar_text:block.settings.announcementbar_text %}
+    {% render 'timer' show_countdown:block.settings.show_countdown %}
+   {% render 'progress-bar' %}
+    </div>
+    <div class="cdp-body">
+      <!-- Left rail: vertical upsell slider with VARIANT PICKER -->
+   
+
+      <!-- Right pane: scrollable content -->
+      <main class="cdp-content">
+    
+       
+        <!-- Cart line items (AJAX-render target) -->
+        <div class="cdp-lines" data-lines>
+          {% for item in cart.items %}
+            <article class="cdp-line" data-line-key="{{ item.key }}">
+              <div class="cdp-line-media">
+                <img
+                  src="{{ item.image | image_url: width: 180 }}"
+                  alt="{{ item.product.title | escape }}"
+                  width="90"
+                  height="90"
+                  loading="lazy"
+                >
+              </div>
+              <div class="cdp-line-info">
+                <div class="cdp-line-top">
+                  <div class="cdp-line-title">
+                    {{ item.product.title | escape }}
+                    {% if item.variant.title and item.variant.title != 'Default Title' %}
+                      <span class="cdp-line-variant">{{ item.variant.title | escape }}</span>
+                    {% endif %}
+                  </div>
+                  <button class="cdp-line-remove" data-remove="{{ item.key }}" aria-label="Remove">Remove</button>
+                </div>
+                <div class="cdp-line-bottom">
+                  <div class="cdp-qty" data-qty-wrap>
+                    <button class="cdp-qty-btn" data-qty-down>-</button>
+                    <input class="cdp-qty-input" type="number" min="0" value="{{ item.quantity }}" data-qty>
+                    <button class="cdp-qty-btn" data-qty-up>+</button>
+                  </div>
+                  <div class="cdp-line-prices">
+                    {% if item.original_line_price > item.final_line_price %}
+                      <span class="cdp-line-compare">{{ item.original_line_price | money }}</span>
+                    {% endif %}
+                    <span class="cdp-line-final">{{ item.final_line_price | money }}</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+          {% if cart.item_count == 0 %}
+            <div class="cdp-empty-msg">Your cart is empty.</div>
+          {% endif %}
+     
+            
+       
+        </div>
+       
+          {% render 'gift' giftproduct:block.settings.gift_wrap_product, show_gift_Card: block.setting.show_gift_product %}
+        
+        <!-- Offers applied -->
+      </main>
+    </div>
+
+
+<div class="mobile-upsell-btn" style="display:none;">Upsell Products  <span>View</span></div>
+
+    <!-- Bottom checkout bar (fixed) -->
+    <footer class="cdp-footer">
+     
+      <!-- Left: Subtotal + coupon (compact) -->
+      <div style="display:none;" class="cdp-footer-left">
+      
+
+        <div class="cdp-coupon-row">
+          <div class="cdp-coupon">
+            <input type="text" placeholder="Discount code" maxlength="40" data-coupon>
+            <button class="cdp-apply" data-apply-coupon>Apply</button>
+          </div>
+
+
+          <!-- Discount status chip (appears after Apply) -->
+          <div class="cdp-discount-row" data-discount-row hidden>
+            <div class="cdp-discount-chip">
+              <span class="cdp-discount-badge">Code</span>
+              <span class="cdp-discount-code" data-discount-code></span>
+              <span class="cdp-discount-note">will apply at checkout</span>
+              <button class="cdp-discount-clear" data-discount-clear aria-label="Remove discount">×</button>
+            </div>
+          </div>
+          <div class="cdp-offers" data-offers>
+            {% if cart.total_discount > 0 %}
+              <div class="cdp-offer-row">
+                <span class="cdp-offer-chip">Offer</span>
+                <span class="cdp-offer-text">Discounts applied</span>
+                <span class="cdp-offer-val">-{{ cart.total_discount | money }}</span>
+              </div>
+            {% else %}
+              {% if block.settings.offer_text != blank %}
+                <div class="cdp-offer-row">
+                  <span class="cdp-offer-chip">Offer</span>
+                  <span class="cdp-offer-text">{{ block.settings.offer_text }}</span>
+                </div>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="cdp-footer-right">
+
+       <div class="left-checkout">
+
+        <div class="cdp-subrow" style="display:none;">
+          <span>Subtotal</span>
+          <strong data-subtotal>{{ cart.total_price | money }}</strong>
+        </div>
+
+        <div class="cdp-total">
+          <span class="cdp-total-lbl">Total</span>
+          <span class="cdp-total-val" data-total>{{ cart.total_price | money_without_trailing_zeros }}</span>
+        </div>
+
+       </div>
+        
+        <a href="/checkout" class="cdp-checkout" data-checkout aria-label="Proceed to checkout">Checkout</a>
+        
+    </footer>
+
+
+  </div>
+</section>
+<script src="{{ 'premimum-cart.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'progress-bar.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Premium Cart Drawer",
+  "target":"body",
+  "settings": [
+    { "type": "checkbox", "id": "show_countdown", "label": "Show countdown", "default": false },
+    {
+      "type": "color",
+      "id": "count_down_bg",
+      "label": "Countdown Background",
+      "default": "#000"
+    },
+    { "type": "collection", "id": "upsell_collection", "label": "Upsell collection" },
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Color",
+      "default": "#7c3444"
+    },
+     {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border Radius",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 10
+    },
+     { "type": "checkbox", "id": "show_announcementbar_text", "label": "Show Announcement Bar", "default": false },
+    { "type": "textarea", "id": "announcementbar_text", "label": "Announcement Text", "default": "Welcome to my shop!" },
+    { 
+      "type": "checkbox",
+      "id": "show_gift_product", 
+      "label": "Show Gift Product", 
+      "default": false 
+    },
+    {
+    "type": "product",
+    "id": "gift_wrap_product",
+    "label": "Select  Gift  product"
+  }
+    
+    
+  ]
+}
+{% endschema %}

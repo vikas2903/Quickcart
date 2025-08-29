@@ -1,0 +1,47 @@
+
+{{ 'progress-bar.css' | asset_url | stylesheet_tag }}
+
+
+<div id="mini-cart-progress-section"
+  style="display: block; position: sticky; z-index: 1; background: linear-gradient(to left, rgb(240, 229, 231), rgb(255, 255, 255)); top: 0px;">
+  <div class="mini-card-sr-loader" style="display: none !important;"></div>
+  <div class="progress-bar-heading"></div>
+  <div class="progress-bar-sub-heading">You are ₹<span class="nearestAmount">500</span> away from <span
+      class="milstone_label">Extra 10% off on ₹1499</span></div>
+  <div class="progress-container">
+    <div class="milestones">
+      <div class="progress-bar">
+        <div class="progress progress-bar-js-control" id="progress" style="width: 38.8889%;"></div>
+      </div>
+
+      <div class="milestone" style="left: 0%;" data-confetti-shown="true">
+        <div class="milestone-dot" data-discount-type="null"></div>
+        <div class="milestone-text"><span class="mils_text_only"></span></div>
+      </div>
+
+      <div class="milestone" id="step-one" style="left: 34.9675%;" data-confetti-shown="true">
+        <div class="milestone-dot" data-discount-type="PERCENTAGE"><img
+            src="https://pickrr.s3.amazonaws.com:443/2025-08-01T06:57:59.706663_party_icon_colored.png"
+            class="active_image"></div>
+        <div class="milestone-text"><span class="mils_text_only">Extra 5% off on ₹799</span></div>
+      </div>
+
+      <div class="milestone" id="step-two" style="left: 64.9825%;">
+        <div class="milestone-dot greyscale" data-discount-type="PERCENTAGE"><img
+            src="https://pickrr.s3.amazonaws.com:443/2025-08-01T06:27:20.558528_party_icon_outline.png"
+            class="active_image"></div>
+        <div class="milestone-text"><span class="mils_text_only">Extra 10% off on ₹1499</span></div>
+      </div>
+
+      <div class="milestone" id="step-three" style="left: 100%;">
+        <div class="milestone-dot greyscale" data-discount-type="PERCENTAGE"><img
+            src="https://pickrr.s3.amazonaws.com:443/2025-08-01T06:27:20.558528_party_icon_outline.png"
+            class="active_image"></div>
+        <div class="milestone-text"><span class="mils_text_only">Extra 15% off on
+            ₹2499</span></div>
+      </div>
+
+
+    </div>
+  </div>
+</div>

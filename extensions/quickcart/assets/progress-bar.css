@@ -1,0 +1,254 @@
+:root {
+    --sr-progress-bar-bg-color: #000;
+}
+
+#mini-cart-progress-section {
+    color: #676767;
+    padding: 5px 0px;
+    background-color: var(--sr-progress-section-bg-color);
+    border-bottom: 1px solid #e7eaed;
+}
+
+.mini-cart-progress-text-1 {
+    font-weight: bold;
+}
+
+.min-cart-progress-bar {
+    background-color: #ddd;
+    width: 100%;
+    height: 8px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.mini-cart-progress {
+    width: 90%;
+    background-color: #4caf50;
+    height: 100%;
+}
+
+.mini-card-sr-loader {
+    display: none !important;
+    height: 80px;
+    width: 80px;
+    border: 3px solid var(--sr-mini-cart-primary-color);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 2s linear infinite;
+    margin: 0 auto;
+}
+
+.mini-cart-qty-loader {
+    display: none;
+    height: 10px;
+    width: 10px;
+    border: 1px solid var(--sr-mini-cart-primary-color);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 2s linear infinite;
+    margin: 0 auto;
+}
+
+.cart-items-loader {
+    display: none;
+    height: 20px;
+    width: 20px;
+    border: 1px solid var(--sr-mini-cart-primary-color);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 2s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.progress-container {
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 5px;
+}
+
+.progress-bar {
+    width: 95%;
+    right: 0;
+    left: 0;
+    top: 12px;
+    position: absolute;
+    height: 4px;
+    background-color: #d4d4d4;
+    z-index: -1;
+}
+
+.progress {
+    border-radius: 4px;
+    display: block !important;
+    position: absolute;
+    height: 100%;
+    background-color: var(--sr-progress-bar-bg-color);
+    transition: width 0.3s ease;
+}
+
+.milestones {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+}
+
+.milestones-optional {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+}
+
+.milestone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+}
+
+.milestone-optional {
+    justify-content: flex-end;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+}
+
+.milestone-text {
+    white-space: wrap;
+    color: #000000;
+    font-size: 9px;
+    line-height: 1.3;
+    margin-top: 16px;
+    text-align: center;
+    font-family: "Open Sans", sans-serif !important;
+    max-width: 60px;
+}
+
+.milestone-text-optional {
+    white-space: wrap;
+    color: #000000;
+    font-size: 9px;
+    line-height: 1.3;
+    text-align: center;
+    margin-bottom: 2px;
+    max-width: 52px;
+}
+
+.last-milestone {
+    align-items: flex-end;
+}
+
+.milestone_last_text {
+    text-align: right !important;
+}
+
+.flex-end-column {
+    align-items: flex-end !important;
+}
+
+.flex-start-column {
+    align-items: start;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+.milestone-dot {
+    height: 10px;
+    border-radius: 50%;
+    top: -67px;
+    transition: background-color 0.3s ease;
+    display: block !important;
+}
+
+.milestone-dot[data-discount-type="null"] {
+    background-color: var(--sr-progress-bar-bg-color);
+}
+
+.milestone-dot.active {
+    background-color: var(--sr-mini-cart-primary-color);
+}
+
+.nearestAmount {
+    font-weight: 600;
+}
+
+.active_image {
+    max-height: 24px;
+    max-width: 24px;
+    display: block;
+}
+
+.milestone-dot-active {
+    height: 18px;
+    width: 18px;
+}
+
+#amount {
+    width: 100%;
+    padding: 10px;
+    margin-top: 40px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.progress-bar-heading {
+    margin-top: 10px;
+    font-family: "Open Sans", sans-serif !important;
+    font-size: 14px;
+    line-height: 12px;
+    text-align: center;
+    font-weight: 500;
+    color: #000000;
+}
+
+.progress-bar-sub-heading {
+    font-family: "Open Sans", sans-serif !important;
+    text-align: center;
+    color: #000000;
+    font-size: 12px;
+    line-height: 12px;
+    margin-top: 8px;
+}
+
+.add-to-cart-loader {
+    display: none;
+    height: 10px;
+    width: 10px;
+    border: 1px solid var(--sr-mini-cart-primary-color);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 2s linear infinite;
+    margin: 0 auto;
+}
+
+.progress {
+    border-radius: 4px;
+    display: block !important;
+    position: absolute;
+    height: 100%;
+    background-color: var();
+    transition: width 0.3s ease;
+}
+.discount {
+    font-size: 11px;
+    color: green;
+    font-weight: 600;
+    vertical-align: middle;
+}

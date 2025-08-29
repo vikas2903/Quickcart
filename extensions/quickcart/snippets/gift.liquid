@@ -1,0 +1,117 @@
+{%- comment -%}
+  Gift Wrap checkbox snippet
+  Usage: {% render 'gift-wrap', sid: section.id %}
+
+  Requires a theme setting:
+  {
+    "type": "product",
+    "id": "gift_wrap_product",
+    "label": "Gift wrap product"
+  }
+{%- endcomment -%}
+
+
+
+{%- assign gw_product = all_products[giftproduct] -%}
+{%- if gw_product and gw_product.variants.size > 0 -%}
+  {%- assign gw_variant = gw_product.selected_or_first_available_variant -%}
+  {%- assign uid = sid | default: section.id | default: 'global' -%}
+
+  <style>
+    /* Scoped to this snippet instance */
+    #gw-{{ uid }} {
+      background:#fff; border-radius:8px; padding:4px 10px; display:flex;
+      align-items:center; justify-content: flex-start; width:100%;  gap:8px; font:600 14px/1.2 system-ui,-apple-system,Segoe UI,Roboto;
+    }
+    #gw-{{ uid }} .gw-check { width:15px; height:15px; }
+    #gw-{{ uid }} .gw-emoji { font-size:16px; }
+    #gw-{{ uid }} .gw-price { opacity:.85; font-weight:700; margin-left:4px; }
+    #gw-{{ uid }} .gw-status { margin-left:auto; font-weight:600; font-size:12px; opacity:.7; }
+    #gw-{{ uid }} .gw-status[hidden]{ display:none; }
+    #gw-{{ uid }}.is-busy { opacity:.6; pointer-events:none; }
+  </style>
+
+  <div id="gw-{{ uid }}" class="gw-root" data-gw data-variant="{{ gw_variant.id }}">
+    <input class="gw-check" id="gw-check-{{ uid }}" type="checkbox" {% unless gw_variant.available %}disabled{% endunless %}>
+    <label for="gw-check-{{ uid }}">
+      <span class="gw-emoji">🎁</span>
+      Gift wrap it <span class="gw-price">@{{ gw_product.price | money_without_trailing_zeros }}</span> only
+      {%- unless gw_variant.available -%}
+        <span style="color:#c00; font-weight:700;">(Sold out)</span>
+      {%- endunless -%}
+    </label>
+    <span class="gw-status" data-gw-status hidden>Updating…</span>
+  </div>
+
+  <script>
+  (function(){
+    const root   = document.getElementById('gw-{{ uid }}');
+    if(!root) return;
+
+    const variantId = root.getAttribute('data-variant');
+    const checkbox  = root.querySelector('.gw-check');
+    const status    = root.querySelector('[data-gw-status]');
+
+    function busy(on){
+      root.classList.toggle('is-busy', !!on);
+      if(status) status.hidden = !on;
+    }
+
+    function fetchCart(){
+      return fetch('/cart.js', {headers:{Accept:'application/json'}, credentials:'same-origin'})
+        .then(r => r.json());
+    }
+
+    function addOnce(){
+      const fd = new FormData();
+      fd.append('id', variantId);
+      fd.append('quantity', '1');
+      return fetch('/cart/add.js', {
+        method:'POST', body: fd, headers:{Accept:'application/json'}, credentials:'same-origin'
+      }).then(r => r.json());
+    }
+
+    function removeAll(){
+      // Use /cart/update.js to set qty 0 by variant id (no key needed)
+      return fetch('/cart/update.js', {
+        method:'POST',
+        headers:{'Content-Type':'application/json', Accept:'application/json'},
+        credentials:'same-origin',
+        body: JSON.stringify({ updates: { [variantId]: 0 } })
+      }).then(r => r.json());
+    }
+
+    // Reflect current cart state on load
+    function syncChecked(){
+      fetchCart().then(cart=>{
+        const hasGift = (cart.items || []).some(it => String(it.variant_id) === String(variantId));
+        checkbox.checked = hasGift;
+      });
+    }
+
+    // Toggle handler
+    checkbox.addEventListener('change', function(){
+      busy(true);
+      const action = this.checked ? addOnce() : removeAll();
+
+      action
+        .then(()=> {
+          // Optional: tell your custom drawer to refresh/open
+          if (window.CartDrawerPremium && typeof window.CartDrawerPremium.open === 'function') {
+            window.CartDrawerPremium.open();
+          } else {
+            // Fallback: emit a custom event other scripts can listen to
+            document.dispatchEvent(new CustomEvent('cart:refresh'));
+          }
+        })
+        .catch(()=>{ this.checked = !this.checked; }) // revert on error
+        .finally(()=> busy(false));
+    });
+
+    // Initial sync
+    syncChecked();
+  })();
+  </script>
+{%- endif -%}
+
+{% if show_gift_Card  %} {% endif %}
