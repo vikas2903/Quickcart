@@ -31,6 +31,7 @@ export default function App() {
         <Link to="/app" rel="home"> Upcart</Link>
         <Link to="/app/progressbar">Unlock Offers</Link>
         <Link to="/app/progressbaron1">Buy X Get Y</Link>
+        {/* <Link to="/app/app.progressbaron2">Free Gift </Link> */}
         <Link to="/app/help">Help</Link>
         {/* <Link to="/app/additional">Additional page</Link> */}
       </NavMenu>
