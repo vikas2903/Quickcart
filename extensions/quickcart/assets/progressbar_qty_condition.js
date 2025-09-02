@@ -2,7 +2,7 @@
 let shop = document.querySelector('#shop-primary-url').value;
 async function getbxgy(shop){
   
-    const url = `https://accepts-consult-seven-accordance.trycloudflare.com/app/quickcart/bxgy?shop=${encodeURIComponent(shop)}`;
+    const url = `https://quickcart-68ln.onrender.com/app/quickcart/bxgy?shop=${encodeURIComponent(shop)}`;
     const response = await fetch("url", { credentials: "same-origin" })
 
     if(!response.ok){

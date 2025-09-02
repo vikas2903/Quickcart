@@ -8,7 +8,7 @@ import {
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server.js";
 
-const API_URL = "/app/bxgy";
+const API_URL = "/app/quickcart/bxgy";
 
 /** Gate the page by Shopify admin session; also pass shop in case you want it */
 export const loader = async ({ request }) => {
