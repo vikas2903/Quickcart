@@ -1,55 +1,52 @@
-import React, {useMemo, useState} from "react";
+// app/routes/app.bxgy.jsx
+import React, { useMemo, useState } from "react";
+import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import {
-  Page,
-  Layout,
-  Grid,
-  LegacyCard,
-  BlockStack,
-  Checkbox,
-  TextField,
-  Button,
-  Tabs,
-  InlineStack,
-  Banner,
+  Page, Layout, Grid, LegacyCard, BlockStack, Checkbox, TextField, Button, Tabs, InlineStack, Banner,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
+import { authenticate } from "../shopify.server.js";
 
-// Optional: set your API route here if you want to POST as well
-const API_URL = "/api/bxgy";
+const API_URL = "/app/bxgy";
+
+/** Gate the page by Shopify admin session; also pass shop in case you want it */
+export const loader = async ({ request }) => {
+  const { session } = await authenticate.admin(request);
+  return json({ shop: session.shop });
+};
 
 export default function BuyXGetYPage() {
+  const { shop } = useLoaderData();
   return (
     <Page fullWidth>
       <TitleBar title="Buy X Get Y Offer" />
       <Layout>
         <Layout.Section>
-          <BuyXGetYSection />
+          <BuyXGetYSection shop={shop} />
         </Layout.Section>
       </Layout>
     </Page>
   );
 }
 
-function BuyXGetYSection() {
-  /* ---------- FORM STATE ---------- */
+function BuyXGetYSection({ shop }) {
+  // ---------- FORM STATE ----------
   const [enabled, setEnabled] = useState(true);
   const [buyQty, setBuyQty] = useState("2");
   const [getQty, setGetQty] = useState("1");
 
-  // Messages (use {{remaining}}, {{buy}}, {{get}})
   const [msgMany, setMsgMany] = useState("Add {{remaining}} more item(s) to unlock B{{buy}}G{{get}}");
   const [msgOne, setMsgOne] = useState("Add 1 more item to unlock B{{buy}}G{{get}}");
   const [msgUnlocked, setMsgUnlocked] = useState("🎁 Offer unlocked! B{{buy}}G{{get}} applied at checkout");
 
-  // Preview controls
   const [previewQty, setPreviewQty] = useState("0");
   const [tab, setTab] = useState(0);
 
-  // Submit status
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [note, setNote] = useState(null); // {type:"success"|"critical", msg:string}
 
-  /* ---------- DERIVED ---------- */
+  // ---------- DERIVED ----------
   const buy = useMemo(() => Math.max(0, parseInt(buyQty || "0", 10)), [buyQty]);
   const get = useMemo(() => Math.max(0, parseInt(getQty || "0", 10)), [getQty]);
   const qty = useMemo(() => Math.max(0, parseInt(previewQty || "0", 10)), [previewQty]);
@@ -73,6 +70,8 @@ function BuyXGetYSection() {
 
   const payload = useMemo(
     () => ({
+      // shop optional; server infers from session, but you can include it
+      // shop,
       enabled,
       offer: { buyQty: buy, getQty: get },
       messages: {
@@ -84,36 +83,42 @@ function BuyXGetYSection() {
     [enabled, buy, get, msgMany, msgOne, msgUnlocked]
   );
 
-  /* ---------- HANDLERS ---------- */
+  // ---------- HANDLERS ----------
   const handleSubmit = async () => {
-    // Console log (your request)
-    console.log("Submitting BxGy config:", payload);
+    if (!Number.isFinite(buy) || buy < 1 || !Number.isFinite(get) || get < 1) {
+      setNote({ type: "critical", msg: "Buy and Get must be numbers ≥ 1." });
+      return;
+    }
 
-    // (Optional) POST to your API
     setIsSubmitting(true);
     setNote(null);
-    try {
-      // Uncomment to send to your backend
-      // const res = await fetch(API_URL, {
-      //   method: "POST",
-      //   headers: {"Content-Type": "application/json"},
-      //   body: JSON.stringify(payload),
-      // });
-      // if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
 
-      setNote({type: "success", msg: "Configuration generated (see console)."});
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || !out?.ok) {
+        throw new Error(out?.error || `HTTP ${res.status} ${res.statusText}`);
+      }
+
+      setNote({ type: "success", msg: "BxGy configuration saved." });
+      console.log("Saved:", out.data);
     } catch (e) {
-      setNote({type: "critical", msg: e?.message || "Failed to save configuration."});
+      setNote({ type: "critical", msg: e?.message || "Failed to save configuration." });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  /* ---------- RENDER ---------- */
+  // ---------- RENDER ----------
   return (
     <Grid>
-      {/* LEFT: single column form */}
-      <Grid.Cell columnSpan={{xs: 12, sm: 12, md: 6, lg: 6, xl: 6}}>
+      {/* LEFT: form */}
+      <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
         <LegacyCard sectioned>
           <BlockStack gap="500">
             {note && <Banner tone={note.type === "success" ? "success" : "critical"}>{note.msg}</Banner>}
@@ -148,40 +153,25 @@ function BuyXGetYSection() {
             <LegacyCard sectioned>
               <BlockStack gap="300">
                 <strong>Messages</strong>
-                <TextField
-                  label="When 2+ remaining"
-                  value={msgMany}
-                  onChange={setMsgMany}
-                  autoComplete="off"
-                />
-                <TextField
-                  label="When 1 remaining"
-                  value={msgOne}
-                  onChange={setMsgOne}
-                  autoComplete="off"
-                />
-                <TextField
-                  label="When unlocked"
-                  value={msgUnlocked}
-                  onChange={setMsgUnlocked}
-                  autoComplete="off"
-                />
+                <TextField label="When 2+ remaining" value={msgMany} onChange={setMsgMany} autoComplete="off" />
+                <TextField label="When 1 remaining" value={msgOne} onChange={setMsgOne} autoComplete="off" />
+                <TextField label="When unlocked" value={msgUnlocked} onChange={setMsgUnlocked} autoComplete="off" />
               </BlockStack>
             </LegacyCard>
 
             <Button variant="primary" onClick={handleSubmit} loading={isSubmitting}>
-              Submit 
+              Submit
             </Button>
           </BlockStack>
         </LegacyCard>
       </Grid.Cell>
 
       {/* RIGHT: preview */}
-      <Grid.Cell columnSpan={{xs: 12, sm: 12, md: 6, lg: 6, xl: 6}}>
+      <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
         <LegacyCard>
           <LegacyCard.Section>
             <Tabs
-              tabs={[{id: "desktop", content: "Desktop"}, {id: "mobile", content: "Mobile"}]}
+              tabs={[{ id: "desktop", content: "Desktop" }, { id: "mobile", content: "Mobile" }]}
               selected={tab}
               onSelect={setTab}
             />
@@ -214,8 +204,7 @@ function BuyXGetYSection() {
   );
 }
 
-/* ---------- PREVIEW (reuses previous look & feel) ---------- */
-function PreviewBxGy({mode, enabled, buy, get, fillPercent, bannerText}) {
+function PreviewBxGy({ mode, enabled, buy, get, fillPercent, bannerText }) {
   const isMobile = mode === "mobile";
 
   const frame = {
@@ -245,21 +234,14 @@ function PreviewBxGy({mode, enabled, buy, get, fillPercent, bannerText}) {
     transition: "width 300ms ease",
   };
 
-  // Single threshold marker for Buy X
-  const markerLeft = buy > 0 ? `${Math.min(100, (1 / 1) * 100)}%` : "0%"; // at the end of bar
-  // but we’ll render a labeled badge above center with BxGy summary.
-
   return (
     <div style={frame}>
-      <div style={{textAlign: "center", fontSize: 14, marginBottom: 6}}>
-        {bannerText}
-      </div>
-
-      <div style={{textAlign: "center", fontSize: 13, color: "#6B7280", marginBottom: 8}}>
+      <div style={{ textAlign: "center", fontSize: 14, marginBottom: 6 }}>{bannerText}</div>
+      <div style={{ textAlign: "center", fontSize: 13, color: "#6B7280", marginBottom: 8 }}>
         {enabled ? `Buy ${buy || 0} Get ${get || 0}` : "Offer disabled"}
       </div>
 
-      <div style={{position: "relative"}}>
+      <div style={{ position: "relative" }}>
         <div style={barTrack}>
           <div style={barFill} />
           {/* end marker dot */}
@@ -276,20 +258,18 @@ function PreviewBxGy({mode, enabled, buy, get, fillPercent, bannerText}) {
           />
         </div>
 
-        {/* Small captions */}
-        <div style={{display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 12, color: "#6B7280"}}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 12, color: "#6B7280" }}>
           <div>0</div>
           <div>Target: {buy} item{buy === 1 ? "" : "s"}</div>
         </div>
 
-        {/* Gift labels */}
-        <div style={{display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 12}}>
-          <div style={{width: "33.33%", textAlign: "center"}} />
-          <div style={{width: "33.33%", textAlign: "center"}}>
-            <div style={{fontSize: 16}}>🎁</div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 12 }}>
+          <div style={{ width: "33.33%", textAlign: "center" }} />
+          <div style={{ width: "33.33%", textAlign: "center" }}>
+            <div style={{ fontSize: 16 }}>🎁</div>
             <div>Unlock: B{buy}G{get}</div>
           </div>
-          <div style={{width: "33.33%", textAlign: "center"}} />
+          <div style={{ width: "33.33%", textAlign: "center" }} />
         </div>
       </div>
     </div>

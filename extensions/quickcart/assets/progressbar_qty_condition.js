@@ -1,3 +1,28 @@
+
+let shop = document.querySelector('#shop-primary-url').value;
+async function getbxgy(shop){
+  
+    const url = `https://accepts-consult-seven-accordance.trycloudflare.com/app/bxgy?shop=${encodeURIComponent(shop)}`;
+    const response = await fetch(url,{ credentials: "same-origin" });
+
+    if(!response.ok){
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    const json   =  await response.json();
+
+    if(json?.ok === false){
+        throw new Error(json.error || "Endpoint returned error");
+    }
+    const data = json?.data;
+    console.log("Backend data", data);
+
+}
+
+getbxgy(shop);
+
+
+
+
 let progressbar_qty = document.querySelector('.reward-progress-line .fill');
 let progressbar_qty_text = document.querySelector('.reward-progress-text');
 let progressbar_qty_enabled = true;
@@ -118,8 +143,7 @@ let progressbar_qty_getqty = 1;
 
             // console.log("Cart updated:", cart);
 
-            // 👉 Your custom logic here
-            updateProgressBar(cart); // example
+         
         } catch (err) {
             console.error("Error fetching cart:", err);
         }
