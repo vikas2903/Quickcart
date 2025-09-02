@@ -3,7 +3,7 @@
 client_id = "ca722b701375746fc3f5405ff1d19521"
 name = "quickcart"
 handle = "quickcart-5"
-application_url = "https://emperor-span-ruling-farmers.trycloudflare.com"
+application_url = "https://oaks-pl-podcasts-pharmacology.trycloudflare.com"
 embedded = true
 
 [build]
@@ -26,7 +26,7 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://emperor-span-ruling-farmers.trycloudflare.com/auth/callback", "https://emperor-span-ruling-farmers.trycloudflare.com/auth/shopify/callback", "https://emperor-span-ruling-farmers.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://oaks-pl-podcasts-pharmacology.trycloudflare.com/auth/callback", "https://oaks-pl-podcasts-pharmacology.trycloudflare.com/auth/shopify/callback", "https://oaks-pl-podcasts-pharmacology.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false

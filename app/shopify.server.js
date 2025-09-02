@@ -5,10 +5,8 @@ import {
   shopifyApp,
 } from "@shopify/shopify-app-remix/server";
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
-import prisma from "./db.server";
-// import connectDatabase from '../app/lib/dbconnect.js'
+import prisma from "./db.server.js";
 
-// connectDatabase();
 
 
 const shopify = shopifyApp({
