@@ -13,12 +13,36 @@ import {
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 
+import connectDatabase from '../lib/dbconnect.js';
+import {Store} from '../models/storemodal.js'
+
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
 
-  // keep host/shop in URLs to avoid OAuth relogin on internal nav
+  const { session } = await authenticate.admin(request);
+  const shopName = session.shop;
+  const accessToken = session.accessToken;
+
+  console.log("🔑 Access token for", shopName);
+
+  // # Database Connect
+  await connectDatabase ();
+
+  await Store.updateOne(
+    { shopName },                       // 1) FILTER: which doc to target
+    {                                   // 2) UPDATE: how to change it
+      $set: { accessToken, uninstalledAt: null },
+      $setOnInsert: { installedAt: new Date() },
+      $currentDate: { updatedAt: true },
+    },
+    { upsert: true }                    // 3) OPTIONS: create if it doesn't exist
+  );
+  console.log("✅ Store saved");
+  
+
+// Keep host/shop in URLs to avoid OAuth relogin on internal nav
   const url = new URL(request.url);
-  const host = url.searchParams.get("host") ?? "";
+  const host = url.searchParams.get ("host") ?? "";
   const shop = url.searchParams.get("shop") ?? "";
   return json({ host, shop });
 };

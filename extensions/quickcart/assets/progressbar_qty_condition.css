@@ -1,0 +1,101 @@
+/* Wrapper prefix: reward-progress */
+.reward-progress {
+    font-family: Arial, sans-serif;
+    max-width: 500px;
+    margin: 6px auto 8px;
+    text-align: center;
+    max-width: 90%;
+    margin: auto;
+    text-align: center;
+    padding: 6px 0;
+  }
+  
+  .reward-progress-text {
+    font-size: 12px;
+    margin: 2px 0 1px;
+    color: #333;
+}
+  
+  
+  .reward-progress-bar {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .reward-progress-step {
+    position: relative;
+    text-align: center;
+    flex: 1;
+    z-index: 2;
+  }
+  
+  .reward-progress-step .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  
+  .reward-progress-step.active .icon {
+    background: #2ecc71;
+    color: #fff;
+  }
+  
+  .reward-progress-step p {
+    font-size: 13px;
+    margin: 0;
+    color: #666;
+  }
+  
+  .reward-progress-step.active p {
+    color: #2ecc71;
+    font-weight: bold;
+    font-size: 11px;
+    opacity: 0;
+  }
+   .reward-progress-line:empty {display:block;}
+  .reward-progress-line {
+    position: absolute;
+    top: 16px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #f0f0f0;
+    z-index: 1;
+  }
+  
+  .reward-progress-step.active ~ .reward-progress-step .icon {
+    background: #f0f0f0;
+    color: #aaa;
+  }
+  /* .reward-progress-line:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #2ecc71;
+    z-index: 1;
+    content: "";
+} */
+
+    span.fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 10%;
+    background: #2ecc71;
+    z-index: 999;
+    content: "";
+    width: 0%;
+    display: block;
+    height: inherit;
+}
+

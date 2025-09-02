@@ -528,6 +528,7 @@ span.cdp-line-prices {
 
 span.cdp-total-val {
   font-weight: 600;
+  display: block;
 }
 
 .cdp-checkout {
@@ -586,6 +587,7 @@ span.cdp-total-val {
   align-items: center;
   justify-content: center;
   width: 100%;
+  justify-content: space-between;
 }
 
 #MinimogCartDrawer:not(html):not(body),

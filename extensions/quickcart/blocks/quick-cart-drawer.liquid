@@ -151,9 +151,13 @@
       </div>
       <button class="cdp-close" aria-label="Close" data-close>&#10005;</button>
     </header>
+
     {% render 'announcementbar' show_announcementbar:block.settings.show_announcementbar_text,  announcementbar_text:block.settings.announcementbar_text %}
     {% render 'timer' show_countdown:block.settings.show_countdown %}
-   {% render 'progress-bar' %}
+    {% render 'progress-bar' %}
+    {% render 'progressbar_qty_condition' %}
+
+    
     </div>
     <div class="cdp-body">
       <!-- Left rail: vertical upsell slider with VARIANT PICKER -->
@@ -288,6 +292,7 @@
 </section>
 <script src="{{ 'premimum-cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progress-bar.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'progressbar_qty_condition.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {

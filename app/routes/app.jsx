@@ -16,8 +16,8 @@ export const loader = async ({ request }) => {
   const shop = session.shop;
   const accessToken = session.accessToken;
 
-  console.log("#StoreName:", shop);
-  console.log("#StoreAccessToken:", accessToken);
+  // console.log("#StoreName:", shop);
+  // console.log("#StoreAccessToken:", accessToken);
 
   return { apiKey: process.env.SHOPIFY_API_KEY || "" };
 };

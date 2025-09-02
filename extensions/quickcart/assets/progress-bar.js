@@ -1,59 +1,123 @@
-// Select progress bar wrapper and bar
-let progress_bar_percentage = document.querySelector('.progress-bar .progress');
-let nearestamount = document.querySelector('.nearestAmount');
-let milstone_label = document.querySelector('.milstone_label');
 
-// Define milestone prices and messages
-let milestonePrices = [
-  { price: 799, text: 'Extra 5% off on ₹799' },
-  { price: 1499, text: 'Extra 10% off on ₹1499' },
-  { price: 2499, text: 'Extra 15% off on ₹2499' }
-];
 
-// Fetch Shopify cart
-async function getShopifyCart() {
-  try {
-    const response = await fetch('/cart.js', { method: 'GET', headers: { 'Content-Type': 'application/json' }});
-    if (!response.ok) throw new Error(`Failed to fetch cart: ${response.status} ${response.statusText}`);
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching Shopify cart:', error);
-    return null;
-  }
+const price_range_one   = 799;
+const price_range_two   = 1499;
+const price_range_three = 2499;
+const enabled = true;
+
+const price_range_text_one   = "Extra 5% off on ₹799";
+const price_range_text_two   = "Extra 10% off on ₹1499";
+const price_range_text_three = "Extra 15% off on ₹2499";
+
+
+const progressbar             = document.querySelector(".progress.progress-bar-js-control");
+const subheading_progressbar  = document.querySelector(".milstone_label");    // check: maybe ".milestone_label" in your HTML
+const nearestAmount           = document.querySelector(".nearestAmount");
+
+const milestone_text_one   = document.querySelector("#step-one .mils_text_only");
+const milestone_text_two   = document.querySelector("#step-two .mils_text_only");
+const milestone_text_three = document.querySelector("#step-three .mils_text_only");
+
+if (milestone_text_one)   milestone_text_one.innerHTML   = price_range_text_one;
+if (milestone_text_two)   milestone_text_two.innerHTML   = price_range_text_two;
+if (milestone_text_three) milestone_text_three.innerHTML = price_range_text_three;
+
+
+function toMoney(amount, currency = "INR", locale = "en-IN") {
+  const val = Math.max(0, Number(amount) || 0);
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(val);
 }
 
-// Update progress bar and milestone info
-function updateProgressBar(cart) {
-  if (!cart) return;
+(function () {
 
-  let cart_total = cart.original_total_price / 100; // Convert cents to ₹
-
-
-  console.log(cart_total);
+  if(enabled) {
+    document.querySelector('#mini-cart-progress-section').style.display = 'unset';
   
-  // progress_bar_percentage.style.width = `${progressPercent}%`;
-}
+  async function onCartUpdate() {
+    try {
+      const res  = await fetch("/cart.js", { headers: { Accept: "application/json" } });
+      const cart = await res.json();
+      const currency = cart?.currency || "INR";
+      const cartEstimatedPrice = (cart?.total_price || 0) / 100;
 
-// Initialize on page load
-setTimeout(async () => {
-  const cart = await getShopifyCart();
-  if (cart) updateProgressBar(cart);
-}, 1000);
+      if (!progressbar) return;
 
-// Listen for cart updates
-document.addEventListener('cart:updated', async () => {
-  const cart = await getShopifyCart();
-  if (cart) updateProgressBar(cart);
-});
+      if (cartEstimatedPrice >= price_range_three) {
+        // Tier 3+ (full bar)
+        progressbar.style.width = "100%";
+        if (subheading_progressbar) {
+         document.querySelector('.progress-bar-sub-heading').classList.add('hide');
+          subheading_progressbar.innerHTML = "🎉 Congratulations! You unlocked the maximum discount.";
+        }
+        if (nearestAmount) nearestAmount.innerHTML = toMoney(0, currency);
+        
 
-// Patch Shopify AJAX cart calls to dispatch event
-(function interceptCart() {
-  const originalFetch = window.fetch;
-  window.fetch = async (...args) => {
-    const response = await originalFetch(...args);
-    if (args[0].includes('/cart/add') || args[0].includes('/cart/change') || args[0].includes('/cart/update')) {
-      document.dispatchEvent(new Event('cart:updated'));
+      } else if (cartEstimatedPrice >= price_range_two) {
+        // Between tier 2 and 3 (66% → 100%)
+       
+        progressbar.style.width = "66%";
+        if (subheading_progressbar) subheading_progressbar.innerHTML = price_range_text_three;
+        if (nearestAmount) nearestAmount.innerHTML = toMoney(price_range_three - cartEstimatedPrice, currency);
+        document.querySelector('.progress-bar-sub-heading').classList.remove('hide');
+
+      } else if (cartEstimatedPrice >= price_range_one) {
+        progressbar.style.width = "33%";
+    
+    
+        if (subheading_progressbar) subheading_progressbar.innerHTML = price_range_text_two;
+        if (nearestAmount) nearestAmount.innerHTML = toMoney(price_range_two - cartEstimatedPrice, currency);
+        document.querySelector('.progress-bar-sub-heading').classList.remove('hide');
+
+      } else {
+        // Below tier 1 (0 → 33%)
+        progressbar.style.width = "0%";
+        if (subheading_progressbar) subheading_progressbar.innerHTML = price_range_text_one;
+        if (nearestAmount) nearestAmount.innerHTML = toMoney(price_range_one - cartEstimatedPrice, currency);
+        document.querySelector('.progress-bar-sub-heading').classList.remove('hide');
+      }
+    } catch (err) {
+      console.error("Error fetching cart", err);
     }
-    return response;
-  };
+  }
+
+  // Update when the cart changes (AJAX)
+  document.addEventListener("cart:updated", onCartUpdate);
+
+  // Wrap once so we don’t double-patch on theme reloads
+  if (!window.__pbWrapped) {
+    window.__pbWrapped = true;
+
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      const url = typeof args[0] === "string" ? args[0] : args[0]?.url || "";
+      if (url.includes("/cart/add") || url.includes("/cart/change") || url.includes("/cart/update")) {
+        document.dispatchEvent(new Event("cart:updated"));
+      }
+      return response;
+    };
+
+    const originalOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (...args) {
+      this.addEventListener("load", () => {
+        const url = typeof args[1] === "string" ? args[1] : "";
+        if (url && (url.includes("/cart/add") || url.includes("/cart/change") || url.includes("/cart/update"))) {
+          document.dispatchEvent(new Event("cart:updated"));
+        }
+      });
+      return originalOpen.apply(this, args);
+    };
+  }
+
+  // First paint
+  onCartUpdate();
+}else{
+  document.querySelector('#mini-cart-progress-section').style.display = 'none';
+}
 })();
+
