@@ -2,19 +2,40 @@
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server.js";
 import connectDatabase from "../lib/dbconnect.js";
-import { BxgyConfig } from "../models//bxgyconfig.js";
+import { BxgyConfig } from "../models/bxgyconfig.js";
+
 
 /** GET /api/bxgy?shop=<shop-url> */
+// export const loader = async ({ request }) => {
+//   const url  = new URL(request.url);
+//   const shop = (url.searchParams.get("shop") || "").toLowerCase().trim();
+//   if (!shop) return json({ ok: false, error: "Missing ?shop=<shop-url>" }, { status: 400 });
+
+//   await connectDatabase();
+//   const cfg = await BxgyConfig.findOne({ shopName: shop }).lean();
+
+//   if (!cfg) return json({ ok: false, error: "Not found" }, { status: 404 });
+
+//   return json({ ok: true, data: cfg || null }, { headers: { "Cache-Control": "no-store" } });
+// };
+
 export const loader = async ({ request }) => {
-  const url  = new URL(request.url);
-  const shop = (url.searchParams.get("shop") || "").toLowerCase().trim();
-  if (!shop) return json({ ok: false, error: "Missing ?shop=<shop-url>" }, { status: 400 });
+  const url = new URL(request.url);
+  const shop =
+    (request.headers.get("x-shopify-shop-domain") ||
+      url.searchParams.get("shop") ||
+      "")
+      .toLowerCase()
+      .trim();
+
+  if (!shop) {
+    return json({ ok: false, error: "shop missing" }, { status: 400 });
+  }
 
   await connectDatabase();
   const cfg = await BxgyConfig.findOne({ shopName: shop }).lean();
-  if (!cfg) return json({ ok: false, error: "Not found" }, { status: 404 });
 
-  return json({ ok: true, data: cfg });
+  return json({ ok: true, data: cfg || null }, { headers: { "Cache-Control": "no-store" } });
 };
 
 /** POST /app/bxgy  (body = { enabled, offer:{buyQty,getQty}, messages:{...} }) */
@@ -54,7 +75,7 @@ export const action = async ({ request }) => {
 
   await connectDatabase();
 
-  const saved = await BxgyConfig.findOneAndUpdate(
+  const saved = await BxgyConfig.findOneAndUpdate( 
     { shopName: shop },
     {
       $set: {

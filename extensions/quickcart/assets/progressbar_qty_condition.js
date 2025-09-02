@@ -2,8 +2,8 @@
 let shop = document.querySelector('#shop-primary-url').value;
 async function getbxgy(shop){
   
-    const url = `https://accepts-consult-seven-accordance.trycloudflare.com/app/bxgy?shop=${encodeURIComponent(shop)}`;
-    const response = await fetch(url,{ credentials: "same-origin" });
+    const url = `https://accepts-consult-seven-accordance.trycloudflare.com/app/quickcart/bxgy?shop=${encodeURIComponent(shop)}`;
+    const response = await fetch("url", { credentials: "same-origin" })
 
     if(!response.ok){
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
