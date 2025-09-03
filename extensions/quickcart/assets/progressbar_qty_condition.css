@@ -99,3 +99,12 @@
     height: inherit;
 }
 
+@media(max-width:767px){
+    .reward-progress-step.active p {
+    font-size: 9px;
+
+}
+.reward-progress-step p {
+    font-size: 10px;
+}
+}

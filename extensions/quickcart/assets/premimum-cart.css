@@ -609,11 +609,16 @@ cart-drawer:not(html):not(body),
   visibility: hidden !important;
   pointer-events: none !important;
 }
-
+.discount {
+    font-size: 12px;
+    color: #2ecc71;
+    font-weight: 600;
+}
 aside.cdp-upsell.active {
   animation: vikas 3s ease-in-out;
 }
-
+.buy3get1, .buy3get2{display: none;}
+.p_freeproduct{opacity:0;}
 @keyframes vikas {
   0% {
     bottom: 180%;
@@ -764,7 +769,6 @@ aside.cdp-upsell.active {
 
   .cdp-total-lbl {
     font-size: 13px;
-
   }
 
   .cdp-body {
@@ -833,9 +837,8 @@ html.js.layerup-html {
 }
 
 a.cdp-checkout:hover {
-    color: #fff;
+  color: #fff;
 }
-
 
 /* Global Css Code */
 cart-drawer:not(html):not(body),
@@ -861,6 +864,7 @@ cart-drawer:not(html):not(body),
 .dialog-modal[open]::backdrop {
   display: none;
 }
+
 .cart-drawer__dialog {
   display: none;
 }
