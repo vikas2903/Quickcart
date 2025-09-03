@@ -13,6 +13,7 @@ const API_URL = "/app/quickcart/bxgy";
 /** Gate the page by Shopify admin session; also pass shop in case you want it */
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
+  
   return json({ shop: session.shop });
 };
 
@@ -31,6 +32,13 @@ export default function BuyXGetYPage() {
 }
 
 function BuyXGetYSection({ shop }) {
+
+
+  // ############ READ BXGYCONFIG ############
+
+  
+  // ############ READ BXGYCONFIG ############
+  
   // ---------- FORM STATE ----------
   const [enabled, setEnabled] = useState(true);
   const [buyQty, setBuyQty] = useState("2");

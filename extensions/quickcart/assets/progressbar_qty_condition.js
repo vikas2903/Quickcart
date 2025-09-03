@@ -12,8 +12,12 @@ let progressbar_text_remainingOne = "";
 let progressbar_text_unlocked = "";
 
 // let free_product_text = document.querySelector(".p_buy3get1, .p_buy2get1, .p_buy1get1");
+
+
+
+
 async function getbxgy(shop) {
-  const url = `https://quickcart-68ln.onrender.com/app/quickcart/bxgy`;
+  const url = `https://complete-uh-jpg-theoretical.trycloudflare.com/app/quickcart/bxgy`;
 
   const response = await fetch(url, {
     method: "GET",

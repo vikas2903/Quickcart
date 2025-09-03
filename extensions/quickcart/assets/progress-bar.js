@@ -1,13 +1,64 @@
 
 
-const price_range_one   = 799;
-const price_range_two   = 1499;
-const price_range_three = 2499;
-const enabled = true;
+let price_range_one   = 899;
+let price_range_two   = 1499;
+let price_range_three = 2499;
+// const enabled = true;
 
-const price_range_text_one   = "Extra 5% off on ₹799";
-const price_range_text_two   = "Extra 10% off on ₹1499";
-const price_range_text_three = "Extra 15% off on ₹2499";
+let price_range_text_one   = "Extra 5% off on ₹799";
+let price_range_text_two   = "Extra 10% off on ₹1499";
+let price_range_text_three = "Extra 15% off on ₹2499";
+
+// let price_range_one   = 0;
+// let price_range_two   = 0;
+// let price_range_three = 0;
+
+let enabled_unlock = false;
+
+// let price_range_text_one   = "";
+// let price_range_text_two   = "";
+// let price_range_text_three = "";
+
+let shopNamee = document.querySelector("#shop-primary-url").value;
+
+async function getUnlockPrice(shop){
+  const url_unlock_price = `https://complete-uh-jpg-theoretical.trycloudflare.com/app/quickcart/unlockprice?shop=${shopName}`;
+      const response = await fetch(url_unlock_price, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json", 
+          "X-Shopify-Shop-Domain": shop, 
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const json = await response.json();
+
+      if (json?.ok === false) {
+        throw new Error(json.error || "Endpoint returned error");
+      }
+      const data = json?.data || null;
+      console.log("UnlockPrice data:", data);
+
+      // price_range_one = data?.milestones?.[0]?.price || 0;
+      // price_range_two = data?.milestones?.[1]?.price || 0;
+      // price_range_three = data?.milestones?.[2]?.price || 0;  
+
+      // price_range_text_one   = data?.milestones?.[0]?.text || "";
+      // price_range_text_two   = data?.milestones?.[1]?.text || "";
+      // price_range_text_three = data?.milestones?.[2]?.text || ""; 
+
+      enabled_unlock = data.enabled;
+
+    
+    }
+await getUnlockPrice(shopNamee);
+
+// getUnlockPrice(shopName);
+// console.log("Vikas_Enabled :", enabled_unlock);
 
 
 const progressbar             = document.querySelector(".progress.progress-bar-js-control");
@@ -35,7 +86,7 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
 
 (function () {
 
-  if(enabled) {
+  if(enabled_unlock) {
     document.querySelector('#mini-cart-progress-section').style.display = 'unset';
   
   async function onCartUpdate() {
