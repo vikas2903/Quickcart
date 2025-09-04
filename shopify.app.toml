@@ -3,7 +3,7 @@
 client_id = "ca722b701375746fc3f5405ff1d19521"
 name = "quickcart"
 handle = "quickcart-5"
-application_url = "https://complete-uh-jpg-theoretical.trycloudflare.com"
+application_url = "https://structured-rider-dogs-i.trycloudflare.com"
 embedded = true
 
 [build]
@@ -26,7 +26,7 @@ api_version = "2025-07"
 scopes = "write_products,read_themes,write_themes,read_orders,read_discounts,read_files"
 
 [auth]
-redirect_urls = ["https://complete-uh-jpg-theoretical.trycloudflare.com/auth/callback", "https://complete-uh-jpg-theoretical.trycloudflare.com/auth/shopify/callback", "https://complete-uh-jpg-theoretical.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://structured-rider-dogs-i.trycloudflare.com/auth/callback", "https://structured-rider-dogs-i.trycloudflare.com/auth/shopify/callback", "https://structured-rider-dogs-i.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false

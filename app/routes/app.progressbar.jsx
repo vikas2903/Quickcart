@@ -597,7 +597,7 @@ export default function ProgressBar() {
                 </LegacyCard.Section>
               </LegacyCard>
             </Grid.Cell>
-          </Grid>
+          </Grid>    
         </Layout.Section>
       </Layout>
     </Page>

@@ -94,7 +94,7 @@
                       {% if p.compare_at_price_min > p.price_min %}
                         <span class="cdp-u-compare">{{ p.compare_at_price_min | money_without_trailing_zeros  }}</span>
                       {% endif %}
-                      <span class="cdp-u-final">{{ p.price_min | monemoney_without_trailing_zeros }}</span>
+                      <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
                     </div>
 
                     {% if p.variants.size > 1 %}
@@ -127,7 +127,7 @@
                         disabled
                       {% endunless %}
                     >
-                      {% if has_multiple %}Add Selected{% else %}+ Add{% endif %}
+                      {% if has_multiple %}+ Add{% else %}+ Add{% endif %}
                     </button>
                   </div>
                 </article>
@@ -215,6 +215,81 @@
         </div>
        
           {% render 'gift' giftproduct:block.settings.gift_wrap_product, show_gift_Card: block.setting.show_gift_product %}
+
+<div class="mob_upsell">
+          <aside class="cdp-upsell">
+        <div class="cdp-upsell-head">
+          <span>UpSell</span>
+          <span class="upsell-mob-close-icon" style="display:none;">✕</span>
+          
+        </div>
+
+        <div class="cdp-v-slider" data-v-slider>
+          <div class="cdp-v-track">
+            {% if block.settings.upsell_collection != blank %}
+              {% assign usell = collections[block.settings.upsell_collection] %}
+              {% for p in usell.products limit: 12 %}
+                <article class="cdp-u-card" data-upsell-card>
+                  <div class="cdp-u-media">
+                    <img
+                      loading="lazy"
+                      src="{{ p.featured_image | image_url: width: 200 }}"
+                      alt="{{ p.title | escape }}"
+                      width="200"
+                      height="200"
+                    >
+                  </div>
+                  <div class="cdp-u-info">
+                    <div class="cdp-u-title">{{ p.title | escape | truncate:20  }}</div>
+                    <div class="cdp-u-price">
+                      {% if p.compare_at_price_min > p.price_min %}
+                        <span class="cdp-u-compare">{{ p.compare_at_price_min | money_without_trailing_zeros  }}</span>
+                      {% endif %}
+                      <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
+                    </div>
+
+                    {% if p.variants.size > 1 %}
+                      {% assign has_multiple = true %}
+                    {% else %}
+                      {% assign has_multiple = false %}
+                    {% endif %}
+
+                    <div class="cdp-u-variants">
+                      <select class="cdp-u-select" data-variant-select>
+                        {% for v in p.variants %}
+                          <option
+                            value="{{ v.id }}"
+                            {% unless v.available %}
+                              disabled
+                            {% endunless %}
+                          >
+                            {% if v.title != 'Default Title' %}{{ v.title | escape }} — {% endif -%}
+                            {{- v.price | money -}}
+                            {%- unless v.available %} (Sold out){% endunless %}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <button
+                      class="cdp-u-add"
+                      data-upsell-add
+                      {% unless p.first_available_variant.available %}
+                        disabled
+                      {% endunless %}
+                    >
+                      {% if has_multiple %}+ Add{% else %}+ Add{% endif %}
+                    </button>
+                  </div>
+                </article>
+              {% endfor %}
+            {% else %}
+              <div class="cdp-u-empty">Add an upsell collection in settings</div>
+            {% endif %}
+          </div>
+        </div>
+      </aside>
+      </div>
         
         <!-- Offers applied -->
       </main>

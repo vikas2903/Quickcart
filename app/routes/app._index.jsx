@@ -23,6 +23,11 @@ export const loader = async ({ request }) => {
   const shopName = session.shop;
   const accessToken = session.accessToken;
 
+  // Fetch theme Ids
+  
+  
+  // Fetch Theme Ids
+
   console.log("🔑 Access token for", shopName);
 
   // # Database Connect
@@ -37,18 +42,34 @@ export const loader = async ({ request }) => {
     },
     { upsert: true }                    // 3) OPTIONS: create if it doesn't exist
   );
+
   console.log("✅ Store saved");
   
-
 // Keep host/shop in URLs to avoid OAuth relogin on internal nav
   const url = new URL(request.url);
   const host = url.searchParams.get ("host") ?? "";
   const shop = url.searchParams.get("shop") ?? "";
-  return json({ host, shop });
+
+const getThemeId = await fetch('https://' + shopName + '/admin/api/2023-10/themes.json?role=main', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Access-Token': accessToken,
+    },
+  });
+  const themeData = await getThemeId.json(); 
+  console.log("🎯 Theme data", themeData);
+  const themeIds = themeData.themes.map(theme => theme.id);
+  console.log("🎯 Theme Ids", themeIds); 
+ 
+  return json({ host, shop, themeIds });
 };
 
 export default function Dashboard() {
-  const { host, shop } = useLoaderData();
+  const { host, shop, themeIds } = useLoaderData();
+
+  const storeShort = shop?.replace(".myshopify.com", ""); 
+  const Published_theme_id = themeIds;
 
   // helper to append host/shop to internal links
   const withParams = (path) => {
@@ -67,8 +88,18 @@ export default function Dashboard() {
             <Banner
               tone="warning"
               title="You need to integrate the app into your Shopify theme"
-              action={{ content: "Activate extension in theme", url: withParams("/themes/activate") }}
-              secondaryAction={{ content: "How to use & Customize Progress bar", url: "https://help.shopify.com/en/manual" }}
+            action={{
+              content: "Activate extension in theme",
+              url: withParams(`https://admin.shopify.com/store/${storeShort}/themes/${Published_theme_id}/editor?context=apps`),
+              external: true,  
+              target: "_blank",          
+          }}
+          secondaryAction={{
+            content: "How to use & Customize",
+            url: "https://youtu.be/ojooDuF6UlE?si=LqSznKp4X0N51z_w",
+            external: true,    
+            target: "_blank",          
+          }}
             >
               <p>
                 Your settings are saved. Activate the app in Shopify’s Theme Editor to make it visible on your store.
@@ -123,7 +154,7 @@ export default function Dashboard() {
                   <p className="i-gs-grid-subheading">
                     Activate the app block in Theme Editor to go live.
                   </p>
-                  <Button fullWidth url={withParams("/themes/activate")} variant="primary">
+                  <Button external  target="_blank" fullWidth url={withParams(`https://admin.shopify.com/store/${storeShort}/themes/${Published_theme_id}/editor?context=apps`)} variant="primary">
                     Activate Theme
                   </Button>
                 </LegacyCard>

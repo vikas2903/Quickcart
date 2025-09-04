@@ -3,7 +3,6 @@ let progressbar_qty = document.querySelector(".reward-progress-line .fill");
 let progressbar_qty_text = document.querySelector(".reward-progress-text");
 
 let progressbar_qty_enabled = null;
-
 let progressbar_qty_buyqty = 0;
 let progressbar_qty_getqty = 0;
 
@@ -17,7 +16,7 @@ let progressbar_text_unlocked = "";
 
 
 async function getbxgy(shop) {
-  const url = `https://complete-uh-jpg-theoretical.trycloudflare.com/app/quickcart/bxgy`;
+  const url = `https://quickcart-68ln.onrender.com/app/quickcart/bxgy`;
 
   const response = await fetch(url, {
     method: "GET",
