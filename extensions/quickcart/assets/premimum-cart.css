@@ -6,6 +6,7 @@ html.prevent-scroll body {
 
 #CartDrawerPremium {
   font-family: "Montserrat", sans-serif;
+  overflow: hidden;
 }
 
 :root {
@@ -217,9 +218,10 @@ body.gradient.overflow-hidden {
 
 .cdp-u-media img {
   width: 72px;
-  height: 72px;
+  height: 92px;
   object-fit: cover;
   border-radius: 10px;
+  object-position: top;
 }
 
 .cdp-u-title {
@@ -815,7 +817,7 @@ aside.cdp-upsell.active {
   }
 
   .cdp-body {
-    padding: 1px 2px 70px;
+    padding: 1px 2px 0px;
   }
 
   .cdp-line {
@@ -890,6 +892,7 @@ cart-drawer:not(html):not(body),
     position: static;
     max-width: 100%;
     border-radius: 8px;
+    height: auto;
 }
 
 .mob_upsell{
@@ -904,7 +907,7 @@ cart-drawer:not(html):not(body),
 
 .mob_upsell .cdp-u-media img{
   width: 62px;
-    height: 62px;
+  height: 62px;
 }
 
 .mob_upsell .cdp-u-compare{
@@ -940,4 +943,18 @@ cart-drawer:not(html):not(body),
 /* Handle on hover */
 .cdp-v-track::-webkit-scrollbar-thumb:hover {
   background: var(--bg_color); 
+}
+
+@media(max-width:767px){
+  .mob_upsell .cdp-v-track article.cdp-u-card {
+        flex: 0 0 73%;
+        border: 1px solid var(--bg_color);
+        margin-right: .5rem;
+        border-radius: 5px;
+}
+.mob_upsell {
+    width: 100%;
+    max-width: 95vw;
+    margin-top: 10px;
+}
 }

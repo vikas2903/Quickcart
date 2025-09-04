@@ -17,9 +17,10 @@
 .cdp-u-select{border-radius:var(--border_radius);}
 
 @media(max-width:767px){
+
   .mobile-upsell-btn {
       font-size: 1rem;
-      display:block !important;
+      display:none;
       text-align: center;
       padding: .2rem 0;
       border-top-left-radius: var(--border_radius);
@@ -368,6 +369,8 @@
 <script src="{{ 'premimum-cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progress-bar.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progressbar_qty_condition.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'bxfreeproduct.js' | asset_url }}" defer="defer"></script>
+
 
 {% schema %}
 {

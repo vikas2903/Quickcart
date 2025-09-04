@@ -142,6 +142,20 @@ export default function Dashboard() {
                   <Button fullWidth url={withParams("/app/progressbaron1")}>Setup BxGy</Button>
                 </LegacyCard>
               </Grid.Cell>
+               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                <LegacyCard sectioned>
+                  <img
+                    className="i-gs-img"
+                    src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
+                    alt="Buy X Get Y"
+                  />
+                  <h4 className="i-gs-grid-heading">2. Buy X Get Y</h4>
+                  <p className="i-gs-grid-subheading">
+                    Set Buy/Free quantities and custom messages.
+                  </p>
+                  <Button fullWidth url={withParams("/app/bxfrule")}>Setup BxGy</Button>
+                </LegacyCard>
+              </Grid.Cell>
 
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
@@ -159,6 +173,7 @@ export default function Dashboard() {
                   </Button>
                 </LegacyCard>
               </Grid.Cell>
+          
             </Grid>
           </Layout.Section>
         </Layout>
