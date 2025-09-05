@@ -199,9 +199,9 @@
                   </div>
                   <div class="cdp-line-prices">
                     {% if item.original_line_price > item.final_line_price %}
-                      <span class="cdp-line-compare">{{ item.original_line_price | money }}</span>
+                      <span class="cdp-line-compare">{{ item.original_line_price | money_without_trailing_zeros }}</span>
                     {% endif %}
-                    <span class="cdp-line-final">{{ item.final_line_price | money }}</span>
+                    <span class="cdp-line-final">{{ item.final_line_price | money_without_trailing_zeros }}</span>
                   </div>
                 </div>
               </div>
@@ -308,7 +308,7 @@
                 </div>
                 <p>
                   Subtotal
-                  <span class="sr-sub-total" data-total>{{ cart.total_price | money }}</span>
+                  <span class="sr-sub-total" data-subtotal>{{ cart.total_price | money_without_trailing_zeros }}</span>
                 </p>
                 <p class="" id="sr-cart-shipping-charges-container">
                   Shipping Charges
@@ -371,7 +371,7 @@
         </div>
 
         <div class="cdp-total">
-          <span class="cdp-total-lbl">Total</span>
+          <span id="ds-checkout-btn" class="cdp-total-lbl">Estimated Total <img src="https://pickrr.s3.amazonaws.com/2025-07-28T06:04:01.669652_arrow.png" id="checkout-arrow-image"></span>
           <span class="cdp-total-val" data-total>{{ cart.total_price | money_without_trailing_zeros }}</span>
         </div>
 

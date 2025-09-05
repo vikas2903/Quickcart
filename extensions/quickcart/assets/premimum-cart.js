@@ -1,4 +1,18 @@
 (function () {
+
+//  
+const btn = document.querySelector('#ds-checkout-btn');
+const panel = document.querySelector('.mini-cart-order-summary-content');
+
+if (btn && panel) {
+  btn.addEventListener('click', () => {
+    panel.classList.toggle('active');
+     btn.classList.toggle('active');
+  });
+}
+
+// 
+
   const drawer = document.getElementById("CartDrawerPremium");
   if (!drawer) return;
 
