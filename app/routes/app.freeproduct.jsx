@@ -4,7 +4,7 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server.js";
 import {
-  Page, Layout, Card, BlockStack, Checkbox, TextField, Autocomplete, Button, Banner
+  Page, Layout, Card, BlockStack, Checkbox, TextField, Autocomplete, Button, Banner,
 } from "@shopify/polaris";
 
 export const loader = async ({ request }) => {
@@ -123,7 +123,8 @@ export default function BxgyPage() {
     <Page title="Buy X, Get 1 Free (by product)">
       <Layout>
         <Layout.Section>
-          <Card>
+          
+          <Card >
             <BlockStack gap="400">
               {status && <Banner tone={status.type}>{status.text}</Banner>}
 

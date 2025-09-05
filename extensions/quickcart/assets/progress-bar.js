@@ -80,7 +80,7 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
 
 ( async function () {
 
-  const reponseUnlockOffers = await fetch(`https://incentives-chess-emily-mysimon.trycloudflare.com/app/quickcart/unlockprice?shop=${encodeURIComponent(shopNamee)}`, {
+  const reponseUnlockOffers = await fetch(`https://quickcart-68ln.onrender.com/app/quickcart/unlockprice?shop=${encodeURIComponent(shopNamee)}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -95,7 +95,7 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
     enabled_unlock = false;
   } else {
     const data = jsonUnlockOffers?.data || null;
-    console.log("UnlockPrice data:", data);
+    // console.log("UnlockPrice data:", data);
     enabled_unlock = !!data?.enabled;
 
     price_range_one   = data?.milestones?.[0]?.price ? data.milestones[0].price : 899;

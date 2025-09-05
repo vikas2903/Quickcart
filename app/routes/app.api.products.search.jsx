@@ -23,7 +23,7 @@ export const loader = async ({ request }) => {
   `;
 
   const resp = await admin.graphql(GQL, {
-    variables: { first: limit, cursor, query: queryString },
+    variables: { first: limit, cursor, query: queryString }, 
   });
   const data = await resp.json();
 

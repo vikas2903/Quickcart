@@ -3,7 +3,7 @@
 client_id = "ca722b701375746fc3f5405ff1d19521"
 name = "quickcart"
 handle = "quickcart-5"
-application_url = "https://incentives-chess-emily-mysimon.trycloudflare.com"
+application_url = "https://daniel-listed-kenny-sol.trycloudflare.com"
 embedded = true
 
 [build]
@@ -26,7 +26,7 @@ api_version = "2025-07"
 scopes = "write_products,read_themes,write_themes,read_orders,read_discounts,read_files"
 
 [auth]
-redirect_urls = ["https://incentives-chess-emily-mysimon.trycloudflare.com/auth/callback", "https://incentives-chess-emily-mysimon.trycloudflare.com/auth/shopify/callback", "https://incentives-chess-emily-mysimon.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://daniel-listed-kenny-sol.trycloudflare.com/auth/callback", "https://daniel-listed-kenny-sol.trycloudflare.com/auth/shopify/callback", "https://daniel-listed-kenny-sol.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false

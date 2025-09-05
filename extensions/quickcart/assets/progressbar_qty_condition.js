@@ -16,7 +16,7 @@ let progressbar_text_unlocked = "";
 
 
 async function getbxgy(shop) {
-  const url = `https://incentives-chess-emily-mysimon.trycloudflare.com/app/quickcart/bxgy`;
+  const url = `https://quickcart-68ln.onrender.com/app/quickcart/bxgy`;
 
   const response = await fetch(url, {
     method: "GET",
@@ -47,7 +47,7 @@ async function getbxgy(shop) {
   // console.log("Remaing Many:", bxgyResponse.offer.remainingOne);
   // console.log("Remaing 1", bxgyResponse.messages.unlocked);
 
-  console.log("Backend data", json.data);
+  // console.log("Backend data", json.data);
 
   progressbar_qty_enabled = bxgyResponse.enabled;
   progressbar_qty_buyqty = bxgyResponse.offer.buyQty;

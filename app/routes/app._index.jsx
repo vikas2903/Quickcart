@@ -28,7 +28,7 @@ export const loader = async ({ request }) => {
   
   // Fetch Theme Ids
 
-  console.log("🔑 Access token for", shopName);
+  // console.log("🔑 Access token for", shopName);
 
   // # Database Connect
   await connectDatabase ();
@@ -43,7 +43,7 @@ export const loader = async ({ request }) => {
     { upsert: true }                    // 3) OPTIONS: create if it doesn't exist
   );
 
-  console.log("✅ Store saved");
+  // console.log("✅ Store saved");
   
 // Keep host/shop in URLs to avoid OAuth relogin on internal nav
   const url = new URL(request.url);
@@ -60,7 +60,7 @@ const getThemeId = await fetch('https://' + shopName + '/admin/api/2023-10/theme
   const themeData = await getThemeId.json(); 
   console.log("🎯 Theme data", themeData);
   const themeIds = themeData.themes.map(theme => theme.id);
-  console.log("🎯 Theme Ids", themeIds); 
+  // console.log("🎯 Theme Ids", themeIds); 
  
   return json({ host, shop, themeIds });
 };
@@ -149,11 +149,11 @@ export default function Dashboard() {
                     src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
                     alt="Buy X Get Y"
                   />
-                  <h4 className="i-gs-grid-heading">2. Buy X Get Y</h4>
+                  <h4 className="i-gs-grid-heading">2. Buy X Get Free</h4>
                   <p className="i-gs-grid-subheading">
-                    Set Buy/Free quantities and custom messages.
+                    Buy X Get Free Product
                   </p>
-                  <Button fullWidth url={withParams("/app/bxfrule")}>Setup BxGy</Button>
+                  <Button fullWidth url={withParams("/app/freeproduct")}>Setup BxGy</Button>
                 </LegacyCard>
               </Grid.Cell>
 
