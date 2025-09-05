@@ -945,7 +945,58 @@ cart-drawer:not(html):not(body),
   background: var(--bg_color); 
 }
 
+.mini-cart-order-summary-content {
+    background: #FFFFFF;
+    /* height: min-content; */
+    /* width: 100%; */
+    /* border-top-left-radius: 10px; */
+    border-top-right-radius: 10px;
+}
+.combined-offer-badge {
+    padding: 2px;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    background-color: var(--bg_color);
+    color: #fff;
+    opacity: 1;
+}
+
+.mini-cart-order-summary {
+    background: #FFFFFF;
+    height: max-content;
+    padding: 0px 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.mini-cart-order-summary .summary-heading {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer !important;
+}
+.mini-cart-order-summary .summary-heading {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer !important;
+}
+.mini-cart-order-summary p {
+    display: flex;
+    justify-content: space-between;
+    margin: 1em 0 !important;
+    font-size: 12px !important;
+    line-height: 12px;
+    font-family: "Open Sans", sans-serif !important;
+}
+
+.mob_upsell{display: none;}
 @media(max-width:767px){
+  .mob_upsell{display: block;}
   .mob_upsell .cdp-v-track article.cdp-u-card {
         flex: 0 0 73%;
         border: 1px solid var(--bg_color);
@@ -958,3 +1009,5 @@ cart-drawer:not(html):not(body),
     margin-top: 10px;
 }
 }
+
+

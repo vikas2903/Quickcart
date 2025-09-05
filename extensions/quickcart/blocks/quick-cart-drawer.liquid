@@ -215,7 +215,7 @@
        
         </div>
        
-          {% render 'gift' giftproduct:block.settings.gift_wrap_product, show_gift_Card: block.setting.show_gift_product %}
+          {% render 'gift' giftproduct:block.settings.gift_wrap_product, show_gift_Card: block.settings.show_gift_product %}
 
 <div class="mob_upsell">
           <aside class="cdp-upsell">
@@ -298,6 +298,24 @@
 
 
 <div class="mobile-upsell-btn" style="display:none;">Upsell Products  <span>View</span></div>
+
+<div class="mini-cart-order-summary-content">
+              <!-- Offer Badge -->
+              <div class="combined-offer-badge" id="summary-combined-offer-badge">🎉 Continue to safe checkout 🎉!</div>
+              <div class="mini-cart-order-summary" style="display: block;">
+                <div class="summary-heading" onclick="toggleSmartCartOrderSummary()">
+                  <span class="summary-heading-text">Bill Summary</span>
+                </div>
+                <p>
+                  Subtotal
+                  <span class="sr-sub-total" data-total>{{ cart.total_price | money }}</span>
+                </p>
+                <p class="" id="sr-cart-shipping-charges-container">
+                  Shipping Charges
+                  <span class="sr-cart-shipping-charges">Calculated on checkout</span>
+                </p>
+              </div>
+  </div>
 
     <!-- Bottom checkout bar (fixed) -->
     <footer class="cdp-footer">
@@ -408,6 +426,7 @@
       "label": "Show Gift Product", 
       "default": false 
     },
+    
     {
     "type": "product",
     "id": "gift_wrap_product",

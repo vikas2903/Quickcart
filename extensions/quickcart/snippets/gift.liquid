@@ -10,7 +10,7 @@
   }
 {%- endcomment -%}
 
-
+{% if show_gift_Card %}
 
 {%- assign gw_product = all_products[giftproduct] -%}
 {%- if gw_product and gw_product.variants.size > 0 -%}
@@ -114,4 +114,4 @@
   </script>
 {%- endif -%}
 
-{% if show_gift_Card  %} {% endif %}
+{% endif %}

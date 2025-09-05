@@ -2,7 +2,7 @@ let shop = document.querySelector("#shop-primary-url").value;
 let progressbar_qty = document.querySelector(".reward-progress-line .fill");
 let progressbar_qty_text = document.querySelector(".reward-progress-text");
 
-let progressbar_qty_enabled = null;
+let progressbar_qty_enabled = false;
 let progressbar_qty_buyqty = 0;
 let progressbar_qty_getqty = 0;
 
@@ -16,7 +16,7 @@ let progressbar_text_unlocked = "";
 
 
 async function getbxgy(shop) {
-  const url = `https://quickcart-68ln.onrender.com/app/quickcart/bxgy`;
+  const url = `https://quickcart-68ln.onrender.com/app/quickcart/bxgy`; 
 
   const response = await fetch(url, {
     method: "GET",
@@ -61,8 +61,18 @@ getbxgy(shop);
 
 (function () {
   // Custom function to run when cart updates
+
+  
   async function onCartUpdateQty() {
+    
     try {
+
+      if(progressbar_qty_enabled){
+       document.querySelector(".reward-progress").style.display = "block";
+      }else{
+       document.querySelector(".reward-progress").style.display = "none";
+      }
+      
       const response = await fetch("/cart.js");
       const cart = await response.json();
       // console.log("onCartUpdateQty--:", cart);
