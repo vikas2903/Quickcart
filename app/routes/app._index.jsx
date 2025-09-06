@@ -24,8 +24,8 @@
 //   const accessToken = session.accessToken;
 
 //   // Fetch theme Ids
-  
-  
+
+
 //   // Fetch Theme Ids
 
 //   // console.log("🔑 Access token for", shopName);
@@ -44,7 +44,7 @@
 //   );
 
 //   // console.log("✅ Store saved");
-  
+
 // // Keep host/shop in URLs to avoid OAuth relogin on internal nav
 //   const url = new URL(request.url);
 //   const host = url.searchParams.get ("host") ?? "";
@@ -61,7 +61,7 @@
 //   console.log("🎯 Theme data", themeData);
 //   const themeIds = themeData.themes.map(theme => theme.id);
 //   // console.log("🎯 Theme Ids", themeIds); 
- 
+
 //   return json({ host, shop, themeIds });
 // };
 
@@ -173,7 +173,7 @@
 //                   </Button>
 //                 </LegacyCard>
 //               </Grid.Cell>
-          
+
 //             </Grid>
 //           </Layout.Section>
 //         </Layout>
@@ -186,7 +186,7 @@
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import "./assests/style.css";
-import { Page, Layout, BlockStack, Banner, Grid, LegacyCard, Button } from "@shopify/polaris";
+import { Page, Layout, BlockStack, Banner, Grid, LegacyCard, Button, Box } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 
@@ -277,6 +277,30 @@ export default function Dashboard() {
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
+            <div style={{ marginBottom: 16 }}>
+              <Box marginBlockEnd="400">
+                <Banner
+                  tone="info"
+                  title="Need help?"
+                  action={{
+                    content: "Support",
+                    url: withParams(`/app/help`),
+                    external: true, // opens in new tab
+                  }}
+                  secondaryAction={{
+                    content: "How to use & Customize",
+                    url: "https://youtu.be/ojooDuF6UlE?si=LqSznKp4X0N51z_w",
+                   external: true,
+                target: "_blank",
+                  }}
+                >
+                  <p> 
+                    If you have any questions or encounter errors while using this app, email{" "}
+                    <a href="mailto:support@digisidekick.com">support@digisidekick.com</a>.
+                  </p>
+                </Banner>
+              </Box>
+            </div>
             <Banner
               tone="warning"
               title="You need to integrate the app into your Shopify theme"
@@ -300,7 +324,7 @@ export default function Dashboard() {
           </Layout.Section>
 
           <Layout.Section>
-            <h4 className="i-gs-section-title">Get Started</h4>
+            <h4 className="i-gs-section-title">PROGRESS BAR WIDGETS</h4>
 
             <Grid>
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
@@ -331,7 +355,7 @@ export default function Dashboard() {
                 </LegacyCard>
               </Grid.Cell>
 
-              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+              {/* <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
@@ -342,7 +366,7 @@ export default function Dashboard() {
                   <p className="i-gs-grid-subheading">Buy X Get Free Product</p>
                   <Button fullWidth url={withParams("/app/freeproduct")}>Setup BxGy</Button>
                 </LegacyCard>
-              </Grid.Cell>
+              </Grid.Cell> */}
 
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>

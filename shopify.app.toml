@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "ca722b701375746fc3f5405ff1d19521"
-name = "quickcart"
+name = "Upcart"
 handle = "quickcart-5"
-application_url = "https://expect-shepherd-gmt-tyler.trycloudflare.com"
+application_url = "https://chat-informative-james-duties.trycloudflare.com"
 embedded = true
 
 [build]
@@ -26,7 +26,7 @@ api_version = "2025-07"
 scopes = "write_products,read_themes,write_themes,read_orders,read_discounts,read_files"
 
 [auth]
-redirect_urls = ["https://expect-shepherd-gmt-tyler.trycloudflare.com/auth/callback", "https://expect-shepherd-gmt-tyler.trycloudflare.com/auth/shopify/callback", "https://expect-shepherd-gmt-tyler.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://chat-informative-james-duties.trycloudflare.com/auth/callback", "https://chat-informative-james-duties.trycloudflare.com/auth/shopify/callback", "https://chat-informative-james-duties.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
