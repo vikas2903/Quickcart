@@ -193,108 +193,6 @@ import { authenticate } from "../shopify.server";
 import connectDatabase from "../lib/dbconnect.js";
 import { Store } from "../models/storemodal.js";
 
-
-
-
-export const loader = async ({ request }) => {
-  const { admin, session } = await authenticate.admin(request);
-  const shopName = session.shop;
-  const accessToken = session.accessToken;
-
-  await connectDatabase();
-  await Store.updateOne(
-    { shopName },
-    {
-      $set: { accessToken, uninstalledAt: null },
-      $setOnInsert: { installedAt: new Date() },
-      $currentDate: { updatedAt: true },
-    },
-    { upsert: true }
-  );
-
-  const storeDoc = await Store.findOne({ shopName }).lean();
-
-  console.log("storeDoc",storeDoc); 
-const installedAtRaw =
-  storeDoc?.installedAt ??           // prefer the time you saved on first install
-  storeDoc?.createdAt ??             // fallback if your schema has timestamps
-  null;
-
-  let count = 0;
-  if (installedAtRaw) {
-const sinceISO = installedAtRaw
-  ? new Date(installedAtRaw).toISOString()
-  : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(); // last 30 days
-const q = `status:any created_at:>=${sinceISO}`;
-
-    const GQL = `
-      query ordersCount($q: String) {
-        ordersCount(query: $q)
-      }
-    `;
- 
-    try {
-      // ✅ Use Shopify admin client (handles tokens & API version)
-      const resp = await admin.graphql(GQL, { variables: { q } });
-      const data = await resp.json(); 
-
-      console.log("datttttttttttttttttttta", data)
-
-      if (data?.errors) {
-        console.error("ordersCount GraphQL errors:", data.errors);
-      } else {
-        count = data?.data?.ordersCount ?? 0;
-      }
-    } catch (err) {
-      console.error("ordersCount request failed:", err);
-    }
-  }
-
-  // ---- rest of your code unchanged ----
-  const url = new URL(request.url);
-  const host = url.searchParams.get("host") ?? "";
-  const shop = url.searchParams.get("shop") ?? "";
-
-  const api = `https://${shopName}/admin/api/2023-10`;
-  const headers = {
-    "Content-Type": "application/json",
-    "X-Shopify-Access-Token": accessToken,
-  };
-
-  let themes = [];
-  let mainThemeId = null;
-
-  try {
-    const res = await fetch(`${api}/themes.json?role=main`, { method: "GET", headers });
-    const data = await res.json();
-    const arr = Array.isArray(data?.themes) ? data.themes : [];
-    if (arr.length) {
-      themes = arr;
-      mainThemeId = arr[0]?.id ?? null;
-    }
-  } catch (e) {
-    console.warn("Themes (role=main) fetch failed:", e);
-  }
-
-  if (!mainThemeId) {
-    try {
-      const resAll = await fetch(`${api}/themes.json`, { method: "GET", headers });
-      const dataAll = await resAll.json();
-      const arrAll = Array.isArray(dataAll?.themes) ? dataAll.themes : [];
-      themes = arrAll;
-      const main = arrAll.find((t) => t.role === "main") || arrAll.find((t) => t.role === "live") || arrAll[0];
-      mainThemeId = main?.id ?? null;
-    } catch (e) {
-      console.warn("Themes (all) fetch failed:", e);
-    }
-  }
-
-  const themeIds = themes.map((t) => t.id).filter(Boolean);
-
-  return json({ host, shop, mainThemeId, themeIds, count });
-};
-
-
 // export const loader = async ({ request }) => {
 //   const { session } = await authenticate.admin(request);
 //   const shopName = session.shop;
@@ -315,49 +213,53 @@ const q = `status:any created_at:>=${sinceISO}`;
 
 //   const storeDoc = await Store.findOne({ shopName: shopName }).lean();
 //   const installedAt = storeDoc?.installedAt || storeDoc?.createdAt;
-//   let sinceInstalled = new Date(installedAt).toISOString();
-//   let search = `status:any created_at=${sinceInstalled}`;
+//   let sinceFromDB  = new Date(installedAt).toISOString();
 
+//   const sinceISO = new Date(sinceFromDB).toISOString().replace(/\.\d{3}Z$/, "Z");
 
-//   // Call graphql Admin Api
-//   const endpoint = `https://${shopName}/admin/api/2023-10/graphql.json`;
+//   console.log("vikasssss",sinceISO);
 
-//   const query = ` query OrdersCount($q, String){
-//     ordersCount(query: $q)
-//   }`;
-
-//   const responseGraphql =  await fetch(endpoint, {
-//      method:"POST",
-//      headers:{
-//        "X-Shopify-Access-Token":accessToken,
-//       "Accept":"application/json",
-//      },
-//      body :JSON.stringify({query, variables: {q:search}})
-//     });
- 
-//     const graphqlOrderData = responseGraphql.json();
-
-//     console.log("avfffffffbzgx", graphqlOrderData);
-//     if(!responseGraphql.ok || graphqlOrderData.errors){
-//       console.error("Graphal ordersCount error :",graphqlOrderData.error  || graphqlOrderData );
-
-//       return json({shopName, installedAt: null, count:0});
+//    const query = `#graphql
+//     query OrdersAfterCount($q: String!) {
+//       ordersCount(query: $q) { count }
 //     }
+//   `;
+   
+//    const variables = {
+//     q: `created_at:>=${sinceISO} status:any`,
+//   };
 
-//     const count  = graphqlOrderData?.data?.ordersCount ?? 0
+//     const API_VERSION = "2025-07"; // adjust if you prefer a different stable version
+//   const endpoint = `https://${session.shop}/admin/api/${API_VERSION}/graphql.json`;
 
-  
-//   // const body = await resp.json();
-//   // if (!resp.ok || body.errors) {
-//   //   console.error("GraphQL ordersCount error:", body.errors || body);
-//   //   // graceful fallback
-//   //   return json({ shop, installedAt: sinceISO, count: 0 });
-//   // }
+//   const res = await fetch(endpoint, {
+//     method: "POST",
+//     headers: {
+//       "X-Shopify-Access-Token": session.accessToken,
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ query, variables }),
+//   });
 
-//   // const count = body?.data?.ordersCount ?? 0;
+//     const payload = await res.json();
+//   if (payload.errors) {
+//     return new Response(
+//       JSON.stringify({ error: payload.errors, sinceISO }),
+//       { status: 500, headers: { "Content-Type": "application/json" } }
+//     );
+//   }
+
+//   const count = payload?.data?.ordersCount?.count ?? 0;
+
+//   if(count){
+//       return new Response(
+//         JSON.stringify({ count, sinceISO }),
+//         { headers: { "Content-Type": "application/json" } }
+//   );
+//   }
 
 
-
+//   console.log("cdgfxbgvecdscfvg", count);
 //   // Keep host/shop in URLs to avoid OAuth relogin on internal nav
 //   const url = new URL(request.url);
 //   const host = url.searchParams.get("host") ?? "";
@@ -403,12 +305,128 @@ const q = `status:any created_at:>=${sinceISO}`;
 //   // Always return consistent shapes
 //   const themeIds = themes.map((t) => t.id).filter(Boolean);
 
-//   return json({ host, shop, mainThemeId, themeIds, count });
+//   return json({ host, shop, mainThemeId, themeIds });
 // };
 
-export default function Dashboard() {
-  const { host, shop, mainThemeId, count } = useLoaderData();
+export const loader = async ({ request }) => {
+  const { session } = await authenticate.admin(request);
+  const shopName = session.shop;
+  const accessToken = session.accessToken;
 
+  // DB upsert to handle Shopify app installation info
+  await connectDatabase();
+  await Store.updateOne(
+    { shopName },
+    {
+      $set: { accessToken, uninstalledAt: null },
+      $setOnInsert: { installedAt: new Date() },
+      $currentDate: { updatedAt: true },
+    },
+    { upsert: true }
+  );
+
+  // Fetch store data to get the installedAt date
+  const storeDoc = await Store.findOne({ shopName: shopName }).lean();
+  const installedAt = storeDoc?.installedAt || storeDoc?.createdAt;
+  let sinceFromDB = new Date(installedAt).toISOString();
+
+  const sinceISO = new Date(sinceFromDB).toISOString().replace(/\.\d{3}Z$/, "Z");
+
+  console.log("Since ISO from DB:", sinceISO);
+
+  // GraphQL query for orders count since the installation date
+  const query = `#graphql
+    query OrdersAfterCount($q: String!) {
+      ordersCount(query: $q) { count }
+    }
+  `;
+
+  const variables = {
+    q: `created_at:>=${sinceISO} status:any`, // Filter orders created after the 'installedAt' date
+  };
+
+  const API_VERSION = "2025-07"; // Adjust this if necessary
+  const endpoint = `https://${session.shop}/admin/api/${API_VERSION}/graphql.json`;
+
+  // Make the GraphQL request to Shopify Admin API
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "X-Shopify-Access-Token": session.accessToken,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  const payload = await res.json();
+  if (payload.errors) {
+    return new Response(
+      JSON.stringify({ error: payload.errors, sinceISO }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // Get the count from the response data
+  const count = payload?.data?.ordersCount?.count ?? 0;
+
+  // If count is valid, return it in the response
+  if (count) {
+    return new Response(
+      JSON.stringify({ count, sinceISO }),
+      { headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // If count is not found, continue to handle theme fetch logic (this part unchanged)
+  const url = new URL(request.url);
+  const host = url.searchParams.get("host") ?? "";
+  const shop = url.searchParams.get("shop") ?? "";
+
+  // ---- Fetch main theme safely ----
+  const api = `https://${shopName}/admin/api/2023-10`;
+  const headers = {
+    "Content-Type": "application/json",
+    "X-Shopify-Access-Token": accessToken,
+  };
+
+  let themes = [];
+  let mainThemeId = null;
+
+  try {
+    const res = await fetch(`${api}/themes.json?role=main`, { method: "GET", headers });
+    const data = await res.json();
+    const arr = Array.isArray(data?.themes) ? data.themes : [];
+    if (arr.length) {
+      themes = arr;
+      mainThemeId = arr[0]?.id ?? null;
+    }
+  } catch (e) {
+    console.warn("Themes (role=main) fetch failed:", e);
+  }
+
+  // Fallback: fetch all themes and pick main/live/first
+  if (!mainThemeId) {
+    try {
+      const resAll = await fetch(`${api}/themes.json`, { method: "GET", headers });
+      const dataAll = await resAll.json();
+      const arrAll = Array.isArray(dataAll?.themes) ? dataAll.themes : [];
+      themes = arrAll;
+      const main = arrAll.find((t) => t.role === "main") || arrAll.find((t) => t.role === "live") || arrAll[0];
+      mainThemeId = main?.id ?? null;
+    } catch (e) {
+      console.warn("Themes (all) fetch failed:", e);
+    }
+  }
+
+  // Always return consistent shapes
+  const themeIds = themes.map((t) => t.id).filter(Boolean);
+
+  return json({ host, shop, mainThemeId, themeIds , });
+};
+export default function Dashboard() {
+  const { host, shop, mainThemeId } = useLoaderData();
+  const data = useLoaderData();
+  const { count, sinceISO } = data;
   const storeShort = (shop || "").replace(".myshopify.com", "");
 
   // helper to append host/shop to internal links
@@ -470,11 +488,12 @@ export default function Dashboard() {
               <p>Your settings are saved. Activate the app in Shopify’s Theme Editor to make it visible on your store.</p>
             </Banner>
           </Layout.Section>
-
+ 
           <Layout.Section>
+          <h4 className="i-gs-section-title">ORDERS ANALYTICS</h4>
             <Grid>
               <Grid.Cell columnSpan={{xs:12, sm:12, md:4, lg:4, xl:4}}>
-                <LegacyCard sectioned> <h4>{`${count}`}</h4>  Orders</LegacyCard>
+                <LegacyCard sectioned>{count.toLocaleString()}</LegacyCard>
               </Grid.Cell>
                 <Grid.Cell columnSpan={{xs:12, sm:12, md:4, lg:4, xl:4}}>
                 <LegacyCard sectioned></LegacyCard>
