@@ -186,10 +186,10 @@
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import "./assests/style.css";
-import { Page, Layout, BlockStack, Banner, Grid, LegacyCard, Button, Box } from "@shopify/polaris";
+import { Page, Layout, BlockStack, Banner, Grid, LegacyCard, Button, Box, Link } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-
+import { useState } from "react";
 import connectDatabase from "../lib/dbconnect.js";
 import { Store } from "../models/storemodal.js";
 
@@ -313,7 +313,7 @@ export const loader = async ({ request }) => {
   const shopName = session.shop;
   const accessToken = session.accessToken;
 
-  // DB upsert to handle Shopify app installation info
+  // DB upsert
   await connectDatabase();
   await Store.updateOne(
     { shopName },
@@ -325,34 +325,36 @@ export const loader = async ({ request }) => {
     { upsert: true }
   );
 
-  // Fetch store data to get the installedAt date
-  const storeDoc = await Store.findOne({ shopName: shopName }).lean();
+  const storeDoc = await Store.findOne({ shopName }).lean();
   const installedAt = storeDoc?.installedAt || storeDoc?.createdAt;
-  let sinceFromDB = new Date(installedAt).toISOString();
+  const sinceISO = new Date(installedAt).toISOString().replace(/\.\d{3}Z$/, "Z");
 
-  const sinceISO = new Date(sinceFromDB).toISOString().replace(/\.\d{3}Z$/, "Z");
-
-  console.log("Since ISO from DB:", sinceISO);
-
-  // GraphQL query for orders count since the installation date
+  // GraphQL query with aliases
   const query = `#graphql
-    query OrdersAfterCount($q: String!) {
-      ordersCount(query: $q) { count }
+    query OrdersData($since: String!, $today: String!) {
+      totalOrders: ordersCount(query: $since) { count }
+      totalOrdersList: orders(first: 250, query: $since) {
+        edges { node { totalPrice } }
+      }
+      todayOrders: ordersCount(query: $today) { count }
+      todayOrdersList: orders(first: 250, query: $today) {
+        edges { node { totalPrice } }
+      }
     }
   `;
 
   const variables = {
-    q: `created_at:>=${sinceISO} status:any`, // Filter orders created after the 'installedAt' date
+    since: `created_at:>=${sinceISO} status:any`,
+    today: `created_at:>=${new Date().toISOString().slice(0, 10)} status:any`,
   };
 
-  const API_VERSION = "2025-07"; // Adjust this if necessary
-  const endpoint = `https://${session.shop}/admin/api/${API_VERSION}/graphql.json`;
+  const API_VERSION = "2025-07";
+  const endpoint = `https://${shopName}/admin/api/${API_VERSION}/graphql.json`;
 
-  // Make the GraphQL request to Shopify Admin API
   const res = await fetch(endpoint, {
     method: "POST",
     headers: {
-      "X-Shopify-Access-Token": session.accessToken,
+      "X-Shopify-Access-Token": accessToken,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ query, variables }),
@@ -366,18 +368,20 @@ export const loader = async ({ request }) => {
     );
   }
 
-  // Get the count from the response data
-  const count = payload?.data?.ordersCount?.count ?? 0;
+  // Extract data
+  const totalOrders = payload?.data?.totalOrders?.count ?? 0;
+  const totalAmount = payload?.data?.totalOrdersList?.edges.reduce(
+    (acc, { node }) => acc + parseFloat(node.totalPrice),
+    0
+  );
 
-  // If count is valid, return it in the response
-  if (count) {
-    return new Response(
-      JSON.stringify({ count, sinceISO }),
-      { headers: { "Content-Type": "application/json" } }
-    );
-  }
+  const todayCount = payload?.data?.todayOrders?.count ?? 0;
+  const todayAmount = payload?.data?.todayOrdersList?.edges.reduce(
+    (acc, { node }) => acc + parseFloat(node.totalPrice),
+    0
+  );
 
-  // If count is not found, continue to handle theme fetch logic (this part unchanged)
+  // Theme logic (unchanged)
   const url = new URL(request.url);
   const host = url.searchParams.get("host") ?? "";
   const shop = url.searchParams.get("shop") ?? "";
@@ -392,42 +396,126 @@ export const loader = async ({ request }) => {
   let themes = [];
   let mainThemeId = null;
 
+  // Try role=main first
   try {
     const res = await fetch(`${api}/themes.json?role=main`, { method: "GET", headers });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    
     const data = await res.json();
+    console.log("🎯 Main theme API response:", data);
+    
     const arr = Array.isArray(data?.themes) ? data.themes : [];
     if (arr.length) {
       themes = arr;
       mainThemeId = arr[0]?.id ?? null;
+      console.log("✅ Found main theme ID:", mainThemeId);
+    } else {
+      console.warn("⚠️ No themes found in main role response");
     }
   } catch (e) {
-    console.warn("Themes (role=main) fetch failed:", e);
+    console.warn("❌ Themes (role=main) fetch failed:", e.message);
   }
 
   // Fallback: fetch all themes and pick main/live/first
   if (!mainThemeId) {
     try {
+      console.log("🔄 Fallback: Fetching all themes...");
       const resAll = await fetch(`${api}/themes.json`, { method: "GET", headers });
+      
+      if (!resAll.ok) {
+        throw new Error(`HTTP ${resAll.status}: ${resAll.statusText}`);
+      }
+      
       const dataAll = await resAll.json();
+      console.log("🎯 All themes API response:", dataAll);
+      
       const arrAll = Array.isArray(dataAll?.themes) ? dataAll.themes : [];
       themes = arrAll;
-      const main = arrAll.find((t) => t.role === "main") || arrAll.find((t) => t.role === "live") || arrAll[0];
+      
+      const main = arrAll.find((t) => t.role === "main") || 
+                   arrAll.find((t) => t.role === "live") || 
+                   arrAll[0];
       mainThemeId = main?.id ?? null;
+      
+      if (mainThemeId) {
+        console.log("✅ Found fallback theme ID:", mainThemeId, "with role:", main?.role);
+      } else {
+        console.warn("⚠️ No suitable theme found in fallback");
+      }
     } catch (e) {
-      console.warn("Themes (all) fetch failed:", e);
+      console.warn("❌ Themes (all) fetch failed:", e.message);
     }
   }
-
+ 
   // Always return consistent shapes
   const themeIds = themes.map((t) => t.id).filter(Boolean);
 
-  return json({ host, shop, mainThemeId, themeIds , });
-};
+  // Graphql query for get curecny code 
+
+  const shopRes = await fetch(`https://${shopName}/admin/api/${API_VERSION}/shop.json`, {
+    method: "GET",
+    headers: { 
+      "X-Shopify-Access-Token": accessToken,
+      "Content-Type": "application/json",
+    },
+  });
+  
+  const shopData = await shopRes.json();
+  console.log("shopData",shopData);
+  const currency = shopData?.shop?.currency || "USD";
+
+
+  const currencySymbolMap = {
+    "INR": "₹",
+    "USD": "$",
+    "EUR": "€",
+    "GBP": "£",
+    "AUD": "A$",
+    "CAD": "C$",
+    "JPY": "¥",
+    "SGD": "S$",
+  };
+
+  const currencySymbol  = currencySymbolMap[currency] || currency
+
+
+  // Combine order data with theme data
+  return json({ 
+    host, 
+    shop, 
+    mainThemeId, 
+    themeIds,
+    totalOrders,
+    totalAmount,
+    todayCount,
+    todayAmount,
+    sinceISO,
+    currency,
+    currencySymbol
+  });
+
+}; 
+
+
 export default function Dashboard() {
-  const { host, shop, mainThemeId } = useLoaderData();
   const data = useLoaderData();
-  const { count, sinceISO } = data;
+  const { 
+    host, 
+    shop, 
+    mainThemeId, 
+    themeIds,currency,currencySymbol,
+    totalOrders = 0, 
+    totalAmount = 0, 
+    todayCount = 0, 
+    todayAmount = 0 
+  } = data;
   const storeShort = (shop || "").replace(".myshopify.com", "");
+
+  const [dismiss, setDismiss] = useState(true);
+  const [dismiss1, setDismiss1] = useState(true);
 
   // helper to append host/shop to internal links
   const withParams = (path) => {
@@ -443,12 +531,13 @@ export default function Dashboard() {
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
-            <div style={{ marginBottom: 16 }}>
+            {dismiss?<div style={{ marginBottom: 16 }}>
               <Box marginBlockEnd="400">
                 <Banner
                   tone="info"
                   title="Need help?"
-                  action={{
+                  onDismiss={() => {setDismiss(false)}} 
+                  action={{ 
                     content: "Support",
                     url: withParams(`/app/help`),
                     external: true, // opens in new tab
@@ -466,10 +555,13 @@ export default function Dashboard() {
                   </p>
                 </Banner>
               </Box>
-            </div>
-            <Banner
+            </div> : false }
+             
+
+            {dismiss1?     <Banner
               tone="warning"
               title="You need to integrate the app into your Shopify theme"
+              onDismiss={() => {setDismiss1(false)}}
               action={{
                 content: "Activate extension in theme",
                 url: withParams(
@@ -486,26 +578,50 @@ export default function Dashboard() {
               }}
             >
               <p>Your settings are saved. Activate the app in Shopify’s Theme Editor to make it visible on your store.</p>
-            </Banner>
+            </Banner> : false}
+        
           </Layout.Section>
  
           <Layout.Section>
-          <h4 className="i-gs-section-title">ORDERS ANALYTICS</h4>
+          <h4 className="i-gs-section-title">Orders Analytics</h4>
             <Grid>
-              <Grid.Cell columnSpan={{xs:12, sm:12, md:4, lg:4, xl:4}}>
-                <LegacyCard sectioned>{count.toLocaleString()}</LegacyCard>
+              <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
+                <LegacyCard sectioned> 
+                  <div className="order-analytics-wrapper">
+                    <h5>{totalOrders.toLocaleString()}</h5>
+                    <p>Total Orders</p>
+                  </div>
+                </LegacyCard>
               </Grid.Cell>
-                <Grid.Cell columnSpan={{xs:12, sm:12, md:4, lg:4, xl:4}}>
-                <LegacyCard sectioned></LegacyCard>
+                <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
+                <LegacyCard sectioned>
+                  <div className="order-analytics-wrapper">
+                    <h5><span className="curecnySymbol">{currencySymbol? currencySymbol : currency}</span>{totalAmount.toLocaleString()}</h5>
+                    <p>Total Amount</p>
+                  </div>
+                </LegacyCard>
               </Grid.Cell>
-                <Grid.Cell columnSpan={{xs:12, sm:12, md:4, lg:4, xl:4}}>
-                <LegacyCard sectioned></LegacyCard>
+                <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
+                  <LegacyCard sectioned>
+                  <div className="order-analytics-wrapper">
+                    <h5>{todayCount.toLocaleString()}</h5>
+                    <p>Today Orders</p>
+                  </div>
+                  </LegacyCard>
+              </Grid.Cell>
+              <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
+                <LegacyCard sectioned> 
+                <div className="order-analytics-wrapper">
+                    <h5><span className="curecnySymbol">{currencySymbol? currencySymbol : currency}</span>{todayAmount.toLocaleString()}</h5>
+                    <p>Today Amount</p>
+                  </div>
+                </LegacyCard>
               </Grid.Cell>
             </Grid>
           </Layout.Section>
 
           <Layout.Section>
-            <h4 className="i-gs-section-title">PROGRESS BAR WIDGETS</h4>
+            <h4 className="i-gs-section-title">Progress bar Widgets </h4>
 
             <Grid>
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
@@ -570,6 +686,23 @@ export default function Dashboard() {
                     Activate Theme
                   </Button>
                 </LegacyCard>
+              </Grid.Cell>
+            </Grid>
+          </Layout.Section>
+
+         
+          <Layout.Section>
+             <h4 className="i-gs-section-title">More Apps</h4>
+            <Grid>
+              <Grid.Cell columnSpan={{xs:6, s:6, lg:6, xl:6, md:6}}>
+
+                <Link target="_blank" external={true} removeUnderline url="https://apps.shopify.com/ds-app-1?search_id=bb94724f-1aa5-4b60-9aeb-8ebc81c88ee7&surface_detail=layerup&surface_inter_position=1&surface_intra_position=1&surface_type=search">
+                <LegacyCard sectioned>
+                  
+                  <img style={{display:'block', objectFit:'contain'}}  width="100%" height="100%" src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/6c7448dc-b797-4cbf-8fe0-d4f8c51de8ac.png?v=1757319426" alt="" />
+                  </LegacyCard>  
+                </Link>
+
               </Grid.Cell>
             </Grid>
           </Layout.Section>

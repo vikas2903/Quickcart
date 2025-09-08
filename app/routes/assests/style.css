@@ -22,3 +22,26 @@
     font-size: 18px;
     font-weight: 500;
 }
+
+
+.order-analytics-wrapper h5 {
+    text-align: center;
+    font-size: 2rem;
+}
+
+.order-analytics-wrapper {
+    line-height: 2;
+}
+
+.order-analytics-wrapper p {
+    text-align: center;
+    font-size: .9rem;
+    opacity: .8;
+    text-transform: capitalize;
+}
+
+span.curecnySymbol {
+    padding: .1rem .2rem .1rem .1rem;
+    font-size: 1.9rem;
+    opacity: .9;
+}
