@@ -157,7 +157,8 @@ export const action = async ({ request }) => {
     ? body.buyProductIds
     : Array.isArray(body.buyProductdIds)
     ? body.buyProductdIds
-    : [];
+    : []
+    ;
   const buyProductIds = incomingBuyIds.filter(Boolean).map(String);
 
   const freeProductId = String(body.freeProductId || "");
@@ -195,3 +196,5 @@ export const action = async ({ request }) => {
     );
   }
 };
+
+

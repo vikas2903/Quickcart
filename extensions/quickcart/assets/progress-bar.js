@@ -98,6 +98,8 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
     // console.log("UnlockPrice data:", data);
     enabled_unlock = !!data?.enabled;
 
+    
+
     price_range_one   = data?.milestones?.[0]?.price ? data.milestones[0].price : 899;
     price_range_two   = data?.milestones?.[1]?.price ? data.milestones[1].price : 1499;
     price_range_three =   data?.milestones?.[2]?.price ? data.milestones[2].price : 2499;

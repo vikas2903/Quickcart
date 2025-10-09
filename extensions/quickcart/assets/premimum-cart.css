@@ -181,6 +181,7 @@ body.gradient.overflow-hidden {
   padding: 6px 4px 8px;
 }
 
+
 .cdp-v-ctrls {
   display: flex;
   gap: 4px;
@@ -548,6 +549,49 @@ span.cdp-total-val {
   text-align: center;
   text-transform: uppercase;
 }
+
+/* Third party integration checkout btn */
+#third-party-integration::before, button#third-party-integration::after {
+    display: none;
+}
+#third-party-integration {
+    align-items: center;
+    color: #fff;
+    padding: 10px 16px;
+    text-decoration: none;
+    font-weight: 500;
+    display: block;
+    width: 100%;
+    flex: 0 0 75%;
+    text-align: center;
+    text-transform: uppercase;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+span.pay-opt-icon {
+    display: inline;
+    align-items: center;
+    justify-content: center;
+}
+
+span.pay-opt-icon img {
+    display: inline-block;
+    width: max-content;
+    height: -webkit-fill-available;
+    max-width: 54px;
+}
+
+span.pay-opt-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
 img#checkout-arrow-image {
     width: 10px;
     margin-left: 0px;
@@ -693,6 +737,8 @@ aside.cdp-upsell.active {
 }
 
 @media (max-width: 920px) {
+
+ #third-party-integration{flex: 0 0 65%;}
   .cdp-panel {
     width: 100%;
     max-width: 98%;
@@ -1028,6 +1074,10 @@ span.summary-heading-text {
 .cdp-total-lbl.active img {
     transform: rotate(180deg);
     transition: all .4s ease;
+}
+
+.discounted-value {
+    color: green;
 }
 
 @media (max-width: 767px) {

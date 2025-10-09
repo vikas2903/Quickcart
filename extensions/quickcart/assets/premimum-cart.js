@@ -1,5 +1,16 @@
 (function () {
 
+ 
+  // convert price to currency
+  function convertToCurrency(price, currencyCode) {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: currencyCode
+  }).format(price);
+}
+
+
+
 //  
 const btn = document.querySelector('#ds-checkout-btn');
 const panel = document.querySelector('.mini-cart-order-summary-content');
@@ -204,8 +215,29 @@ if (btn && panel) {
   const refreshUI = () => fetchCart().then((cart) => {
     renderLines(cart);
     renderTotals(cart);
+    // console.log("cart:update", cart);
+   freegiftproduct(cart);
+   function freegiftproduct(cart){
+    console.log("cart data at freegiftproduct function", cart);
+    const cart_total_price = cart?.total_price / 100;
+    console.log("cart total price", cart_total_price);
+  }
 
-    console.log("cartt", cart);
+
+
+    let cart_level_discount_applications = cart?.cart_level_discount_applications[0]?.title;
+    let total_discount = cart?.total_discount / 100;
+    let total_discount_formated_price = convertToCurrency(total_discount, cart?.currency);
+
+    let discountEl = `Discount applied
+                   <span class="discounted-value">-${total_discount_formated_price}</span>`;
+    if(cart_level_discount_applications){
+      document.querySelector('.discount-applied-at-cartdrawer').innerHTML = discountEl;
+      document.querySelector('.discount-applied-at-cartdrawer').style.display = 'flex';
+    } else {
+      document.querySelector('.discount-applied-at-cartdrawer').style.display = 'none';
+    }
+    
   });
 
   fetchCart().then((cart) => renderTotals(cart));
