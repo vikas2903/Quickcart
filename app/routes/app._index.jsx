@@ -631,7 +631,7 @@ export default function Dashboard() {
                     src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
                     alt="Unlock Offers"
                   />
-                  <h4 className="i-gs-grid-heading">1. Create Progress Bar</h4>
+                  <h4 className="i-gs-grid-heading"> Get  discounts  </h4>
                   <p className="i-gs-grid-subheading">Configure milestones based on cart total or product price.</p>
                   <Button fullWidth url={withParams("/app/progressbar")} variant="primary">
                     Setup Progress Bar
@@ -646,26 +646,29 @@ export default function Dashboard() {
                     src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
                     alt="Buy X Get Y"
                   />
-                  <h4 className="i-gs-grid-heading">2. Buy X Get Y</h4>
+                  <h4 className="i-gs-grid-heading">Buy X Get Y</h4>
                   <p className="i-gs-grid-subheading">Set Buy/Free quantities and custom messages.</p>
                   <Button fullWidth url={withParams("/app/progressbaron1")}>Setup BxGy</Button>
                 </LegacyCard>
               </Grid.Cell>
 
-              {/* <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+      
+
+             
+
+                      <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
                     src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
-                    alt="Buy X Get Free"
+                    alt="Gift Product"
                   />
-                  <h4 className="i-gs-grid-heading">2. Buy X Get Free</h4>
-                  <p className="i-gs-grid-subheading">Buy X Get Free Product</p>
-                  <Button fullWidth url={withParams("/app/freeproduct")}>Setup BxGy</Button>
+                  <h4 className="i-gs-grid-heading">Gift Product</h4>
+                  <p className="i-gs-grid-subheading">Gift product at price value </p>
+                  <Button fullWidth url={withParams("/app/giftproduct")}>Setup gift product</Button>
                 </LegacyCard>
-              </Grid.Cell> */}
-
-              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+              </Grid.Cell> 
+               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"

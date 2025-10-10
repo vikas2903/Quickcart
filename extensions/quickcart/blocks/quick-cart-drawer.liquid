@@ -64,6 +64,7 @@
   data-open-class="cdp-open"
   data-money-format="{{ shop.money_format | escape }}"
   data-currency="{{ shop.currency }}"
+  shop-url="{{shop.url}}" 
 >
   <div class="cdp-overlay" data-close></div>
   <aside class="cdp-upsell">
@@ -147,7 +148,7 @@
 
 <div class="quick-cart-header-section">
     <!-- Header (fixed) -->
-    <header class="cdp-header">
+    <header class="cdp-header" >
       <div class="cdp-h-left">
         <span class="cdp-h-title">Your Cart</span>
         <span class="cdp-h-count" data-cart-count>({{ cart.item_count }})</span>
@@ -323,6 +324,7 @@
                 
               </div>
   </div>
+  <canvas id="partyCanvas" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 9999; width: 100%; height: 100%;"></canvas>
 
     <!-- Bottom checkout bar (fixed) -->
     <footer class="cdp-footer">

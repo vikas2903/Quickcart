@@ -1096,3 +1096,23 @@ span.summary-heading-text {
     margin-top: 10px;
   }
 }
+
+
+.free-gift-message-added {
+    font-size: 12px;
+    color: #fff;
+    background: green;
+    text-align: center;
+    display: revert;
+    border-radius: 4px;
+    margin-top: 2px;
+}
+.free-gift-message-removed {
+    font-size: 12px;
+    color: #fff;
+    background: red;
+    text-align: center;
+    display: revert;
+    border-radius: 4px;
+    margin-top: 2px;
+}

@@ -39,7 +39,7 @@ async function getbxgy(shop) {
   }
   let bxgyResponse = json.data;
 
-  console.log("Enabled:", bxgyResponse.enabled);
+  // console.log("Enabled:", bxgyResponse.enabled);
 
   // console.log("Offer Buy Qty:", bxgyResponse.offer.buyQty);
   // console.log("Offer Get Qty:", bxgyResponse.offer.getQty);

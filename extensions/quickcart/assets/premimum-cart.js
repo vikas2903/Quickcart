@@ -1,5 +1,114 @@
 (function () {
 
+
+    function triggerPartyPopper() {
+  const canvas = document.getElementById('partyCanvas');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const originX = canvas.width / 2;
+  const originY = canvas.height - 100;
+
+  const emojis = ['🎉', '🎊', '💥', '❤️', '🤩'];
+  const shapes = ['rect', 'triangle', 'emoji'];
+
+  const particles = [];
+  const totalParticles = 100;
+
+  for (let i = 0; i < totalParticles; i++) {
+    const angle = Math.random() * Math.PI - Math.PI;
+    const speed = Math.random() * 8 + 1;
+    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+
+    particles.push({
+      x: originX,
+      y: originY,
+      size: Math.random() * 6 + 4,
+      color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+      velocityX: Math.cos(angle) * speed,
+      velocityY: Math.sin(angle) * speed - 8,
+      opacity: 1,
+      gravity: 0.25,
+      fade: Math.random() * 0.02 + 0.005,
+      rotation: Math.random() * 360,
+      rotationSpeed: (Math.random() - 0.5) * 10,
+      shape: shape,
+      emoji: emojis[Math.floor(Math.random() * emojis.length)]
+    });
+  }
+
+  let lastTime = performance.now();
+  const frameRate = 1000 / 60; // target ~60 FPS
+  let animationFrameId;
+
+  function drawFrame(currentTime) {
+    const delta = currentTime - lastTime;
+
+    if (delta >= frameRate) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = p.opacity;
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 10;
+
+        if (p.shape === 'circle') {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (p.shape === 'rect') {
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        } else if (p.shape === 'triangle') {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.moveTo(0, -p.size / 2);
+          ctx.lineTo(-p.size / 2, p.size / 2);
+          ctx.lineTo(p.size / 2, p.size / 2);
+          ctx.closePath();
+          ctx.fill();
+        } else if (p.shape === 'emoji') {
+          ctx.shadowBlur = 0;
+          ctx.font = `${p.size * 2}px serif`;
+          ctx.fillText(p.emoji, -p.size / 2, p.size / 2);
+        }
+
+        ctx.restore();
+      });
+
+      updateParticles();
+      lastTime = currentTime;
+    }
+
+    animationFrameId = requestAnimationFrame(drawFrame);
+  }
+
+  function updateParticles() {
+    particles.forEach(p => {
+      p.x += p.velocityX;
+      p.y += p.velocityY;
+      p.velocityY += p.gravity;
+      p.opacity -= p.fade;
+      p.rotation += p.rotationSpeed;
+    });
+  }
+
+  animationFrameId = requestAnimationFrame(drawFrame);
+
+  // Stop after 4 seconds
+  setTimeout(() => {
+    cancelAnimationFrame(animationFrameId);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, 4000);
+}
+
  
   // convert price to currency
   function convertToCurrency(price, currencyCode) {
@@ -39,6 +148,7 @@ if (btn && panel) {
     drawer.classList.add(openClass);
     drawer.setAttribute("aria-hidden", "false");
     refreshUI();
+    triggerPartyPopper();
   }
   function closeDrawer() {
     drawer.classList.remove(openClass);
@@ -70,7 +180,7 @@ if (btn && panel) {
     let deadline = parseInt(localStorage.getItem(KEY) || "0", 10);
     const now = Date.now();
     if (!deadline || deadline < now) {
-      deadline = now + mins * 60 * 1000;
+      deadline = now + mins * 60 * 1000; 
       localStorage.setItem(KEY, String(deadline));
     }
     const tick = () => {
@@ -216,20 +326,196 @@ if (btn && panel) {
     renderLines(cart);
     renderTotals(cart);
     // console.log("cart:update", cart);
-   freegiftproduct(cart);
-   function freegiftproduct(cart){
-    console.log("cart data at freegiftproduct function", cart);
-    const cart_total_price = cart?.total_price / 100;
-    console.log("cart total price", cart_total_price);
+
+//     freegiftproduct(cart);
+// // ############  free gift product api call############
+
+//  async function freegiftproduct(cart) {
+//   try {
+//     const cart_total_price = (cart?.total_price || 0) / 100;
+//     const shop_url = drawer.getAttribute("shop-url");
+//     const remove_protocol = shop_url?.replace(/^https?:\/\//, '');
+//     const freegift_api_url = `https://quickcart-68ln.onrender.com/app/api/giftproduct?shop=${remove_protocol}`;
+
+//     const response = await fetch(freegift_api_url, {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'X-Shopify-Shop-Domain': remove_protocol,
+//         'Accept': 'application/json',
+//       }
+//     });
+
+//     const data = await response.json();
+//     console.log("response from api", data);
+
+//     let free_product_price_range = data?.data?.price || null;
+//     let free_gift_eligible = data?.data?.enabled || false;
+//     let free_product_handle = data?.data?.selectedProduct?.handle || null;
+//     async function getVarientsIdByHandle(hanlde){
+//       try{
+//         fetch(`/products/${hanlde}.js`, {
+//           method: 'GET',
+//           headers:{
+//             "Content-Type":"application/json",
+//             "Accept":"application/json",
+//           }
+//         })
+//         .then((response)=> response.json())
+//         .then((productData)=>{
+//           let free_product_id = productData?.variants[0]?.id || null;
+//           return free_product_id;
+//         })
+
+//       }catch(error){
+//         console.log("Error fetching product by handle:", error.message);
+//         return null;
+//       }
+      
+//     }
+
+//      getVarientsIdByHandle(free_product_handle);
+
+//   } catch(error) {
+//     console.log("Error fetching freegift product API:", error.message);
+//   }
+// }
+
+// Call this whenever cart is updated
+// Call this function whenever the cart updates
+freegiftproduct(cart);
+
+async function freegiftproduct(cart) {
+  try {
+    // -----------------------------
+    // 1️⃣ Cart total & currency
+    // -----------------------------
+    const cart_total_price = (cart?.total_price || 0) / 100; // major units
+    const cart_currency = cart?.currency || "USD";
+    console.log(`Cart total: ${cart_total_price.toFixed(2)} ${cart_currency}`);
+
+    // -----------------------------
+    // 2️⃣ Shop URL for API
+    // -----------------------------
+    const shop_url = drawer.getAttribute("shop-url");
+    const remove_protocol = shop_url?.replace(/^https?:\/\//, '');
+
+    // -----------------------------
+    // 3️⃣ Fetch free gift configuration from API
+    // -----------------------------
+    const freegift_api_url = `https://quickcart-68ln.onrender.com/app/api/giftproduct?shop=${remove_protocol}`;
+    const response = await fetch(freegift_api_url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Shop-Domain': remove_protocol,
+        'Accept': 'application/json',
+      }
+    });
+
+    const data = await response.json();
+    console.log("Free gift API response:", data);
+
+    const free_product_price_range = data?.data?.price || 0; // minor units
+    const free_gift_eligible = data?.data?.enabled || false;
+    const free_product_handle = data?.data?.selectedProduct?.handle || null;
+
+    // -----------------------------
+    // 4️⃣ Stop if gift is not enabled or handle is missing
+    // -----------------------------
+    if (!free_gift_eligible || !free_product_handle) return;
+
+    const free_price_major = free_product_price_range; // major units
+    console.log(`Free gift price threshold: ${free_price_major} ${cart_currency}`);
+
+    // -----------------------------
+    // 5️⃣ Check if free gift is already in cart
+    // -----------------------------
+    const free_gift_item = cart?.items?.find(item => item.handle === free_product_handle);
+    const free_gift_in_cart = !!free_gift_item;
+
+    // -----------------------------
+    // 6️⃣ Remove free gift if cart total is below threshold or API price changed
+    // -----------------------------
+    if ((cart_total_price < free_price_major) && free_gift_in_cart) {
+      console.log("Cart total below threshold or API price changed, removing free gift");
+      await fetch('/cart/change.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ id: free_gift_item.key, quantity: 0 })
+      });
+
+
+      let message_removed_gift = `
+  <div class="free-gift-message-removed" id="free-gift-message">
+    <span class="cdp-offer-text">Free gift removed from your cart! 🎁</span>
+  </div>
+`;
+document.querySelector('.cdp-lines')?.insertAdjacentHTML('beforebegin', message_removed_gift);
+document.querySelector('.free-gift-message-added')?.remove();
+
+
+      return;
+    }
+
+    // -----------------------------
+    // 7️⃣ Add free gift if eligible and not already in cart
+    // -----------------------------
+    if ((cart_total_price >= free_price_major) && !free_gift_in_cart) {
+      const free_product_id = await getVariantIdByHandle(free_product_handle);
+      if (!free_product_id) return;
+
+      const addResponse = await fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ id: free_product_id, quantity: 1 })
+      }).then(res => res.json());
+
+      console.log("✅ Free gift added to cart!", addResponse);
+
+    let message_added_gift = `
+  <div class="free-gift-message-added" id="free-gift-message">
+    <span class="cdp-offer-text">Free gift added to your cart! 🎁</span>
+  </div>
+`;
+document.querySelector('.cdp-lines')?.insertAdjacentHTML('beforebegin', message_added_gift);
+document.querySelector('.free-gift-message-removed')?.remove();
+
+triggerPartyPopper();
+
+      // Trigger cart drawer update event
+      document.dispatchEvent(new CustomEvent('cart:updated', { detail: addResponse }));
+      if (typeof window.updateCartDrawer === "function") {
+        window.updateCartDrawer();
+      }
+    }
+
+  } catch (error) {
+    console.log("Error in freegiftproduct function:", error.message);
   }
+}
+
+// -----------------------------
+// Helper: Get variant ID from product handle
+// -----------------------------
+async function getVariantIdByHandle(handle) {
+  try {
+    const response = await fetch(`/products/${handle}.js`, { method: 'GET', headers: { Accept: "application/json" } });
+    const productData = await response.json();
+    return productData?.variants?.[0]?.id || null;
+  } catch (error) {
+    console.log("Error fetching product by handle:", error.message);
+    return null;
+  }
+}
 
 
-
+// ############  free gift product api call############
     let cart_level_discount_applications = cart?.cart_level_discount_applications[0]?.title;
     let total_discount = cart?.total_discount / 100;
     let total_discount_formated_price = convertToCurrency(total_discount, cart?.currency);
 
-    let discountEl = `Discount applied
+    let discountEl = `Discount applied:${cart_level_discount_applications}
                    <span class="discounted-value">-${total_discount_formated_price}</span>`;
     if(cart_level_discount_applications){
       document.querySelector('.discount-applied-at-cartdrawer').innerHTML = discountEl;
@@ -385,6 +671,7 @@ if (btn && panel) {
       e.preventDefault();
       e.stopPropagation();
       window.CartDrawerPremium.open();
+      triggerPartyPopper();
     }
   });
 
@@ -399,6 +686,9 @@ if (btn && panel) {
   document.querySelector('.upsell-mob-close-icon')?.addEventListener("click", function(){
     document.querySelector('.cdp-upsell')?.classList.remove("active");
   });
+ 
+
+
 })();
 
 document.addEventListener("DOMContentLoaded", function() {

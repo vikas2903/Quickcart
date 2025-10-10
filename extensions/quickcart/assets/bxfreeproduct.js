@@ -150,7 +150,7 @@
       if (json?.ok === false) throw new Error(json.error || "Endpoint returned error");
 
       const rule = json?.data || null;
-      console.log("FreeProduct Database Api Data:", rule);
+      // console.log("FreeProduct Database Api Data:", rule);
 
       if (!rule?.enabled) {
         console.log("BxGF offer is disabled");
@@ -181,7 +181,7 @@
     //   console.log("codtionProduct", Array.from(conditionIdSet));
     //   console.log("cartProductIds", cartProductIds);
       setTimeout(async() => {
-        console.log("hasAnyConditionProduct", hasAnyConditionProduct);
+        // console.log("hasAnyConditionProduct", hasAnyConditionProduct);
         
 //  if (hasAnyConditionProduct) {
 //   const freeProductidDb = rule.freeProductId ? rule.freeProductId.split('/').pop() : "";
