@@ -84,17 +84,56 @@ export default function GiftProductPage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [submitted, setSubmitted] = useState(false);
 
+  const [savedata, setsavedata] = useState({
+    enabled: '',
+    price:'',
+    product_title:''
+  })
+
+  console.log("savedata", savedata  )
+
   const apiurl = `/app/api/giftproduct`;
+
+   const saveddata_progressbar  = async () =>{
+  
+      const retrive_saved_data = await  fetch(`https://quickcart-68ln.onrender.com/app/api/giftproduct`,
+    {
+      method:"GET",
+      headers:{
+        "Content-Type": "application/json",
+        "X-Shopify-Shop-Domain": shop,
+        Accept: "application/json",
+      },
+    })
+      const getapidata = await retrive_saved_data.json();
+      const getted_data = getapidata?.data
+      console.log("getted_data", getted_data);
+      return getted_data;
+    
+    }
 
   // 🧠 Debounced search trigger
   useEffect(() => {
+
+    async function  fetchFUnction () {
+      let data = await   saveddata_progressbar()
+      let p1 = data?.enabled;
+      let p2 = data?.price;
+      let p3= data?.selectedProduct?.title
+      setsavedata({p1,p2,p3})
+
+    }
+    fetchFUnction();
+    saveddata_progressbar()
     const timeout = setTimeout(() => {
       if (search.trim()) {
         fetcher.submit({ query: search }, { method: "post" });
       }
     }, 600);
     return () => clearTimeout(timeout);
-  }, [search]);
+
+  
+  }, [search, submitted]);
 
   const products = fetcher.data?.products || [];
   const loading = fetcher.state === "submitting";
@@ -158,7 +197,7 @@ export default function GiftProductPage() {
       <Layout fullWidth>
         <Layout.Section>
           <Grid>
-            <Grid.Cell  columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
+            <Grid.Cell  columnSpan={{ xs: 7, sm: 7, md: 7, lg: 7, xl: 7 }}>
               <LegacyCard sectioned>
                 <BlockStack gap="500">
                   <Checkbox
@@ -247,6 +286,62 @@ export default function GiftProductPage() {
                   )}
                 </BlockStack>
               </LegacyCard>
+            </Grid.Cell>
+
+            <Grid.Cell columnSpan={{xs:5, md:5, lg:5, xl:5, sm:5}}>
+              <LegacyCard fullWidth>
+                <LegacyCard.Section>
+                     <Banner tone="info">Gift Product Saved Configuration</Banner>
+
+
+                                {
+                            <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+              <h2>Progress Bar Data</h2>
+        
+              {/* General Info Table */}
+              <table
+                border="1"
+                cellPadding="8"
+                cellSpacing="0"
+                style={{
+                  borderCollapse: "collapse",
+                  width: "100%",
+                  marginBottom: "20px",
+                  backgroundColor: "#f9f9f9",
+                }}
+              >
+                <tbody>
+                  <tr>
+                    <th align="left">Shop Name</th>
+                    <td>{shop}</td>
+                  </tr>
+                  <tr>
+                    <th align="left">Enabled</th>
+                    <td>{savedata.p1 ? "✅ Yes" : "❌ No"}</td>
+                  </tr>
+                  
+                  {savedata.p1? <>
+                  
+                     <tr>
+                    <th align="left">Set Price </th>
+                    <td>{savedata?.p2}</td>
+                  </tr>
+                   <tr>
+                    <th align="left">Product Title </th>
+                     <td>{savedata?.p3}</td>
+                  </tr>
+                  </> : '' }
+                
+
+                </tbody>
+              </table>
+        
+            </div>
+                          }
+                           
+                </LegacyCard.Section>
+              </LegacyCard>
+
             </Grid.Cell>
           </Grid>
         </Layout.Section>

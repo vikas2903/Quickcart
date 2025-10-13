@@ -1,5 +1,5 @@
 // app/routes/app.bxgy.jsx
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import {
@@ -19,6 +19,12 @@ export const loader = async ({ request }) => {
 
 export default function BuyXGetYPage() {
   const { shop } = useLoaderData();
+
+
+  
+  
+
+
   return (
     <Page fullWidth>
       <TitleBar title="Buy X Get Y Offer" />
@@ -32,6 +38,11 @@ export default function BuyXGetYPage() {
 }
 
 function BuyXGetYSection({ shop }) {
+
+  const [savedata, setsavedata] = useState({
+    enabled:'',
+    offer:[]
+  })
 
 
   // ############ READ BXGYCONFIG ############
@@ -122,6 +133,38 @@ function BuyXGetYSection({ shop }) {
     }
   };
 
+
+   const saveddata_progressbar  = async () =>{
+  
+      const retrive_saved_data = await  fetch(`https://quickcart-68ln.onrender.com/app/quickcart/bxgy`,
+    {
+      method:"GET",
+      headers:{
+        "Content-Type": "application/json",
+        "X-Shopify-Shop-Domain": shop,
+        Accept: "application/json",
+      },
+    })
+      const getapidata = await retrive_saved_data.json();
+      const getted_data = getapidata?.data
+      return getted_data;
+    
+    }
+
+    useEffect(() =>{
+
+    let getdata = async () =>{
+      let data = await  saveddata_progressbar()
+      let enabled = data?.enabled;
+      let offer=  data?.offer;
+      setsavedata({
+        enabled:enabled,
+        offer:offer
+      })
+
+    }
+    getdata();
+    },)
   // ---------- RENDER ----------
   return (
     <Grid>
@@ -207,6 +250,61 @@ function BuyXGetYSection({ shop }) {
             </BlockStack>
           </LegacyCard.Section>
         </LegacyCard>
+
+            <LegacyCard>
+                        <LegacyCard.Section>
+                           <Banner tone="info">
+                           Buy X Get Y Saved Configuration 
+                          </Banner>
+        
+        
+                          {
+                            <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+              <h2>Progress Bar Data</h2>
+        
+              {/* General Info Table */}
+              <table
+                border="1"
+                cellPadding="8"
+                cellSpacing="0"
+                style={{
+                  borderCollapse: "collapse",
+                  width: "100%",
+                  marginBottom: "20px",
+                  backgroundColor: "#f9f9f9",
+                }}
+              >
+                <tbody>
+                  <tr>
+                    <th align="left">Shop Name</th>
+                    <td>{shop}</td>
+                  </tr>
+                  <tr>
+                    <th align="left">Enabled</th>
+                    <td>{savedata.enabled ? "✅ Yes" : "❌ No"}</td>
+                  </tr>
+                  
+                  {savedata.enabled ? <>
+                  
+                     <tr>
+                    <th align="left">Buy Quantity </th>
+                    <td>{savedata?.offer?.buyQty}</td>
+                  </tr>
+                   <tr>
+                    <th align="left">Get Quantity </th>
+                     <td>{savedata?.offer?.getQty}</td>
+                  </tr>
+                  </> : '' }
+                
+
+                </tbody>
+              </table>
+        
+            </div>
+                          }
+                           
+                        </LegacyCard.Section>
+                      </LegacyCard>
       </Grid.Cell>
     </Grid>
   );
