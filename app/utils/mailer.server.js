@@ -1,31 +1,25 @@
 import nodemailer from "nodemailer";
 
-const BREVO_USER = process.env.BREVO_SMTP_USER;
-const BREVO_PASS = process.env.BREVO_SMTP_PASS;
-
 function makeTransport() {
-  // Prefer Brevo in prod; fall back to Ethereal if present
-  if (BREVO_USER && BREVO_PASS) {
-    return nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false,
-      auth: { user: BREVO_USER, pass: BREVO_PASS },
-    });
-  }
- 
-  throw new Error("No SMTP credentials. Set BREVO_* or ETH_* envs.");
+  return nodemailer.createTransport({
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.BREVO_USER || "920ddb002@smtp-brevo.com",
+      pass: process.env.BREVO_PASS || "y2IFTnXJvhY1WM65",
+    },
+  });
 }
 
-export async function sendSupportEmail({shop, name, email, storeEmail, description}) {
+export async function sendSupportEmail({ shop, name, email, description }) {
   const transporter = makeTransport();
 
   const adminHtml = `
     <h2>New Support Request from ${shop}</h2>
     <p><strong>Name:</strong> ${name || "-"}</p>
     <p><strong>Email:</strong> ${email || "-"}</p>
-    <p><strong>Store Email:</strong> ${storeEmail || "-"}</p>
-    <p><strong>Message:</strong><br/>${(description || "").replace(/\n/g,"<br/>")}</p>
+    <p><strong>Message:</strong><br/>${(description || "").replace(/\n/g, "<br/>")}</p>
   `;
 
   const userHtml = `
@@ -35,25 +29,25 @@ export async function sendSupportEmail({shop, name, email, storeEmail, descripti
     ${adminHtml}
   `;
 
+  // --- Admin notification
   const infoAdmin = await transporter.sendMail({
     from: `"Digi Sidekick Support" <${process.env.MAIL_FROM || "no-reply@yourdomain.com"}>`,
     to: "vikasprasad@digisidekick.com",
     cc: "vikasprasad2903@gmail.com",
     subject: `New Support Request — ${shop}`,
     html: adminHtml,
+    replyTo: email || undefined,
   });
 
-  let previewUrlAdmin = nodemailer.getTestMessageUrl?.(infoAdmin);
-
+  // --- User confirmation
   if (email) {
-    const infoUser = await transporter.sendMail({
+    await transporter.sendMail({
       from: `"Digi Sidekick Support" <${process.env.MAIL_FROM || "no-reply@yourdomain.com"}>`,
       to: email,
       subject: `We received your support request`,
       html: userHtml,
     });
-    var previewUrlUser = nodemailer.getTestMessageUrl?.(infoUser);
   }
 
-  return {messageId: infoAdmin.messageId, previewUrlAdmin, previewUrlUser};
+  return { messageId: infoAdmin.messageId };
 }

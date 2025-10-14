@@ -572,7 +572,7 @@ export default function Dashboard() {
               }}
               secondaryAction={{
                 content: "How to use & Customize",
-                url: "https://youtu.be/ojooDuF6UlE?si=LqSznKp4X0N51z_w",
+                url: " ",
                 external: true,
                 target: "_blank",
               }}

@@ -3,7 +3,7 @@
 client_id = "ca722b701375746fc3f5405ff1d19521"
 name = "Upcart—ProgressBar & Upsell"
 handle = "quickcart-5"
-application_url = "https://crucial-shared-boys-typing.trycloudflare.com"
+application_url = "https://quickcart-68ln.onrender.com"
 embedded = true
 
 [build]
@@ -25,7 +25,7 @@ api_version = "2025-07"
 scopes = "write_products,read_themes,write_themes,read_orders,read_discounts,read_files"
 
 [auth]
-redirect_urls = ["https://crucial-shared-boys-typing.trycloudflare.com/auth/callback", "https://crucial-shared-boys-typing.trycloudflare.com/auth/shopify/callback", "https://crucial-shared-boys-typing.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://quickcart-68ln.onrender.com/auth/callback", "https://quickcart-68ln.onrender.com/auth/shopify/callback", "https://quickcart-68ln.onrender.com/api/auth/callback"]
 
 [pos]
 embedded = false
