@@ -544,7 +544,7 @@ export default function Dashboard() {
                   }}
                   secondaryAction={{
                     content: "How to use & Customize",
-                    url: "https://youtu.be/ojooDuF6UlE?si=LqSznKp4X0N51z_w",
+                    url: "https://cdn.shopify.com/videos/c/o/v/7bf07a776af648b1a140f0ce6608fd6d.mp4",
                    external: true,
                 target: "_blank",
                   }}
