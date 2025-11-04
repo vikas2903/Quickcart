@@ -529,7 +529,7 @@ export default function Dashboard() {
     host, 
     shop, 
     mainThemeId, 
-    themeIds,currency,currencySymbol,
+    currency, currencySymbol,
     totalOrders = 0, 
     totalAmount = 0, 
     todayCount = 0, 
