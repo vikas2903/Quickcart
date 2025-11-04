@@ -313,17 +313,40 @@ export const loader = async ({ request }) => {
   const shopName = session.shop;
   const accessToken = session.accessToken;
 
+  // Validate we have a shop name from the session. If this is missing
+  // something upstream failed during auth; surface a helpful error.
+  if (!shopName) {
+    console.error("Missing shopName in session during dashboard loader", { session });
+    throw new Response(JSON.stringify({ error: "Missing shop in session" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   // DB upsert
   await connectDatabase();
-  await Store.updateOne(
-    { shopName },
-    {
-      $set: { accessToken, uninstalledAt: null },
-      $setOnInsert: { installedAt: new Date() },
-      $currentDate: { updatedAt: true },
-    },
-    { upsert: true }
-  );
+  try {
+    // Some older deployments created a unique index on `shop` instead of
+    // `shopName`. To be defensive we set both fields when inserting/updating
+    // so we don't accidentally create documents with a null `shop` value
+    // which would trigger E11000 duplicate key errors.
+    await Store.updateOne(
+      { shopName: shopName },
+      {
+        $set: { shopName: shopName, shop: shopName, accessToken, uninstalledAt: null },
+        $setOnInsert: { installedAt: new Date() },
+        $currentDate: { updatedAt: true },
+      },
+      { upsert: true }
+    );
+  } catch (e) {
+    console.error("Store upsert failed", { shopName, error: e && e.message, stack: e && e.stack });
+    // Re-throw a helpful 500 response so the host logs contain the stacktrace
+    throw new Response(JSON.stringify({ error: "Failed to upsert store", details: e && e.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   const storeDoc = await Store.findOne({ shopName }).lean();
   const installedAt = storeDoc?.installedAt || storeDoc?.createdAt;
