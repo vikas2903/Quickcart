@@ -393,7 +393,8 @@ body.gradient.overflow-hidden {
 input.cdp-qty-input {
   outline: none;
   border: none;
-  display: block;
+  /* display: block; */
+  display: ruby;
   width: 30px;
   text-align: center;
   justify-content: center;
@@ -529,6 +530,8 @@ span.cdp-line-prices {
     font-size: 10px;
     font-family: inherit;
     vertical-align: middle;
+    display: flex;
+    gap: 3px;
 }
 
 span.cdp-total-val {
@@ -596,6 +599,9 @@ img#checkout-arrow-image {
     width: 10px;
     margin-left: 0px;
     transition: all .4s ease;
+    object-fit: contain !important; 
+    margin-right: 2px !important;
+
 }
 
 .cdp-discount-row {
@@ -911,7 +917,8 @@ cart-drawer:not(html):not(body),
 .mm-ajaxcart:not(html):not(body),
 .mm-ajaxcart-overlay.has--active:not(html):not(body),
 .mm-ajaxcart-overlay:not(html):not(body),
-.background-overlay:not(html):not(body) {
+.background-overlay:not(html):not(body)
+#sidebar-cart{
   display: none !important;
   opacity: 0 !important;
   width: 0 !important;
@@ -928,6 +935,16 @@ cart-drawer:not(html):not(body),
 .cart-drawer__dialog {
   display: none;
 }
+/* Prestige */
+.Drawer[aria-hidden=false] {
+    visibility: visible;
+    display: none;
+    transform: translate(0);
+    position: relative;
+}
+body.no-scroll{overflow: unset !important;}
+#sidebar-cart{  display: none !important;}
+/* Prestige */
 .mob_upsell .cdp-v-track {
   align-items: center;
   display: flex;

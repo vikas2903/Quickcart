@@ -1,5 +1,7 @@
 (function () {
 
+  console.log("Upcart: Progressbar + Upsell products initialize...");
+
 
     function triggerPartyPopper() {
   const canvas = document.getElementById('partyCanvas');
@@ -134,7 +136,7 @@ if (btn && panel) {
 // 
 
   const drawer = document.getElementById("CartDrawerPremium");
-  if (!drawer) return;
+  // if (!drawer) return;
 
   const openClass = drawer.dataset.openClass || "cdp-open";
   const linesRoot = drawer.querySelector("[data-lines]");
@@ -640,11 +642,11 @@ async function getVariantIdByHandle(handle) {
   /* ================= AJAX ADD-TO-CART (product forms) ================= */
   document.addEventListener("submit", function (e) {
     const form = e.target.closest('form[action*="/cart/add"],form[action="/cart/add"]');
-    if (!form) return;
+    // if (!form) return;
     e.preventDefault();
     e.stopPropagation();
 
-    const btn = form.querySelector('button[type="submit"][name="add"], button[type="submit"]');
+    const btn = form.querySelector('button[type="submit"][name="add"], .ProductForm__AddToCart, button[type="submit"]');
     if (btn) {
       btn.disabled = true;
       btn.classList.add("is-loading");
@@ -665,7 +667,7 @@ async function getVariantIdByHandle(handle) {
 
   /* ================= HEADER CART ICON → OPEN DRAWER ================= */
   document.addEventListener("click", function (e) {
-    const icon = e.target.closest(".header__icon--cart, .m-cart-icon-bubble, .navlink--cart, a[aria-label='Cart'], .header-actions__cart-icon");
+    const icon = e.target.closest(".site-nav__link,  .header__icon--cart, .Header__Icon, .m-cart-icon-bubble, .navlink--cart, a[aria-label='Cart'], .header-actions__cart-icon");
     if (!icon) return;
     if (window.CartDrawerPremium && typeof window.CartDrawerPremium.open === "function") {
       e.preventDefault();
@@ -687,7 +689,7 @@ async function getVariantIdByHandle(handle) {
     document.querySelector('.cdp-upsell')?.classList.remove("active");
   });
  
-
+console.log("Upcart: Progressbar + Upsell Products Initialized");
 
 })();
 

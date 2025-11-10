@@ -3,7 +3,7 @@
 client_id = "ca722b701375746fc3f5405ff1d19521"
 name = "Upcart—ProgressBar & Upsell"
 handle = "quickcart-5"
-application_url = "https://quickcart-68ln.onrender.com"
+application_url = "https://quickcart-68ln.onrender.com/"
 embedded = true
 
 [build]
