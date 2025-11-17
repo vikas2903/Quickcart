@@ -1,84 +1,78 @@
-
 {% if show_announcementbar %}
 <style>
-    :root{
-        --sr-banner-background-color: #7c3444;
-        --sr-banner-text-color: #ffffff;
-    }
+:root {
+    --sr-banner-background-color: #7c3444;
+    --sr-banner-text-color: #ffffff;
+}
 
+/* CONTAINER */
 .sr-cart-banner-container {
+    background: var(--sr-banner-background-color);
     color: var(--sr-banner-text-color);
     text-align: center;
-    height: 28px;
-    align-items: center;
-    align-content: center;
-}
-.sr-banner-carousel-css {
+    height: 30px;
     display: flex;
-    white-space: nowrap;
-    overflow: hidden;
-    width: 100%;
-    position: relative;
-    height: 25px;
+    justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
-.sr-banner-carousel-css span {
-    display: inline-block;
+
+/* SLIDER WRAPPER */
+.sr-banner-carousel-css {
+    position: relative;
     width: 100%;
-    opacity: 0;
-    transform: translateX(100%);
-    animation: sr-slideIn 6s infinite;
-    animation-delay: calc(var(--index) * 3s);
-    text-align: center;
+    overflow: hidden;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* TEXT ITEM */
+.sr-banner-carousel-span {
     position: absolute;
     left: 0;
     right: 0;
-    line-height: normal;
-    white-space:wrap;
-    color: #fff;
-    font-size:12px;
-    opacity: 1;
+    white-space: nowrap;
+    font-size: 14px;
     font-weight: 500;
-    Content unavailable. Resource was not cached
-}
-@keyframes sr-slideIn {
-  0% {
+    color: #fff;
     opacity: 0;
     transform: translateX(100%);
-  }
-  5% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  25% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  30% {
-    opacity: 0;
-    transform: translateX(-100%);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(-100%);
-  }
+    /* animation is configured per-item below: total duration = items * display time */
+    animation-name: sr-slideIn;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-duration: calc(var(--items) * var(--sr-display-time));
+    animation-delay: calc((var(--index) - 1) * -1 * var(--sr-display-time));
 }
 
+
+/* SLIDE ANIMATION */
+@keyframes sr-slideIn {
+    0% { opacity: 0; transform: translateX(100%); }
+    5% { opacity: 1; transform: translateX(0); }
+    25% { opacity: 1; transform: translateX(0); }
+    30% { opacity: 0; transform: translateX(-100%); }
+    100% { opacity: 0; transform: translateX(-100%); }
+}
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .sr-banner-carousel-span { animation: none !important; }
+}
 </style>
 
 {% assign announcementbar_text = announcementbar_text | split: ',' %}
+{% assign _ab_count = announcementbar_text | size %}
 
-
-<div class="sr-cart-banner-container" id="sr-cart-banner" style="display: block; font-size: 14px;">
-  <div class="sr-banner-carousel-css">
-{% for text in announcementbar_text %}
-  <span class="sr-banner-carousel-span" style="--index: {{ forloop.index}}">
-    {{ text | strip }}
-  </span>
-{% endfor %}
-
-  
-  </div>
+<div class="sr-cart-banner-container" id="sr-cart-banner">
+    <div class="sr-banner-carousel-css" style="--items: {{ _ab_count }}; --sr-display-time: 4s;">
+        {% for text in announcementbar_text %}
+        <span class="sr-banner-carousel-span" style="--index: {{ forloop.index }}">
+            {{ text | strip }}
+        </span>
+        {% endfor %}
+    </div>
 </div>
 
 {% endif %}

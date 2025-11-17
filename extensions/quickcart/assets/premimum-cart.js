@@ -150,7 +150,7 @@ if (btn && panel) {
     drawer.classList.add(openClass);
     drawer.setAttribute("aria-hidden", "false");
     refreshUI();
-    triggerPartyPopper();
+    // triggerPartyPopper();
   }
   function closeDrawer() {
     drawer.classList.remove(openClass);
