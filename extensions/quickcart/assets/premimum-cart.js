@@ -541,7 +541,7 @@ async function getVariantIdByHandle(handle) {
       const key = line?.getAttribute("data-line-key");
       const input = line?.querySelector("[data-qty]");
       if (!key || !input) return;
-      const curr = parseInt(input.value || "1", 10);
+      const curr = parseInt(input.value || "1",);
       const next = Math.max(0, curr + (down ? -1 : 1));
       changeQty(key, next).then(refreshUI);
       e.preventDefault();
