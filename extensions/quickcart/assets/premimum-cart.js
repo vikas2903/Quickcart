@@ -668,13 +668,21 @@
 
 
 document.addEventListener("submit", function (e) {
-  const form = e.target.closest('form[action*="/cart/add"],form[action="/cart/add"]');
+
+  // Detect ANY form that submits to /cart/add (with or without params)
+  const form = e.target.closest('form[action*="/cart/add"]');
   if (!form) return;
 
+  // Stop Shopify's default add-to-cart (prevents double add)
   e.preventDefault();
   e.stopPropagation();
 
-  const btn = form.querySelector('button[type="submit"][name="add"], .ProductForm__AddToCart, button[type="submit"]');
+  // Find button (works for ALL themes)
+  const btn = form.querySelector(
+    'button[type="submit"], button[name="add"], .ProductForm__AddToCart'
+  );
+
+  // Disable button + show loader
   if (btn) {
     btn.disabled = true;
     btn.classList.add("is-loading");
@@ -682,23 +690,35 @@ document.addEventListener("submit", function (e) {
 
   const fd = new FormData(form);
 
-  fetch(form.action, {
+  // AJAX add to cart
+  fetch("/cart/add.js", {
     method: "POST",
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json"
+    },
     body: fd,
-    credentials: "same-origin",
+    credentials: "same-origin"
   })
-    .then(() => {
-      openDrawer();
-      refreshUI();
+    .then(res => res.json())
+    .then(data => {
+      // Open drawer + update UI
+      if (typeof openDrawer === "function") openDrawer();
+      if (typeof refreshUI === "function") refreshUI();
+
+      // Optional: trigger add_to_cart tracking
+      document.dispatchEvent(new CustomEvent("cart:added", { detail: data }));
     })
+    .catch(err => console.error("Add to cart error:", err))
     .finally(() => {
+      // Re-enable button
       if (btn) {
         btn.disabled = false;
         btn.classList.remove("is-loading");
       }
     });
 });
+
+
 
     /* ================= HEADER CART ICON → OPEN DRAWER ================= */
     document.addEventListener("click", function (e) {

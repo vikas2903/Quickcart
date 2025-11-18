@@ -26,7 +26,7 @@
 
 .order-analytics-wrapper h5 {
     text-align: center;
-    font-size: 2rem;
+    font-size: 1.6rem;
 }
 
 .order-analytics-wrapper {
@@ -42,6 +42,6 @@
 
 span.curecnySymbol {
     padding: .1rem .2rem .1rem .1rem;
-    font-size: 1.9rem;
+    font-size: 1.6rem;
     opacity: .9;
 }
