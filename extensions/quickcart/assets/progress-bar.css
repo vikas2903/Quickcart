@@ -252,8 +252,11 @@
     color: green;
     font-weight: 600;
     vertical-align: middle;
+    display: inline-block;
 }
-
+span.cart-item-variant-title {
+    line-height: normal;
+}
 .progress-bar-sub-heading.hide {
     font-size: 0;
 }

@@ -1,8 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
-html.prevent-scroll body {
+html.prevent-scroll, body {
   overflow: scroll !important;
 }
+html,body{overflow: scroll !important;}
 
 #CartDrawerPremium {
   font-family: "Montserrat", sans-serif;
@@ -1133,3 +1134,5 @@ span.summary-heading-text {
     border-radius: 4px;
     margin-top: 2px;
 }
+
+html.prevent-scroll, html.prevent-scroll body{overflow: scroll;}
