@@ -4,11 +4,12 @@
 :root{
   --bg_color:{{block.settings.primary_color}};
   --border_radius:{{block.settings.border_radius}}px;
-  --count_down_bg:{{block.settings.count_down_bg}}; 
-
-}
+  --count_down_bg:{{block.settings.count_down_bg}};
+  --body_background_color: {{block.settings.body_color}};
+  --text_color:{{block.settings.text_color}};
+} 
 .sr-countdown{background:var(--count_down_bg);}
-.sr-chip{color:var(--count_down_bg);}
+.sr-chip { color: {% if block.settings.count_down_bg == '#ffffff' %} #000 {% else %} var(--count_down_bg) {% endif %}; }
 .sr-cart-banner-container {background: var(--bg_color);}
 .cdp-checkout {background: var(--bg_color);   border-radius:var(--border_radius);}
 .cdp-u-add {background: var(--bg_color); border-radius:var(--border_radius); text-align:center;}
@@ -16,9 +17,13 @@
 .cdp-line-media img{border-radius:var(--border_radius);}
 .cdp-u-select{border-radius:var(--border_radius);}
 #third-party-integration{border-radius:var(--border_radius); background: var(--bg_color);}
-
-
-@media(max-width:767px){
+.cdp-body{background: var(--body_background_color);}
+.cdp-u-final{color:var(--bg_color);}
+.cdp-upsell{background: var(--body_background_color);}
+.cdp-u-title{color:var(--text_color);}
+.reward-progress-bar{color:var(--text_color);}
+.cdp-total-lbl, .cdp-total-val{color:var(--text_color);}
+@media(max-width:767px){ 
 
   .mobile-upsell-btn {
       font-size: 1rem;
@@ -73,8 +78,80 @@
           <span>UpSell</span>
           <span class="upsell-mob-close-icon" style="display:none;">✕</span>
           <div class="cdp-v-ctrls">
-            <button class="cdp-v-btn" data-v-prev aria-label="Previous">▲</button>
-            <button class="cdp-v-btn" data-v-next aria-label="Next">▼</button>
+            <button class="cdp-v-btn" data-v-prev aria-label="Previous">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 199.404 199.404" style="enable-background:new 0 0 199.404 199.404;" xml:space="preserve">
+<g>
+	<polygon points="0,135.411 28.285,163.695 99.703,92.277 171.119,163.695 199.404,135.412 99.703,35.709  "/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+            </button>
+            <button class="cdp-v-btn" data-v-next aria-label="Next">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 199.404 199.404" style="enable-background:new 0 0 199.404 199.404;" xml:space="preserve">
+<g>
+	<polygon points="199.404,63.993 171.12,35.709 99.702,107.127 28.284,35.709 0,63.993 99.702,163.695  "/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+            </button>
           </div>
         </div>
 
@@ -158,7 +235,7 @@
     </header>
 
     {% render 'announcementbar' show_announcementbar:block.settings.show_announcementbar_text,  announcementbar_text:block.settings.announcementbar_text %}
-    {% render 'timer' show_countdown:block.settings.show_countdown %}
+    {% render 'timer' show_countdown:block.settings.show_countdown, backgroundcolor:block.settings.count_down_bg %}
     {%  render 'progress-bar' %}
     {% render 'progressbar_qty_condition' %}
 
@@ -415,14 +492,30 @@
       "type": "color",
       "id": "count_down_bg",
       "label": "Countdown Background",
-      "default": "#000"
+      "default": "#000",
+      "info":"Timer Color Changes"
     },
-    { "type": "collection", "id": "upsell_collection", "label": "Upsell collection" },
+    { "type": "collection", "id": "upsell_collection", "label": "Upsell collection", "info":"Chnage Upsell Collection" },
     {
       "type": "color",
       "id": "primary_color",
-      "label": "Color Theme",
-      "default": "#7c3444"
+      "label": "Button Background ",
+      "default": "#7c3444",
+      "info":"Buttons + Prices Color Change"
+    },
+   {
+      "type": "color",
+      "id": "body_color",
+      "label": "Body Color ",
+      "default": "#f0e5e7",
+      "info":"Body Color Change"
+    },
+       {
+      "type": "color",
+      "id": "text_color",
+      "label": "Content Color ",
+      "default": "#000",
+      "info":"Text Color Change"
     },
      {
       "type": "range",

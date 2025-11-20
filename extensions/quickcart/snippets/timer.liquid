@@ -3,7 +3,7 @@
   :root {
     --timer-bg: #000;
     --timer-chip-bg: #ffffff;
-    --timer-text: #fff;
+    --timer-text: {% if backgroundcolor == '#ffffff' %} #000 {% else %} #fff {% endif %};
     --timer-accent: #c73942;
     --banner-bg: #000;
     --banner-text: #fff;
