@@ -26,7 +26,7 @@
 
 .order-analytics-wrapper h5 {
     text-align: center;
-    font-size: 1.6rem;
+    font-size: 1.2rem;
 } 
 
 .order-analytics-wrapper {
@@ -35,7 +35,7 @@
 
 .order-analytics-wrapper p {
     text-align: center;
-    font-size: .9rem;
+    font-size: .7rem;
     opacity: .8;
     text-transform: capitalize;
 }

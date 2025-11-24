@@ -136,7 +136,7 @@ function BuyXGetYSection({ shop }) {
 
    const saveddata_progressbar  = async () =>{
   
-      const retrive_saved_data = await  fetch(`https://quickcart-68ln.onrender.com/app/quickcart/bxgy`,
+      const retrive_saved_data = await  fetch(`https://quickcart-vf8k.onrender.com/app/quickcart/bxgy`,
     {
       method:"GET",
       headers:{

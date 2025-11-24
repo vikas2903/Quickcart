@@ -16,7 +16,7 @@ let progressbar_text_unlocked = "";
 
 
 async function getbxgy(shop) {
-  const url = `https://quickcart-68ln.onrender.com/app/quickcart/bxgy`; 
+  const url = `https://quickcart-vf8k.onrender.com/app/quickcart/bxgy`; 
 
   const response = await fetch(url, {
     method: "GET",

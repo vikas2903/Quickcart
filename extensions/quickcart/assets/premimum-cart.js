@@ -340,7 +340,7 @@
 //   //     const cart_total_price = (cart?.total_price || 0) / 100;
 //   //     const shop_url = drawer.getAttribute("shop-url");
 //   //     const remove_protocol = shop_url?.replace(/^https?:\/\//, '');
-//   //     const freegift_api_url = `https://quickcart-68ln.onrender.com/app/api/giftproduct?shop=${remove_protocol}`;
+//   //     const freegift_api_url = `https://quickcart-vf8k.onrender.com/app/api/giftproduct?shop=${remove_protocol}`;
 
 //   //     const response = await fetch(freegift_api_url, {
 //   //       method: 'GET',
@@ -408,7 +408,7 @@
 //       // -----------------------------
 //       // 3️⃣ Fetch free gift configuration from API
 //       // -----------------------------
-//       const freegift_api_url = `https://quickcart-68ln.onrender.com/app/api/giftproduct?shop=${remove_protocol}`;
+//       const freegift_api_url = `https://quickcart-vf8k.onrender.com/app/api/giftproduct?shop=${remove_protocol}`;
 //       const response = await fetch(freegift_api_url, {
 //         method: 'GET',
 //         headers: {
@@ -1134,7 +1134,7 @@ function unlockBodyScroll() {
       if (!shop_url) return;
       const remove_protocol = shop_url.replace(/^https?:\/\//, "");
 
-      const freegift_api_url = `https://quickcart-68ln.onrender.com/app/api/giftproduct?shop=${remove_protocol}`;
+      const freegift_api_url = `https://quickcart-vf8k.onrender.com/app/api/giftproduct?shop=${remove_protocol}`;
       const response = await fetch(freegift_api_url, {
         method: "GET",
         headers: {
@@ -1416,9 +1416,11 @@ function unlockBodyScroll() {
 
   /* ============ HEADER CART ICON OPENER ============ */
   document.addEventListener("click", function (e) {
-    const icon = e.target.closest(
-      ".site-nav__link, .header__icon--cart, .Header__Icon, .m-cart-icon-bubble, .navlink--cart, a[aria-label='Cart'], .header-actions__cart-icon, .header__icon"
-    );
+   const icon = e.target.closest(
+  ".header__icon--cart, .m-cart-icon-bubble, .navlink--cart, a[aria-label='Cart'], .header-actions__cart-icon a[href*='/cart']"
+);
+
+
     if (!icon) return;
     if (window.CartDrawerPremium && typeof window.CartDrawerPremium.open === "function") {
       e.preventDefault();

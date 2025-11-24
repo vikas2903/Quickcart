@@ -6,7 +6,7 @@ export function cors(request) {
   const allowed = [
     /\.myshopify\.com$/,         // all merchant stores
     /\.shopify\.com$/,           // admin/shopify domains
-    "https://quickcart-68ln.onrender.com", // your app host
+    "https://quickcart-vf8k.onrender.com", // your app host
   ];
 
   let allowOrigin = "";

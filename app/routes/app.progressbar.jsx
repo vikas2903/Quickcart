@@ -60,7 +60,7 @@ export default function ProgressBar() {
 
   const saveddata_progressbar  = async () =>{
 
-    const retrive_saved_data = await  fetch(`https://quickcart-68ln.onrender.com/app/quickcart/unlockprice?shop=${encodeURIComponent(shop)}`,
+    const retrive_saved_data = await  fetch(`https://quickcart-vf8k.onrender.com/app/quickcart/unlockprice?shop=${encodeURIComponent(shop)}`,
   {
     method:"GET",
     headers:{

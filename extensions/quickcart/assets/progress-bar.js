@@ -80,7 +80,7 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
 
 ( async function () {
 
-  const reponseUnlockOffers = await fetch(`https://quickcart-68ln.onrender.com/app/quickcart/unlockprice?shop=${encodeURIComponent(shopNamee)}`, {
+  const reponseUnlockOffers = await fetch(`https://quickcart-vf8k.onrender.com/app/quickcart/unlockprice?shop=${encodeURIComponent(shopNamee)}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

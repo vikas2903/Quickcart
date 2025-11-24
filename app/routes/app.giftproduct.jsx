@@ -22,7 +22,6 @@ import { authenticate } from "../shopify.server.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 // ---------------------------------------------
 // 1️⃣ Loader: authenticate + provide shop info
 // ---------------------------------------------
@@ -96,7 +95,7 @@ export default function GiftProductPage() {
 
    const saveddata_progressbar  = async () =>{
   
-      const retrive_saved_data = await  fetch(`https://quickcart-68ln.onrender.com/app/api/giftproduct`,
+      const retrive_saved_data = await  fetch(`https://quickcart-vf8k.onrender.com/app/api/giftproduct`,
     {
       method:"GET",
       headers:{

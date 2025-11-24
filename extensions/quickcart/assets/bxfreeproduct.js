@@ -135,7 +135,7 @@
 
     try {
       // 1) Fetch BXG rule
-      const ruleUrl = "https://quickcart-68ln.onrender.com/app/api/bxfrule";
+      const ruleUrl = "https://quickcart-vf8k.onrender.com/app/api/bxfrule";
       const resp = await fetch(ruleUrl, { 
         method: "GET",
         headers: {
