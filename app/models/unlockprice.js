@@ -19,6 +19,7 @@ const discountMilestoneSchema = new mongoose.Schema(
       index: true,
     },
     enabled:   { type: Boolean, default: true },
+    progressBarColor: { type: String, default: "#000000" },
     milestones: {
       type: [milestoneSchema],
       validate: {

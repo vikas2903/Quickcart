@@ -1,146 +1,377 @@
 {% if show_countdown %}
 <style>
-  :root {
-    --timer-bg: #000;
-    --timer-chip-bg: #ffffff;
-    --timer-text: {% if backgroundcolor == '#ffffff' %} #000 {% else %} #fff {% endif %};
-    --timer-accent: #c73942;
-    --banner-bg: #000;
-    --banner-text: #fff;
-    --radius: 10px;
-  }
-
-  /* ===== COUNTDOWN ===== */
+  /* ===== COUNTDOWN TIMER ===== */
   .sr-countdown {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: .6rem;
-    padding: .6rem .8rem;
-    color: var(--timer-text);
-    border-bottom-left-radius: 16px;
-    border-bottom-right-radius: 16px;
-    font: 600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    box-shadow: 0 1px 0 rgba(0,0,0,.05) inset;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 1.5rem;
+    background: linear-gradient(135deg, var(--count_down_bg, #5B9BD5) 0%, color-mix(in srgb, var(--count_down_bg, #5B9BD5) 85%, #000) 100%);
+    border-radius: var(--countdown_border_radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    flex-wrap: nowrap;
     height: fit-content;
+    margin: 0 0.5rem 0.2rem;
   }
 
   .sr-countdown__icon {
-    display: inline-flex;
+    position: relative;
+    display: flex;
     align-items: center;
     justify-content: center;
-    height: 20px; width: 20px;
-    border-radius: 6px;
-    background: #fff;
-    color: var(--timer-accent);
-    font-size: 12px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .sr-countdown__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  }
+
+  .sr-countdown__icon::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 12px;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.4) 0%, transparent 70%);
+    border-radius: 50%;
   }
 
   .sr-countdown__label {
-    color: var(--timer-text);
+    font-family: var(--font-body-family, inherit);
+    color: var(--countdown_text_color, #ffffff);
     font-weight: 700;
-    letter-spacing: .2px;
+    font-size: 1.1rem;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
   }
 
   .sr-time {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
   }
 
-  .sr-chip {
-    min-width: 44px;
-    padding: 6px 10px;
-    text-align: center;
-    background: var(--timer-chip-bg);
-    border-radius: 8px;
-    font: 700 14px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    box-shadow: 0 1px 0 rgba(0,0,0,.06);
-  }
-  .sr-sep {
-    font-weight: 600;
-    opacity: 1;
+  /* ===== SPLIT-FLAP FLIP CARD ===== */
+  .sr-flip-card {
+    position: relative;
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    perspective: 300px;
     margin: 0 2px;
   }
 
-  @media (max-width: 480px) {
-    .sr-countdown { gap: .25rem; padding: .5rem .6rem; }
-    .sr-chip { min-width: 38px; padding: 4px 8px; font-size: 13px; }
-    .sr-countdown__label { font-size: 12px; }
-    .sr-countdown__icon { height: 18px; width: 18px; }
-  }
-
-  /* ===== PROMO BANNER (MARQUEE) ===== */
-  .sr-banner {
-    background: var(--banner-bg);
-    color: var(--banner-text);
-    border-radius: 0 0 var(--radius) var(--radius);
+  /* Base card halves */
+  .sr-flip-card__top,
+  .sr-flip-card__bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 50%;
     overflow: hidden;
-    margin-bottom: 1rem;
-  }
-  .sr-marquee {
-    white-space: nowrap;
-    display: block;
-    padding: 2px 0;
-  }
-  .sr-marquee__track {
-    display: inline-block;
-    padding-left: 100%;
-    animation: sr-marquee 15s linear infinite;
-  }
-  .sr-marquee__item {
-    display: inline-block;
-    padding: 0 2rem;
-    font: 600 14px/2.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    letter-spacing: .2px;
-  }
-  .sr-banner:hover .sr-marquee__track { animation-play-state: paused; }
-
-  @keyframes sr-marquee {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
+    background: var(--countdown_chip_bg, #ffffff);
+    display: flex;
+    justify-content: center;
   }
 
-  /* Respect reduced motion */
+  .sr-flip-card__top {
+    top: 0;
+    align-items: flex-end;
+    border-radius: var(--countdown_chip_radius, 8px) var(--countdown_chip_radius, 8px) 0 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+
+  .sr-flip-card__bottom {
+    bottom: 0;
+    align-items: flex-start;
+    border-radius: 0 0 var(--countdown_chip_radius, 8px) var(--countdown_chip_radius, 8px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  .sr-flip-card__top span,
+  .sr-flip-card__bottom span {
+    font-family: var(--font-heading-family, inherit);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--countdown_chip_text, #2c3e50);
+  }
+
+  .sr-flip-card__top span {
+    transform: translateY(50%);
+  }
+
+  .sr-flip-card__bottom span {
+    transform: translateY(-50%);
+  }
+
+  /* Flipping card (top flap) */
+  .sr-flip-card__flap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 50%;
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--countdown_chip_bg, #ffffff) 0%, color-mix(in srgb, var(--countdown_chip_bg, #ffffff) 94%, #000) 100%);
+    border-radius: var(--countdown_chip_radius, 8px) var(--countdown_chip_radius, 8px) 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    transform-origin: bottom center;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    z-index: 2;
+  }
+
+  .sr-flip-card__flap span {
+    font-family: var(--font-heading-family, inherit);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--countdown_chip_text, #2c3e50);
+    transform: translateY(50%);
+  }
+
+  /* Hidden flap showing new number (back of flipping card) */
+  .sr-flip-card__flap-back {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50%;
+    overflow: hidden;
+    background: linear-gradient(0deg, var(--countdown_chip_bg, #ffffff) 0%, color-mix(in srgb, var(--countdown_chip_bg, #ffffff) 94%, #000) 100%);
+    border-radius: 0 0 var(--countdown_chip_radius, 8px) var(--countdown_chip_radius, 8px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    transform-origin: top center;
+    transform: rotateX(180deg);
+    backface-visibility: hidden;
+    z-index: 1;
+  }
+
+  .sr-flip-card__flap-back span {
+    font-family: var(--font-heading-family, inherit);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--countdown_chip_text, #2c3e50);
+    transform: translateY(-50%) rotateX(180deg);
+  }
+
+  /* Animation trigger */
+  .sr-flip-card.flip .sr-flip-card__flap {
+    animation: flapDown 0.6s ease-in-out forwards;
+  }
+
+  .sr-flip-card.flip .sr-flip-card__flap-back {
+    animation: flapUp 0.6s ease-in-out forwards;
+  }
+
+  @keyframes flapDown {
+    0% {
+      transform: rotateX(0deg);
+      z-index: 2;
+    }
+    50% {
+      transform: rotateX(-90deg);
+      z-index: 2;
+    }
+    51% {
+      z-index: 0;
+    }
+    100% {
+      transform: rotateX(-180deg);
+      z-index: 0;
+    }
+  }
+
+  @keyframes flapUp {
+    0% {
+      transform: rotateX(180deg);
+      z-index: 0;
+    }
+    50% {
+      transform: rotateX(90deg);
+      z-index: 0;
+    }
+    51% {
+      z-index: 2;
+    }
+    100% {
+      transform: rotateX(0deg);
+      z-index: 2;
+    }
+  }
+
+  .sr-sep {
+    font-family: var(--font-heading-family, inherit);
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--countdown_text_color, #ffffff);
+    margin: 0 2px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    align-self: center;
+  }
+
+  @media (max-width: 600px) {
+    .sr-countdown { 
+      gap: 0.6rem; 
+      padding: 0.6rem 1rem; 
+    }
+    .sr-countdown__icon { 
+      width: 40px; 
+      height: 40px; 
+    }
+    .sr-countdown__label { 
+      font-size: 12px; 
+    }
+    .sr-flip-card {
+      width: 36px;
+      height: 42px;
+    }
+    .sr-flip-card__top span,
+    .sr-flip-card__bottom span,
+    .sr-flip-card__flap span,
+    .sr-flip-card__flap-back span {
+      font-size: 1.5rem;
+    }
+    .sr-sep {
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .sr-countdown {
+      gap: 0.4rem;
+      padding: 0.5rem 0.8rem;
+    }
+    .sr-countdown__icon {
+      width: 30px;
+      height: 30px;
+    }
+    .sr-countdown__label {
+      font-size: 12px;
+    }
+    .sr-flip-card {
+      width: 30px;
+      height: 36px;
+    }
+    .sr-flip-card__top span,
+    .sr-flip-card__bottom span,
+    .sr-flip-card__flap span,
+    .sr-flip-card__flap-back span {
+      font-size: 1rem;
+    }
+    .sr-sep {
+      font-size: 0.95rem;
+      margin: 0 1px;
+    }
+  }
+
+  /* Reduce motion for accessibility */
   @media (prefers-reduced-motion: reduce) {
-    .sr-marquee__track { animation: none; padding-left: 0; }
+    .sr-flip-card.flip .sr-flip-card__flap,
+    .sr-flip-card.flip .sr-flip-card__flap-back {
+      animation: none;
+    }
   }
 </style>
 
 <!-- COUNTDOWN (to midnight IST) -->
 <div class="sr-countdown" role="status" aria-live="polite">
-  <span class="sr-countdown__icon" aria-hidden="true">⏳</span>
-  <span class="sr-countdown__label">Hurry! Offer ends in</span>
+  <span class="sr-countdown__icon" aria-hidden="true">
+    <img src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/sand-clock.png?v=1764052267" alt="Timer" loading="lazy">
+  </span>
+  <span class="sr-countdown__label">Hurry ! Offer ends in</span>
   <span class="sr-time" aria-label="Time remaining">
-    <span class="sr-chip" id="srHrs">00</span>
+    <!-- Hours -->
+    <div class="sr-flip-card" id="srHrs">
+      <div class="sr-flip-card__top"><span>00</span></div>
+      <div class="sr-flip-card__bottom"><span>00</span></div>
+      <div class="sr-flip-card__flap"><span>00</span></div>
+      <div class="sr-flip-card__flap-back"><span>00</span></div>
+    </div>
     <span class="sr-sep">:</span>
-    <span class="sr-chip" id="srMin">00</span>
+    <!-- Minutes -->
+    <div class="sr-flip-card" id="srMin">
+      <div class="sr-flip-card__top"><span>00</span></div>
+      <div class="sr-flip-card__bottom"><span>00</span></div>
+      <div class="sr-flip-card__flap"><span>00</span></div>
+      <div class="sr-flip-card__flap-back"><span>00</span></div>
+    </div>
     <span class="sr-sep">:</span>
-    <span class="sr-chip" id="srSec">00</span>
+    <!-- Seconds -->
+    <div class="sr-flip-card" id="srSec">
+      <div class="sr-flip-card__top"><span>00</span></div>
+      <div class="sr-flip-card__bottom"><span>00</span></div>
+      <div class="sr-flip-card__flap"><span>00</span></div>
+      <div class="sr-flip-card__flap-back"><span>00</span></div>
+    </div>
   </span>
 </div>
 
-
-
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const elH = document.getElementById('srHrs');
-    const elM = document.getElementById('srMin');
-    const elS = document.getElementById('srSec');
+    const flipCards = {
+      hours: document.getElementById('srHrs'),
+      minutes: document.getElementById('srMin'),
+      seconds: document.getElementById('srSec')
+    };
+
+    let prevValues = { hours: '', minutes: '', seconds: '' };
+
+    function updateFlipCard(card, newValue, key) {
+      if (!card) return;
+      if (prevValues[key] === newValue) return;
+
+      const top = card.querySelector('.sr-flip-card__top span');
+      const bottom = card.querySelector('.sr-flip-card__bottom span');
+      const flap = card.querySelector('.sr-flip-card__flap span');
+      const flapBack = card.querySelector('.sr-flip-card__flap-back span');
+
+      if (!top || !bottom || !flap || !flapBack) return;
+
+      // Set the flap to show old value, flap-back to show new value
+      flap.textContent = prevValues[key] || newValue;
+      flapBack.textContent = newValue;
+
+      // Remove and re-add flip class to trigger animation
+      card.classList.remove('flip');
+      void card.offsetWidth; // Force reflow
+      card.classList.add('flip');
+
+      // After animation completes, update static cards
+      setTimeout(() => {
+        top.textContent = newValue;
+        bottom.textContent = newValue;
+        flap.textContent = newValue;
+        prevValues[key] = newValue;
+        card.classList.remove('flip');
+      }, 600);
+    }
 
     function secondsUntilMidnightIST() {
       const now = new Date();
-      // Convert to UTC ms
       const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
-      // IST offset +5:30
       const istMs = utcMs + (5.5 * 60 * 60 * 1000);
       const ist = new Date(istMs);
 
       const midnightIST = new Date(ist);
-      midnightIST.setHours(24, 0, 0, 0); // end of current IST day
+      midnightIST.setHours(24, 0, 0, 0);
       let secs = Math.floor((midnightIST - ist) / 1000);
-      if (secs < 0) secs = 0; // safety
+      if (secs < 0) secs = 0;
       return secs;
     }
 
@@ -153,12 +384,31 @@
       const m = Math.floor(secs / 60);
       const s = secs % 60;
 
-      if (elH) elH.textContent = pad2(h);
-      if (elM) elM.textContent = pad2(m);
-      if (elS) elS.textContent = pad2(s);
+      updateFlipCard(flipCards.hours, pad2(h), 'hours');
+      updateFlipCard(flipCards.minutes, pad2(m), 'minutes');
+      updateFlipCard(flipCards.seconds, pad2(s), 'seconds');
     }
 
-    render();
+    // Initial render without animation
+    function initialRender() {
+      let secs = secondsUntilMidnightIST();
+      const h = Math.floor(secs / 3600);
+      secs %= 3600;
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+
+      Object.entries(flipCards).forEach(([key, card]) => {
+        if (!card) return;
+        const value = key === 'hours' ? pad2(h) : key === 'minutes' ? pad2(m) : pad2(s);
+        
+        card.querySelectorAll('span').forEach(span => {
+          span.textContent = value;
+        });
+        prevValues[key] = value;
+      });
+    }
+
+    initialRender();
     setInterval(render, 1000);
   });
 </script>

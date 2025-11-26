@@ -814,21 +814,45 @@
 
   /* ============ UTIL: CURRENCY ============ */
   function convertToCurrency(price, currencyCode) {
-    return new Intl.NumberFormat("en-IN", {
+    let formatted = new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: currencyCode
     }).format(price);
+    // Replace Rs. with ₹ symbol
+    return formatted.replace(/Rs\.?/g, "₹");
   }
 
   /* ============ MINI CART PANEL TOGGLE ============ */
   const dsBtn = document.querySelector("#ds-checkout-btn");
   const dsPanel = document.querySelector(".mini-cart-order-summary-content");
   if (dsBtn && dsPanel) {
-    dsBtn.addEventListener("click", () => {
+    dsBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       dsPanel.classList.toggle("active");
       dsBtn.classList.toggle("active");
     });
   }
+
+  // Summary close button
+  const summaryCloseBtn = document.querySelector("[data-close-summary]");
+  if (summaryCloseBtn && dsPanel && dsBtn) {
+    summaryCloseBtn.addEventListener("click", () => {
+      dsPanel.classList.remove("active");
+      dsBtn.classList.remove("active");
+    });
+  }
+
+  // Close bill summary when clicking outside
+  document.addEventListener("click", function (e) {
+    if (dsPanel && dsPanel.classList.contains("active")) {
+      const isClickInsidePanel = dsPanel.contains(e.target);
+      const isClickOnBtn = dsBtn && dsBtn.contains(e.target);
+      if (!isClickInsidePanel && !isClickOnBtn) {
+        dsPanel.classList.remove("active");
+        if (dsBtn) dsBtn.classList.remove("active");
+      }
+    }
+  });
 
   /* ============ CORE CART DRAWER ============ */
   const drawer = document.getElementById("CartDrawerPremium");
@@ -959,17 +983,21 @@ function unlockBodyScroll() {
       const moneyFormat = drawer.getAttribute("data-money-format") || "${{amount}}";
       const currencyCode = drawer.getAttribute("data-currency") || undefined;
       const safeCents = isFinite(cents) ? cents : 0;
+      let result;
 
       if (window.Shopify && typeof Shopify.formatMoney === "function") {
-        return Shopify.formatMoney(safeCents, moneyFormat);
+        result = Shopify.formatMoney(safeCents, moneyFormat);
+      } else {
+        const amount = safeCents / 100;
+        result = amount.toLocaleString(undefined, {
+          style: currencyCode ? "currency" : "decimal",
+          currency: currencyCode,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
       }
-      const amount = safeCents / 100;
-      return amount.toLocaleString(undefined, {
-        style: currencyCode ? "currency" : "decimal",
-        currency: currencyCode,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
+      // Replace Rs. with ₹ symbol
+      return result.replace(/Rs\.?/g, "₹");
     } catch (e) {
       return ((cents || 0) / 100).toFixed(2);
     }
@@ -1291,6 +1319,31 @@ function unlockBodyScroll() {
     changeQty(key, v).then(refreshUI);
   });
 
+  /* ============ UPSELL ADDED NOTIFICATION ============ */
+  function showUpsellNotification(productName = "Product") {
+    // Remove any existing notification
+    const existing = document.querySelector('.cdp-upsell-notification');
+    if (existing) existing.remove();
+
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'cdp-upsell-notification';
+    notification.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+      <span>${productName} added to cart!</span>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      notification.classList.add('hiding');
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+
   /* ============ UPSELL ADD BUTTONS ============ */
   drawer.addEventListener("click", function (e) {
     const btn = e.target.closest("[data-upsell-add]");
@@ -1301,10 +1354,16 @@ function unlockBodyScroll() {
     const variantId = sel?.value;
     if (!variantId) return;
 
+    // Get product name for notification
+    const productName = card?.querySelector(".cdp-u-title")?.textContent?.trim() || "Product";
+
     btn.disabled = true;
     btn.setAttribute("aria-busy", "true");
     addVariantFD(variantId, 1)
-      .then(() => refreshUI())
+      .then(() => {
+        showUpsellNotification(productName);
+        return refreshUI();
+      })
       .finally(() => {
         btn.disabled = false;
         btn.removeAttribute("aria-busy");
@@ -1441,6 +1500,247 @@ function unlockBodyScroll() {
   document.querySelector(".upsell-mob-close-icon")?.addEventListener("click", function () {
     document.querySelector(".cdp-upsell")?.classList.remove("active");
   });
+
+  /* ============ UPSELL POPUP FUNCTIONALITY ============ */
+  const upsellPopup = document.getElementById("upsellPopup");
+  const popupProductImage = document.getElementById("popupProductImage");
+  const popupProductImage2 = document.getElementById("popupProductImage2");
+  const popupProductTitle = document.getElementById("popupProductTitle");
+  const popupProductPrice = document.getElementById("popupProductPrice");
+  const popupProductCompare = document.getElementById("popupProductCompare");
+  const popupQtyInput = document.getElementById("popupQty");
+  const popupAddBtn = document.getElementById("popupAddBtn");
+  const popupViewBtn = document.getElementById("popupViewBtn");
+  const popupVariantsWrap = document.getElementById("popupVariantsWrap");
+  const popupVariantBtns = document.getElementById("popupVariantBtns");
+
+  // Store current product data for variant changes
+  let currentProductData = null;
+
+  // Format price for popup
+  function formatPopupPrice(cents) {
+    const amount = cents / 100;
+    return "₹" + amount.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  // Handle variant button click
+  function handleVariantButtonClick(btn) {
+    if (btn.disabled) return;
+
+    // Remove active class from all buttons
+    popupVariantBtns.querySelectorAll('.cdp-variant-btn').forEach(b => b.classList.remove('active'));
+    // Add active class to clicked button
+    btn.classList.add('active');
+
+    const variantId = btn.dataset.variantId;
+    const variantPrice = btn.dataset.price;
+    const variantComparePrice = btn.dataset.comparePrice;
+    const variantImage = btn.dataset.image;
+
+    // Update Add button variant ID
+    if (popupAddBtn) popupAddBtn.dataset.variantId = variantId;
+
+    // Update price display
+    if (popupProductPrice && variantPrice) {
+      popupProductPrice.textContent = formatPopupPrice(parseInt(variantPrice));
+    }
+
+    // Update compare price
+    if (popupProductCompare) {
+      if (variantComparePrice && parseInt(variantComparePrice) > parseInt(variantPrice)) {
+        popupProductCompare.textContent = formatPopupPrice(parseInt(variantComparePrice));
+        popupProductCompare.style.display = "inline";
+      } else {
+        popupProductCompare.style.display = "none";
+      }
+    }
+
+    // Update image if variant has different image
+    if (popupProductImage && variantImage) {
+      popupProductImage.src = variantImage;
+    }
+  }
+
+  // Open popup when clicking Add button on upsell card
+  drawer.addEventListener("click", async function (e) {
+    const openBtn = e.target.closest("[data-open-upsell-popup]");
+    if (!openBtn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const productTitle = openBtn.dataset.productTitle;
+    const productImage = openBtn.dataset.productImage;
+    const productPrice = openBtn.dataset.productPrice;
+    const productComparePrice = openBtn.dataset.productComparePrice;
+    const productUrl = openBtn.dataset.productUrl;
+    const variantId = openBtn.dataset.variantId;
+    const productHandle = openBtn.dataset.productHandle;
+    const hasVariants = openBtn.dataset.hasVariants === "true";
+
+    // Populate popup with initial data
+    if (popupProductImage) popupProductImage.src = productImage;
+    if (popupProductImage2) popupProductImage2.src = productImage; // Initially same image
+    if (popupProductTitle) popupProductTitle.textContent = productTitle;
+    if (popupProductPrice) popupProductPrice.textContent = productPrice;
+    if (popupProductCompare) {
+      popupProductCompare.textContent = productComparePrice || "";
+      popupProductCompare.style.display = productComparePrice ? "inline" : "none";
+    }
+    if (popupQtyInput) popupQtyInput.value = 1;
+    if (popupAddBtn) popupAddBtn.dataset.variantId = variantId;
+    if (popupViewBtn) popupViewBtn.dataset.productUrl = productUrl;
+
+    // Always fetch product data to get all images
+    if (productHandle) {
+      try {
+        const res = await fetch(`/products/${productHandle}.js`, {
+          headers: { Accept: "application/json" }
+        });
+        const productData = await res.json();
+        currentProductData = productData;
+
+        // Set both images from product images array
+        if (productData.images && productData.images.length > 0) {
+          if (popupProductImage) popupProductImage.src = productData.images[0];
+          if (popupProductImage2) {
+            // Use second image if available, otherwise use first image
+            popupProductImage2.src = productData.images[1] || productData.images[0];
+            // Hide second image if only one image available
+            popupProductImage2.style.display = productData.images.length > 1 ? "block" : "none";
+          }
+        }
+
+        // Handle variants
+        if (hasVariants && popupVariantsWrap && popupVariantBtns) {
+          popupVariantsWrap.style.display = "block";
+
+          // Generate variant buttons
+          const variantButtons = productData.variants.map((v, index) => {
+            const isFirstAvailable = productData.variants.find(vv => vv.available)?.id === v.id;
+            return `<button 
+              type="button"
+              class="cdp-variant-btn ${isFirstAvailable ? 'active' : ''} ${!v.available ? 'disabled' : ''}" 
+              data-variant-id="${v.id}" 
+              data-price="${v.price}" 
+              data-compare-price="${v.compare_at_price || ''}" 
+              data-image="${v.featured_image?.src || productData.featured_image}"
+              ${!v.available ? 'disabled' : ''}
+            >${v.title}${!v.available ? ' (Out of Stock)' : ''}</button>`;
+          }).join('');
+
+          popupVariantBtns.innerHTML = variantButtons;
+
+          // Set the first available variant
+          const firstAvailable = productData.variants.find(v => v.available);
+          if (firstAvailable && popupAddBtn) {
+            popupAddBtn.dataset.variantId = firstAvailable.id;
+          }
+        } else {
+          // No variants - hide variant selector
+          if (popupVariantsWrap) popupVariantsWrap.style.display = "none";
+        }
+      } catch (err) {
+        console.error("Error fetching product data:", err);
+        if (popupVariantsWrap) popupVariantsWrap.style.display = "none";
+        currentProductData = null;
+      }
+    } else {
+      if (popupVariantsWrap) popupVariantsWrap.style.display = "none";
+      currentProductData = null;
+    }
+
+    // Show popup
+    if (upsellPopup) upsellPopup.style.display = "flex";
+  });
+
+  // Handle variant button clicks (event delegation)
+  if (popupVariantBtns) {
+    popupVariantBtns.addEventListener("click", function (e) {
+      const btn = e.target.closest(".cdp-variant-btn");
+      if (btn) handleVariantButtonClick(btn);
+    });
+  }
+
+  // Close popup when clicking close button or overlay
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("[data-close-popup]")) {
+      if (upsellPopup) upsellPopup.style.display = "none";
+    }
+  });
+
+  // Close popup when clicking outside popup content
+  if (upsellPopup) {
+    upsellPopup.addEventListener("click", function (e) {
+      // If click is directly on the popup container (not on content inside)
+      if (e.target === upsellPopup || e.target.classList.contains("cdp-popup-overlay")) {
+        upsellPopup.style.display = "none";
+      }
+    });
+  }
+
+  // Popup quantity controls
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("[data-popup-qty-down]")) {
+      if (popupQtyInput) {
+        const currentVal = parseInt(popupQtyInput.value) || 1;
+        if (currentVal > 1) popupQtyInput.value = currentVal - 1;
+      }
+    }
+    if (e.target.closest("[data-popup-qty-up]")) {
+      if (popupQtyInput) {
+        const currentVal = parseInt(popupQtyInput.value) || 1;
+        popupQtyInput.value = currentVal + 1;
+      }
+    }
+  });
+
+  // Add to cart from popup
+  if (popupAddBtn) {
+    popupAddBtn.addEventListener("click", async function () {
+      const variantId = this.dataset.variantId;
+      const quantity = parseInt(popupQtyInput?.value) || 1;
+
+      if (!variantId) return;
+
+      // Get product name for notification
+      const productName = popupProductTitle?.textContent?.trim() || "Product";
+
+      this.disabled = true;
+      this.textContent = "Adding...";
+
+      try {
+        const res = await fetch("/cart/add.js", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: variantId, quantity: quantity }),
+        });
+
+        if (res.ok) {
+          // Show notification
+          showUpsellNotification(productName);
+          // Close popup and refresh cart
+          if (upsellPopup) upsellPopup.style.display = "none";
+          await refreshUI();
+        }
+      } catch (err) {
+        console.error("Error adding to cart:", err);
+      } finally {
+        this.disabled = false;
+        this.textContent = "Add";
+      }
+    });
+  }
+
+  // View Details button - redirect to product page
+  if (popupViewBtn) {
+    popupViewBtn.addEventListener("click", function () {
+      const productUrl = this.dataset.productUrl;
+      if (productUrl) {
+        window.location.href = productUrl;
+      }
+    });
+  }
 
   console.log("Upcart: Progressbar + Upsell Products Initialized");
 })();

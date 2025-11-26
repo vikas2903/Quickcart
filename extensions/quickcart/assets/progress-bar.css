@@ -265,4 +265,12 @@ span.cart-item-variant-title {
     font-size: 12px !important;
 }
 
+/* Greyscale filter for inactive milestones */
+.milestone-dot.greyscale {
+    filter: grayscale(100%);
+    opacity: 0.6;
+}
 
+.milestone-dot.greyscale img {
+    filter: grayscale(100%);
+}

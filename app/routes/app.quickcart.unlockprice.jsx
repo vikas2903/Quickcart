@@ -77,6 +77,7 @@ export const action = async ({ request }) => {
   }
 
   const enabled = !!body.enabled;
+  const progressBarColor = String(body.progressBarColor || "#000000").trim();
 
   // sanitize milestones
   const milestonesRaw = Array.isArray(body.milestones) ? body.milestones : [];
@@ -102,7 +103,7 @@ export const action = async ({ request }) => {
     const saved = await DiscountMilestone.findOneAndUpdate(
       { shopName: shop },
       {
-        $set: { enabled, milestones },
+        $set: { enabled, milestones, progressBarColor },
         $setOnInsert: { shopName: shop }, // 👈 persist shopName in schema
       },
       {

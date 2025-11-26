@@ -15,6 +15,7 @@ let enabled_unlock = false;
 let price_range_text_one   = "";
 let price_range_text_two   = "";
 let price_range_text_three = "";
+let progressBarColor = "#000000";
 
 // let shopNamee = document.querySelector("#shop-primary-url").value;
 
@@ -70,12 +71,14 @@ let shopNamee = document.querySelector("#shop-primary-url").value;
 
 function toMoney(amount, currency = "INR", locale = "en-IN") {
   const val = Math.max(0, Number(amount) || 0);
-  return new Intl.NumberFormat(locale, {
+  let formatted = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(val);
+  // Replace Rs. with ₹ symbol
+  return formatted.replace(/Rs\.?/g, "₹");
 }
 
 ( async function () {
@@ -98,7 +101,8 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
     // console.log("UnlockPrice data:", data);
     enabled_unlock = !!data?.enabled;
 
-    
+    // Get progress bar color from settings
+    progressBarColor = data?.progressBarColor || "#000000";
 
     price_range_one   = data?.milestones?.[0]?.price ? data.milestones[0].price : 899;
     price_range_two   = data?.milestones?.[1]?.price ? data.milestones[1].price : 1499;
@@ -111,6 +115,13 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
    if (milestone_text_one)   milestone_text_one.innerHTML   = price_range_text_one;
    if (milestone_text_two)   milestone_text_two.innerHTML   = price_range_text_two;
    if (milestone_text_three) milestone_text_three.innerHTML = price_range_text_three;
+
+   // Apply progress bar color
+   if (progressbar) {
+     progressbar.style.backgroundColor = progressBarColor;
+   }
+   // Also set CSS variable for consistency
+   document.documentElement.style.setProperty('--sr-progress-bar-bg-color', progressBarColor);
   }
   if(enabled_unlock) {
     document.querySelector('#mini-cart-progress-section').style.display = 'unset';
@@ -124,35 +135,73 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
 
       if (!progressbar) return;
 
+      // Get milestone dot elements
+      const stepOneDot = document.querySelector("#step-one .milestone-dot");
+      const stepTwoDot = document.querySelector("#step-two .milestone-dot");
+      const stepThreeDot = document.querySelector("#step-three .milestone-dot");
+
+      // Icon URLs
+      const coloredIcon = "https://pickrr.s3.amazonaws.com:443/2025-08-01T06:57:59.706663_party_icon_colored.png";
+      const outlineIcon = "https://pickrr.s3.amazonaws.com:443/2025-08-01T06:27:20.558528_party_icon_outline.png";
+
+      // Helper function to activate a milestone
+      function activateMilestone(dotElement) {
+        if (dotElement) {
+          dotElement.classList.remove('greyscale');
+          dotElement.classList.add('active');
+          const img = dotElement.querySelector('img');
+          if (img) img.src = coloredIcon;
+        }
+      }
+
+      // Helper function to deactivate a milestone
+      function deactivateMilestone(dotElement) {
+        if (dotElement) {
+          dotElement.classList.add('greyscale');
+          dotElement.classList.remove('active');
+          const img = dotElement.querySelector('img');
+          if (img) img.src = outlineIcon;
+        }
+      }
+
       if (cartEstimatedPrice >= price_range_three) {
-        // Tier 3+ (full bar)
+        // Tier 3+ (full bar) - ALL milestones active
         progressbar.style.width = "100%";
+        activateMilestone(stepOneDot);
+        activateMilestone(stepTwoDot);
+        activateMilestone(stepThreeDot);
         if (subheading_progressbar) {
-         document.querySelector('.progress-bar-sub-heading').classList.add('hide');
+          document.querySelector('.progress-bar-sub-heading').classList.add('hide');
           subheading_progressbar.innerHTML = "🎉 Congratulations! You unlocked the maximum discount.";
         }
         if (nearestAmount) nearestAmount.innerHTML = toMoney(0, currency);
-        
 
       } else if (cartEstimatedPrice >= price_range_two) {
-        // Between tier 2 and 3 (66% → 100%)
-       
+        // Between tier 2 and 3 - first 2 milestones active
         progressbar.style.width = "66%";
+        activateMilestone(stepOneDot);
+        activateMilestone(stepTwoDot);
+        deactivateMilestone(stepThreeDot);
         if (subheading_progressbar) subheading_progressbar.innerHTML = price_range_text_three;
         if (nearestAmount) nearestAmount.innerHTML = toMoney(price_range_three - cartEstimatedPrice, currency);
         document.querySelector('.progress-bar-sub-heading').classList.remove('hide');
 
       } else if (cartEstimatedPrice >= price_range_one) {
+        // Between tier 1 and 2 - first milestone active
         progressbar.style.width = "33%";
-    
-    
+        activateMilestone(stepOneDot);
+        deactivateMilestone(stepTwoDot);
+        deactivateMilestone(stepThreeDot);
         if (subheading_progressbar) subheading_progressbar.innerHTML = price_range_text_two;
         if (nearestAmount) nearestAmount.innerHTML = toMoney(price_range_two - cartEstimatedPrice, currency);
         document.querySelector('.progress-bar-sub-heading').classList.remove('hide');
 
       } else {
-        // Below tier 1 (0 → 33%)
+        // Below tier 1 - NO milestones active
         progressbar.style.width = "0%";
+        deactivateMilestone(stepOneDot);
+        deactivateMilestone(stepTwoDot);
+        deactivateMilestone(stepThreeDot);
         if (subheading_progressbar) subheading_progressbar.innerHTML = price_range_text_one;
         if (nearestAmount) nearestAmount.innerHTML = toMoney(price_range_one - cartEstimatedPrice, currency);
         document.querySelector('.progress-bar-sub-heading').classList.remove('hide');

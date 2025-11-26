@@ -37,15 +37,17 @@ export default function ProgressBar() {
     "Extra 10% off on ₹{{price}}",
     "Extra 15% off on ₹{{price}}",
   ]);
+  const [progressBarColor, setProgressBarColor] = useState("#000000");
 
   const [previewTotal, setPreviewTotal] = useState("999");
   const [tab, setTab] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  
   const [savedata, setsaveddata] = useState({
     enabled : '',
-    milestones: []
-
+    milestones: [],
+    progressBarColor: '#000000'
   })
   const nf = useMemo(
     () =>
@@ -131,6 +133,9 @@ export default function ProgressBar() {
         const json = await res.json();
         if (json?.ok && json.data) {
           setEnabled(!!json.data.enabled);
+          if (json.data.progressBarColor) {
+            setProgressBarColor(json.data.progressBarColor);
+          }
           const ms = Array.isArray(json.data.milestones)
             ? json.data.milestones
             : [];
@@ -151,7 +156,8 @@ export default function ProgressBar() {
       let milestones  = progressbardata?.milestones
       let enalbled = progressbardata?.enabled
     
-       setsaveddata({enalbled, milestones});
+       const savedColor = progressbardata?.progressBarColor || '#000000';
+       setsaveddata({enalbled, milestones, progressBarColor: savedColor});
     }
     fetchData();
     
@@ -177,6 +183,7 @@ export default function ProgressBar() {
       // you can include shopName in body too, but header is the source of truth
       shopName: shop,
       enabled,
+      progressBarColor,
       milestones: milestones.map((m) => ({
         price: Number(m.price) || 0,
         text: String(m.text || "").trim(),
@@ -241,6 +248,57 @@ export default function ProgressBar() {
                     checked={enabled}
                     onChange={setEnabled}
                   />
+
+                  {/* Progress Bar Color Picker */}
+                  <div style={{ marginTop: '10px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                      Progress Bar Color
+                    </label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <input
+                        type="color"
+                        value={progressBarColor}
+                        onChange={(e) => setProgressBarColor(e.target.value)}
+                        style={{
+                          width: '50px',
+                          height: '40px',
+                          border: '1px solid #ccc',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          padding: '2px'
+                        }}
+                      />
+                      <TextField
+                        value={progressBarColor}
+                        onChange={setProgressBarColor}
+                        autoComplete="off"
+                        placeholder="#000000"
+                        maxLength={7}
+                      />
+                      <div style={{
+                        display: 'flex',
+                        gap: '6px'
+                      }}>
+                        {['#000000', '#2e7d32', '#1565d8', '#d32f2f', '#7b1fa2', '#ff6f00'].map((color) => (
+                          <button
+                            key={color}
+                            type="button"
+                            onClick={() => setProgressBarColor(color)}
+                            style={{
+                              width: '28px',
+                              height: '28px',
+                              borderRadius: '50%',
+                              backgroundColor: color,
+                              border: progressBarColor === color ? '3px solid #333' : '2px solid #ddd',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            title={color}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
 
                   <Banner tone="info">
                     Use <strong>{`{{price}}`}</strong> in the text to auto-insert
@@ -312,6 +370,7 @@ export default function ProgressBar() {
                       awayText={awayText}
                       nf={nf}
                       maxPrice={maxPrice}
+                      progressBarColor={progressBarColor}
                     />
                   </BlockStack>
                 </LegacyCard.Section>
@@ -349,8 +408,21 @@ export default function ProgressBar() {
             <th align="left">Enabled</th>
             <td>{savedata.enalbled ? "✅ Yes" : "❌ No"}</td>
           </tr>
-    
-         
+          <tr>
+            <th align="left">Progress Bar Color</th>
+            <td>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '4px',
+                  backgroundColor: savedata.progressBarColor || '#000000',
+                  border: '1px solid #ddd'
+                }} />
+                <span>{savedata.progressBarColor || '#000000'}</span>
+              </div>
+            </td>
+          </tr>
         </tbody>
       </table>
 
@@ -395,7 +467,7 @@ export default function ProgressBar() {
 }
 
 /* ---------- PREVIEW ---------- */
-function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPrice }) {
+function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPrice, progressBarColor }) {
   const isMobile = mode === "mobile";
   const frame = {
     width: isMobile ? 360 : "100%",
@@ -420,7 +492,7 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
   const barFill = {
     width: `${enabled ? fillPercent : 0}%`,
     height: "100%",
-    background: "linear-gradient(90deg, #111827, #374151)",
+    background: progressBarColor || "#000000",
     transition: "width 300ms ease",
   };
 

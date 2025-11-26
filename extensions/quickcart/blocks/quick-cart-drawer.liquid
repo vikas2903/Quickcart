@@ -5,11 +5,25 @@
   --bg_color:{{block.settings.primary_color}};
   --border_radius:{{block.settings.border_radius}}px;
   --count_down_bg:{{block.settings.count_down_bg}};
+  --countdown_text_color:{{block.settings.countdown_text_color}};
+  --countdown_chip_bg:{{block.settings.countdown_chip_bg}};
+  --countdown_chip_text:{{block.settings.countdown_chip_text}};
+  --countdown_border_radius:{{block.settings.countdown_border_radius}}px;
+  --countdown_chip_radius:{{block.settings.countdown_chip_radius}}px;
   --body_background_color: {{block.settings.body_color}};
   --text_color:{{block.settings.text_color}};
 } 
-.sr-countdown{background:var(--count_down_bg);}
-.sr-chip { color: {% if block.settings.count_down_bg == '#ffffff' %} #000 {% else %} var(--count_down_bg) {% endif %}; }
+.sr-countdown{
+  background: linear-gradient(135deg, var(--count_down_bg) 0%, color-mix(in srgb, var(--count_down_bg) 85%, #000) 100%);
+  border-radius: var(--countdown_border_radius);
+}
+.sr-countdown__label { color: var(--countdown_text_color); }
+.sr-sep { color: var(--countdown_text_color); }
+.sr-chip { 
+  background: var(--countdown_chip_bg);
+  color: var(--countdown_chip_text);
+  border-radius: var(--countdown_chip_radius);
+}
 .sr-cart-banner-container {background: var(--bg_color);}
 .cdp-checkout {background: var(--bg_color);   border-radius:var(--border_radius);}
 .cdp-u-add {background: var(--bg_color); border-radius:var(--border_radius); text-align:center;}
@@ -162,55 +176,17 @@
               {% for p in usell.products limit: 12 %}
                 <article class="cdp-u-card" data-upsell-card>
                   <div class="cdp-u-media">
-                    <img
-                      loading="lazy"
-                      src="{{ p.featured_image | image_url: width: 200 }}"
-                      alt="{{ p.title | escape }}"
-                      width="200"
-                      height="200"
-                    >
+                    <img loading="lazy" src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" width="300" height="300">
+                    <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Add</button>
                   </div>
                   <div class="cdp-u-info">
-                    <div class="cdp-u-title">{{ p.title | escape | truncate:20  }}</div>
+                    <div class="cdp-u-title">{{ p.title | escape | truncate: 22 }}</div>
                     <div class="cdp-u-price">
-                      {% if p.compare_at_price_min > p.price_min %}
-                        <span class="cdp-u-compare">{{ p.compare_at_price_min | money_without_trailing_zeros  }}</span>
-                      {% endif %}
                       <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
+                      {% if p.compare_at_price_min > p.price_min %}
+                        <span class="cdp-u-compare">{{ p.compare_at_price_min | money_without_trailing_zeros }}</span>
+                      {% endif %}
                     </div>
-
-                    {% if p.variants.size > 1 %}
-                      {% assign has_multiple = true %}
-                    {% else %}
-                      {% assign has_multiple = false %}
-                    {% endif %}
-
-                    <div class="cdp-u-variants">
-                      <select class="cdp-u-select" data-variant-select>
-                        {% for v in p.variants %}
-                          <option
-                            value="{{ v.id }}"
-                            {% unless v.available %}
-                              disabled
-                            {% endunless %}
-                          >
-                            {% if v.title != 'Default Title' %}{{ v.title | escape }} — {% endif -%}
-                            {{- v.price | money -}}
-                            {%- unless v.available %} (Sold out){% endunless %}
-                          </option>
-                        {% endfor %}
-                      </select>
-                    </div>
-
-                    <button
-                      class="cdp-u-add"
-                      data-upsell-add
-                      {% unless p.first_available_variant.available %}
-                        disabled
-                      {% endunless %}
-                    >
-                      {% if has_multiple %}+ Add{% else %}+ Add{% endif %}
-                    </button>
                   </div>
                 </article>
               {% endfor %}
@@ -233,9 +209,9 @@
       </div>
       <button class="cdp-close" aria-label="Close" data-close>&#10005;</button>
     </header>
-
+ {% render 'timer' show_countdown:block.settings.show_countdown, backgroundcolor:block.settings.count_down_bg %}
     {% render 'announcementbar' show_announcementbar:block.settings.show_announcementbar_text,  announcementbar_text:block.settings.announcementbar_text %}
-    {% render 'timer' show_countdown:block.settings.show_countdown, backgroundcolor:block.settings.count_down_bg %}
+   
     {%  render 'progress-bar' %}
     {% render 'progressbar_qty_condition' %}
 
@@ -263,27 +239,55 @@
                 >
               </div>
               <div class="cdp-line-info">
-                <div class="cdp-line-top">
-                  <div class="cdp-line-title">
-                    {{ item.product.title | escape }}
-                    {% if item.variant.title and item.variant.title != 'Default Title' %}
-                      <span class="cdp-line-variant">{{ item.variant.title | escape }}</span>
-                    {% endif %}
-                  </div>
-                  <button class="cdp-line-remove" data-remove="{{ item.key }}" aria-label="Remove">Remove</button>
-                </div>
-                <div class="cdp-line-bottom">
-                  <div class="cdp-qty" data-qty-wrap>
-                    <button class="cdp-qty-btn" data-qty-down>-</button>
-                    <input class="cdp-qty-input" type="number" min="0" value="{{ item.quantity }}" data-qty>
-                    <button class="cdp-qty-btn" data-qty-up>+</button>
-                  </div>
+                <div class="cdp-line-header">
+                  <div class="cdp-line-title">{{ item.product.title | escape | truncate: 28 }}</div>
                   <div class="cdp-line-prices">
+                    <span class="cdp-line-final">{{ item.final_line_price | money_without_trailing_zeros }}</span>
                     {% if item.original_line_price > item.final_line_price %}
                       <span class="cdp-line-compare">{{ item.original_line_price | money_without_trailing_zeros }}</span>
                     {% endif %}
-                    <span class="cdp-line-final">{{ item.final_line_price | money_without_trailing_zeros }}</span>
                   </div>
+                </div>
+                <div class="cdp-line-meta">
+                  {% if item.variant.title and item.variant.title != 'Default Title' %}
+                    <span class="cdp-line-variant">{{ item.variant.title | escape }}</span> - 
+                  {% endif %}
+                  <span class="cdp-line-qty-label">Quantity {{ item.quantity }}</span>
+                </div>
+                {% if item.line_level_discount_allocations.size > 0 %}
+                  {% for discount in item.line_level_discount_allocations %}
+                    <div class="cdp-line-offer">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                      </svg>
+                      {{ discount.discount_application.title }} (-{{ discount.amount | money_without_trailing_zeros }})
+                    </div>
+                  {% endfor %}
+                {% elsif item.original_line_price > item.final_line_price %}
+                  {% assign discount_percent = item.original_line_price | minus: item.final_line_price | times: 100 | divided_by: item.original_line_price %}
+                  <div class="cdp-line-offer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                      <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                    {{ discount_percent }}% Off Applied
+                  </div>
+                {% endif %}
+                <div class="cdp-line-bottom">
+                  <div class="cdp-qty" data-qty-wrap>
+                    <button class="cdp-qty-btn" data-qty-down aria-label="Decrease quantity">−</button>
+                    <input class="cdp-qty-input" type="number" min="0" value="{{ item.quantity }}" data-qty aria-label="Quantity">
+                    <button class="cdp-qty-btn" data-qty-up aria-label="Increase quantity">+</button>
+                  </div>
+                  <button class="cdp-line-remove" data-remove="{{ item.key }}" aria-label="Remove item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </button>
                 </div>
               </div>
             </article>
@@ -295,15 +299,12 @@
             
        
         </div>
-       
-          {% render 'gift' giftproduct:block.settings.gift_wrap_product, show_gift_Card: block.settings.show_gift_product %}
 
 <div class="mob_upsell">
           <aside class="cdp-upsell">
         <div class="cdp-upsell-head">
-          <span>UpSell</span>
+          <span>You May Also Like</span>
           <span class="upsell-mob-close-icon" style="display:none;">✕</span>
-          
         </div>
 
         <div class="cdp-v-slider" data-v-slider>
@@ -313,55 +314,17 @@
               {% for p in usell.products limit: 12 %}
                 <article class="cdp-u-card" data-upsell-card>
                   <div class="cdp-u-media">
-                    <img
-                      loading="lazy"
-                      src="{{ p.featured_image | image_url: width: 200 }}"
-                      alt="{{ p.title | escape }}"
-                      width="200"
-                      height="200"
-                    >
+                    <img loading="lazy" src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" width="300" height="300">
+                    <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Add</button>
                   </div>
                   <div class="cdp-u-info">
-                    <div class="cdp-u-title">{{ p.title | escape | truncate:20  }}</div>
+                    <div class="cdp-u-title">{{ p.title | escape | truncate: 22 }}</div>
                     <div class="cdp-u-price">
-                      {% if p.compare_at_price_min > p.price_min %}
-                        <span class="cdp-u-compare">{{ p.compare_at_price_min | money_without_trailing_zeros  }}</span>
-                      {% endif %}
                       <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
+                      {% if p.compare_at_price_min > p.price_min %}
+                        <span class="cdp-u-compare">{{ p.compare_at_price_min | money_without_trailing_zeros }}</span>
+                      {% endif %}
                     </div>
-
-                    {% if p.variants.size > 1 %}
-                      {% assign has_multiple = true %}
-                    {% else %}
-                      {% assign has_multiple = false %}
-                    {% endif %}
-
-                    <div class="cdp-u-variants">
-                      <select class="cdp-u-select" data-variant-select>
-                        {% for v in p.variants %}
-                          <option
-                            value="{{ v.id }}"
-                            {% unless v.available %}
-                              disabled
-                            {% endunless %}
-                          >
-                            {% if v.title != 'Default Title' %}{{ v.title | escape }} — {% endif -%}
-                            {{- v.price | money -}}
-                            {%- unless v.available %} (Sold out){% endunless %}
-                          </option>
-                        {% endfor %}
-                      </select>
-                    </div>
-
-                    <button
-                      class="cdp-u-add"
-                      data-upsell-add
-                      {% unless p.first_available_variant.available %}
-                        disabled
-                      {% endunless %}
-                    >
-                      {% if has_multiple %}+ Add{% else %}+ Add{% endif %}
-                    </button>
                   </div>
                 </article>
               {% endfor %}
@@ -380,12 +343,20 @@
 
 <div class="mobile-upsell-btn" style="display:none;">Upsell Products  <span>View</span></div>
 
+<!-- Gift Wrap Section -->
+<div class="cdp-gift-wrap-section">
+  {% render 'gift' giftproduct:block.settings.gift_wrap_product, show_gift_Card: block.settings.show_gift_product %}
+</div>
+
 <div class="mini-cart-order-summary-content">
               <!-- Offer Badge -->
               <div class="combined-offer-badge" id="summary-combined-offer-badge">🎉 Continue to safe checkout 🎉!</div>
               <div class="mini-cart-order-summary" style="display: block;">
-                <div class="summary-heading" onclick="toggleSmartCartOrderSummary()">
+                <div class="summary-heading">
                   <span class="summary-heading-text">Bill Summary</span>
+                  <button class="summary-close-btn" data-close-summary aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
                 </div>
                 <p>
                   Subtotal
@@ -475,6 +446,40 @@
 
 
   </div>
+
+  <!-- Upsell Product Popup Modal -->
+  <div class="cdp-upsell-popup" id="upsellPopup" style="display: none;">
+    <div class="cdp-popup-overlay" data-close-popup></div>
+    <div class="cdp-popup-content">
+      <button class="cdp-popup-close" data-close-popup aria-label="Close">×</button>
+      <div class="cdp-popup-images">
+        <img id="popupProductImage" class="cdp-popup-img" src="" alt="Product Image">
+        <img id="popupProductImage2" class="cdp-popup-img" src="" alt="Product Image 2">
+      </div>
+      <div class="cdp-popup-info">
+        <h3 class="cdp-popup-title" id="popupProductTitle"></h3>
+        <div class="cdp-popup-price">
+          <span class="cdp-popup-final" id="popupProductPrice"></span>
+          <span class="cdp-popup-compare" id="popupProductCompare"></span>
+        </div>
+        <!-- Variant Selector Buttons -->
+        <div class="cdp-popup-variants" id="popupVariantsWrap" style="display: none;">
+          <label class="cdp-popup-variant-label">Select Option:</label>
+          <div class="cdp-popup-variant-btns" id="popupVariantBtns"></div>
+        </div>
+        <div class="cdp-popup-qty">
+          <button class="cdp-popup-qty-btn" data-popup-qty-down>−</button>
+          <input type="number" class="cdp-popup-qty-input" id="popupQty" value="1" min="1">
+          <button class="cdp-popup-qty-btn" data-popup-qty-up>+</button>
+          <button class="cdp-popup-add-btn" id="popupAddBtn" data-variant-id="">Add</button>
+        </div>
+        <button class="cdp-popup-view-btn" id="popupViewBtn">
+          <span>View Details</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </div>
 </section>
 <script src="{{ 'premimum-cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progress-bar.js' | asset_url }}" defer="defer"></script>
@@ -492,8 +497,51 @@
       "type": "color",
       "id": "count_down_bg",
       "label": "Countdown Background",
-      "default": "#000",
-      "info":"Timer Color Changes"
+      "default": "#5B9BD5",
+      "info": "Timer background color"
+    },
+    {
+      "type": "color",
+      "id": "countdown_text_color",
+      "label": "Countdown Text Color",
+      "default": "#ffffff",
+      "info": "Timer label text color"
+    },
+    {
+      "type": "color",
+      "id": "countdown_chip_bg",
+      "label": "Countdown Chip Background",
+      "default": "#ffffff",
+      "info": "Timer number chip background"
+    },
+    {
+      "type": "color",
+      "id": "countdown_chip_text",
+      "label": "Countdown Chip Text",
+      "default": "#2c3e50",
+      "info": "Timer number text color"
+    },
+    {
+      "type": "range",
+      "id": "countdown_border_radius",
+      "label": "Countdown Border Radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 50,
+      "unit": "px",
+      "info": "Roundness of timer container"
+    },
+    {
+      "type": "range",
+      "id": "countdown_chip_radius",
+      "label": "Countdown Chip Radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10,
+      "unit": "px",
+      "info": "Roundness of number chips"
     },
     { "type": "collection", "id": "upsell_collection", "label": "Upsell collection", "info":"Chnage Upsell Collection" },
     {
