@@ -90,7 +90,11 @@
         }
         
         if (shopDomain) {
-          fetch('/app/api/analytics', {
+          // Try to get app URL from environment or use relative path
+          const appUrl = window.QuickCartAppUrl || 'https://quickcart-vf8k.onrender.com';
+          const apiUrl = `${appUrl}/api/analytics`;
+          
+          fetch(apiUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -102,7 +106,11 @@
               shop: shopDomain,
               shopName: shopDomain
             }),
-            credentials: 'same-origin'
+            mode: 'cors'
+          }).then(response => {
+            if (!response.ok) {
+              console.debug('[QuickCart Analytics] Server response not OK:', response.status);
+            }
           }).catch(err => {
             // Silently fail if server is not available
             console.debug('[QuickCart Analytics] Server sync failed:', err);
