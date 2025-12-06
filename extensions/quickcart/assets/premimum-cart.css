@@ -650,7 +650,7 @@ ease;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 2px;
+  gap: 0px;
   padding: 0;
 }
 
@@ -768,7 +768,7 @@ input.cdp-qty-input {
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   overflow: hidden;
-  height: 28px;
+  height: 18px;
   background: #fff;
 }
 
@@ -893,7 +893,8 @@ input.cdp-qty-input {
 
 .cdp-footer {
   flex-shrink: 0;
-  z-index: 10;
+  z-index: 100;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -953,6 +954,58 @@ span.cdp-total-val {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    position: relative;
+    z-index: 100;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* Ensure all buttons and links inside third-party integration are clickable */
+#third-party-integration *,
+#third-party-integration button,
+#third-party-integration a,
+#third-party-integration input[type="button"],
+#third-party-integration input[type="submit"] {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative;
+    z-index: 101;
+}
+
+/* Prevent theme overlays from blocking checkout button */
+.cdp-footer,
+.cdp-footer *,
+.cdp-footer-right,
+.cdp-footer-right * {
+    pointer-events: auto !important;
+}
+
+/* Ensure third-party integration container is always clickable */
+#CartDrawerPremium .cdp-footer #third-party-integration,
+#CartDrawerPremium .cdp-footer-right #third-party-integration,
+#CartDrawerPremium .cdp-footer #third-party-integration-wrapper,
+#CartDrawerPremium .cdp-footer-right #third-party-integration-wrapper {
+    z-index: 9999 !important;
+    position: relative !important;
+    pointer-events: auto !important;
+}
+
+/* Make wrapper and all its children clickable */
+#third-party-integration-wrapper,
+#third-party-integration-wrapper * {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10001;
+}
+
+#third-party-integration-wrapper button,
+#third-party-integration-wrapper a,
+#third-party-integration-wrapper input[type="button"],
+#third-party-integration-wrapper input[type="submit"],
+#third-party-integration-wrapper [role="button"] {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 10002 !important;
 }
 
 span.pay-opt-icon {
@@ -1027,6 +1080,9 @@ img#checkout-arrow-image {
   justify-content: center;
   width: 100%;
   justify-content: space-between;
+  position: relative;
+  z-index: 101;
+  pointer-events: auto;
 }
 
 #MinimogCartDrawer:not(html):not(body),
@@ -1124,7 +1180,13 @@ aside.cdp-upsell.active {
 
 @media (max-width: 920px) {
 
- #third-party-integration{flex: 0 0 65%;}
+ #third-party-integration{
+   flex: 0 0 65%;
+   position: relative;
+   z-index: 102;
+   pointer-events: auto !important;
+   cursor: pointer !important;
+ }
   .cdp-panel {
     width: 100%;
     max-width: 98%;
@@ -1434,7 +1496,7 @@ body.no-scroll{overflow: unset !important;}
 .mob_upsell .cdp-u-title {
   font-size: 11px;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 0px;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1451,7 +1513,7 @@ body.no-scroll{overflow: unset !important;}
 
 .mob_upsell .cdp-u-final {
   font-size: 13px;
-  font-weight: 700;
+  /* font-weight: 700; */
   color: #000;
 }
 

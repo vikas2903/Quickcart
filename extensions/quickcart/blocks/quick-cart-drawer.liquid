@@ -183,9 +183,7 @@
                     <div class="cdp-u-title">{{ p.title | escape | truncate: 22 }}</div>
                     <div class="cdp-u-price">
                       <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
-                      {% if p.compare_at_price_min > p.price_min %}
-                        <span class="cdp-u-compare">{{ p.compare_at_price_min | money_without_trailing_zeros }}</span>
-                      {% endif %}
+                     
                     </div>
                   </div>
                 </article>
@@ -321,9 +319,7 @@
                     <div class="cdp-u-title">{{ p.title | escape | truncate: 22 }}</div>
                     <div class="cdp-u-price">
                       <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
-                      {% if p.compare_at_price_min > p.price_min %}
-                        <span class="cdp-u-compare">{{ p.compare_at_price_min | money_without_trailing_zeros }}</span>
-                      {% endif %}
+                    
                     </div>
                   </div>
                 </article>
@@ -436,7 +432,9 @@
        </div>
         
         {% if block.settings.show-checkout-field  %}
-           {{block.settings.checkout-integration-code}}
+           <div id="third-party-integration-wrapper" style="position: relative; z-index: 100; pointer-events: auto;">
+             {{block.settings.checkout-integration-code}}
+           </div>
         
         {% else %}
            <a href="/checkout" class="cdp-checkout" data-checkout aria-label="Proceed to checkout">Checkout</a>
@@ -481,6 +479,8 @@
     </div>
   </div>
 </section>
+<script src="{{ 'quickcart-analytics.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'analytics-dashboard.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'premimum-cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progress-bar.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progressbar_qty_condition.js' | asset_url }}" defer="defer"></script>

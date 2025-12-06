@@ -907,6 +907,26 @@ function unlockBodyScroll() {
     drawer.setAttribute("aria-hidden", "false");
     refreshUI();
     lockBodyScroll();
+    
+    // Track cart open
+    if (window.QuickCartAnalytics) {
+      window.QuickCartAnalytics.track('cart_open', {
+        timestamp: new Date().toISOString()
+      });
+      
+      // Track upsell views when drawer opens
+      setTimeout(() => {
+        const upsellCards = drawer.querySelectorAll('[data-upsell-card]');
+        upsellCards.forEach(card => {
+          const productId = card.querySelector('[data-open-upsell-popup]')?.dataset?.productId;
+          if (productId) {
+            window.QuickCartAnalytics.track('upsell_view', {
+              productId: productId
+            });
+          }
+        });
+      }, 500);
+    }
   }
  
   function closeDrawer() {
@@ -1424,6 +1444,35 @@ function unlockBodyScroll() {
     hideDiscountRow();
   });
 
+  // Track checkout button clicks
+  if (checkoutA) {
+    checkoutA.addEventListener("click", function() {
+      if (window.QuickCartAnalytics) {
+        window.QuickCartAnalytics.track('checkout_click', {
+          timestamp: new Date().toISOString(),
+          checkoutType: 'standard'
+        });
+      }
+    });
+  }
+
+  // Track third-party checkout button clicks
+  const thirdPartyWrapper = drawer.querySelector('#third-party-integration-wrapper');
+  if (thirdPartyWrapper) {
+    thirdPartyWrapper.addEventListener("click", function(e) {
+      // Check if click is on a button, link, or input
+      const clickable = e.target.closest('button, a, input[type="button"], input[type="submit"], [role="button"]');
+      if (clickable) {
+        if (window.QuickCartAnalytics) {
+          window.QuickCartAnalytics.track('checkout_click', {
+            timestamp: new Date().toISOString(),
+            checkoutType: 'third_party'
+          });
+        }
+      }
+    }, true); // Use capture phase to catch all clicks
+  }
+
   /* ============ PUBLIC API ============ */
   window.CartDrawerPremium = { open: openDrawer, close: closeDrawer };
 
@@ -1652,6 +1701,17 @@ function unlockBodyScroll() {
 
     // Show popup
     if (upsellPopup) upsellPopup.style.display = "flex";
+    
+    // Track upsell click
+    if (window.QuickCartAnalytics) {
+      const productId = openBtn.dataset.productId;
+      window.QuickCartAnalytics.track('upsell_click', {
+        productId: productId,
+        productTitle: productTitle,
+        productPrice: productPrice,
+        variantId: variantId
+      });
+    }
   });
 
   // Handle variant button clicks (event delegation)
@@ -1722,6 +1782,32 @@ function unlockBodyScroll() {
           // Close popup and refresh cart
           if (upsellPopup) upsellPopup.style.display = "none";
           await refreshUI();
+          
+          // Track upsell add to cart
+          if (window.QuickCartAnalytics) {
+            // Get product data from current product data or popup elements
+            const productId = currentProductData?.id || popupAddBtn?.dataset?.productId;
+            // Get product price from current product data
+            let revenue = 0;
+            if (currentProductData) {
+              const variant = currentProductData.variants?.find(v => v.id == variantId);
+              if (variant) {
+                revenue = (variant.price / 100) * quantity;
+              }
+            } else if (popupProductPrice?.textContent) {
+              // Try to extract price from displayed price (e.g., "₹1,299")
+              const priceStr = popupProductPrice.textContent.replace(/[₹,$,\s]/g, '');
+              revenue = parseFloat(priceStr) * quantity || 0;
+            }
+            
+            window.QuickCartAnalytics.track('upsell_add_to_cart', {
+              productId: productId,
+              productTitle: productName,
+              variantId: variantId,
+              quantity: quantity,
+              revenue: revenue
+            });
+          }
         }
       } catch (err) {
         console.error("Error adding to cart:", err);
