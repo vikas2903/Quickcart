@@ -84,7 +84,9 @@
   data-open-class="cdp-open"
   data-money-format="{{ shop.money_format | escape }}"
   data-currency="{{ shop.currency }}"
-  shop-url="{{shop.url}}" 
+  shop-url="{{shop.url}}"
+  data-shop="{{ shop.permanent_domain }}"
+  data-app-url="https://quickcart-vf8k.onrender.com"
 >
   <div class="cdp-overlay" data-close></div>
   <aside class="cdp-upsell">
@@ -457,6 +459,8 @@
       <div class="cdp-popup-info">
         <h3 class="cdp-popup-title" id="popupProductTitle"></h3>
         <div class="cdp-popup-price">
+          <!-- Prices are populated from Liquid via data-product-price attributes on buttons -->
+          <!-- JavaScript displays the Liquid-formatted prices when popup opens -->
           <span class="cdp-popup-final" id="popupProductPrice"></span>
           <span class="cdp-popup-compare" id="popupProductCompare"></span>
         </div>
@@ -479,6 +483,7 @@
     </div>
   </div>
 </section>
+<script src="{{ 'cartdrawer-settings.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'premimum-cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progress-bar.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progressbar_qty_condition.js' | asset_url }}" defer="defer"></script>
