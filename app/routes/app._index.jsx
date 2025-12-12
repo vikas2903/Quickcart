@@ -192,6 +192,7 @@ import { authenticate } from "../shopify.server";
 import { useState } from "react";
 import connectDatabase from "../lib/dbconnect.js";
 import { Store } from "../models/storemodal.js";
+import 'antd/dist/reset.css'
 
 // export const loader = async ({ request }) => {
 //   const { session } = await authenticate.admin(request);

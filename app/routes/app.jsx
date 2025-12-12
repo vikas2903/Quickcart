@@ -32,8 +32,9 @@ export default function App() {
         <Link to="/app/progressbar">Unlock Offers</Link>
         <Link to="/app/progressbaron1">Buy X Get Y</Link>
         <Link to="/app/giftproduct">Gift Product</Link>
-        <Link to="/app/cartdrawer">Cart Drawer Settings</Link>
+        <Link to="/app/cartdrawer">Cart Drawer Settings</Link> 
         <Link to="/app/help">Help</Link>
+        <Link to="/app/settings">Settings</Link>
         {/* <Link to="/app/additional">Additional page</Link> */}
       </NavMenu>
       <Outlet />

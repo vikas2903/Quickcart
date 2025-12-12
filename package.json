@@ -36,6 +36,7 @@
     "@shopify/polaris": "^12.0.0",
     "@shopify/shopify-app-remix": "^3.7.0",
     "@shopify/shopify-app-session-storage-prisma": "^6.0.9",
+    "antd": "^6.1.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^4.21.2",

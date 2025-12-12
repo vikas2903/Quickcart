@@ -1,8 +1,8 @@
 import { json } from "@remix-run/node";
-import { authenticate } from "../../shopify.server.js";
-import connectDatabase from "../../lib/dbconnect.js";
-import { CartDrawerSettings } from "../../models/cartdrawersettings.js";
-import { cors } from "../../utils/cors.js";
+import { authenticate } from "../shopify.server.js";
+import connectDatabase from "../lib/dbconnect.js";
+import { CartDrawerSettings } from "../models/cartdrawersettings.js";
+import { cors } from "../utils/cors.js";
 
 // GET: Load cart drawer settings
 export const loader = async ({ request }) => {
