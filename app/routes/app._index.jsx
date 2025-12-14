@@ -394,16 +394,16 @@ export const loader = async ({ request }) => {
 
   // Extract data
   const totalOrders = payload?.data?.totalOrders?.count ?? 0;
-  const totalAmount = payload?.data?.totalOrdersList?.edges.reduce(
-    (acc, { node }) => acc + parseFloat(node.totalPrice),
+  const totalAmount = payload?.data?.totalOrdersList?.edges?.reduce(
+    (acc, { node }) => acc + parseFloat(node.totalPrice || 0),
     0
-  );
+  ) ?? 0;
 
   const todayCount = payload?.data?.todayOrders?.count ?? 0;
-  const todayAmount = payload?.data?.todayOrdersList?.edges.reduce(
-    (acc, { node }) => acc + parseFloat(node.totalPrice),
+  const todayAmount = payload?.data?.todayOrdersList?.edges?.reduce(
+    (acc, { node }) => acc + parseFloat(node.totalPrice || 0),
     0
-  );
+  ) ?? 0;
 
   // Theme logic (unchanged)
   const url = new URL(request.url);
@@ -555,7 +555,7 @@ export default function Dashboard() {
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
-            {dismiss?<div style={{ marginBottom: 16 }}>
+            {dismiss && <div style={{ marginBottom: 16 }}>
               <Box marginBlockEnd="400">
                 <Banner
                   tone="info"
@@ -579,10 +579,10 @@ export default function Dashboard() {
                   </p>
                 </Banner>
               </Box>
-            </div> : false }
+            </div>}
              
 
-            {dismiss1?     <Banner
+            {dismiss1 && <Banner
               tone="warning"
               title="You need to integrate the app into your Shopify theme"
               onDismiss={() => {setDismiss1(false)}}
@@ -601,8 +601,8 @@ export default function Dashboard() {
                 target: "_blank",
               }}
             >
-              <p>Your settings are saved. Activate the app in Shopify’s Theme Editor to make it visible on your store.</p>
-            </Banner> : false}
+              <p>Your settings are saved. Activate the app in Shopify's Theme Editor to make it visible on your store.</p>
+            </Banner>}
         
           </Layout.Section>
  
@@ -612,7 +612,7 @@ export default function Dashboard() {
               <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
                 <LegacyCard sectioned> 
                   <div className="order-analytics-wrapper">
-                    <h5>{totalOrders.toLocaleString()}</h5>
+                    <h5>{(Number(totalOrders) || 0).toLocaleString()}</h5>
                     <p>Total Orders</p>
                   </div>
                 </LegacyCard>
@@ -620,7 +620,7 @@ export default function Dashboard() {
                 <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
                 <LegacyCard sectioned>
                   <div className="order-analytics-wrapper">
-                    <h5><span className="curecnySymbol">{currencySymbol? currencySymbol : currency}</span>{totalAmount.toLocaleString()}</h5>
+                    <h5><span className="curecnySymbol">{currencySymbol || currency || ""}</span>{(Number(totalAmount) || 0).toLocaleString()}</h5>
                     <p>Total Amount</p>
                   </div>
                 </LegacyCard>
@@ -628,7 +628,7 @@ export default function Dashboard() {
                 <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
                   <LegacyCard sectioned>
                   <div className="order-analytics-wrapper">
-                    <h5>{todayCount.toLocaleString()}</h5>
+                    <h5>{(Number(todayCount) || 0).toLocaleString()}</h5>
                     <p>Today Orders</p>
                   </div>
                   </LegacyCard>
@@ -636,7 +636,7 @@ export default function Dashboard() {
               <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
                 <LegacyCard sectioned> 
                 <div className="order-analytics-wrapper">
-                    <h5><span className="curecnySymbol">{currencySymbol? currencySymbol : currency}</span>{todayAmount.toLocaleString()}</h5>
+                    <h5><span className="curecnySymbol">{currencySymbol || currency || ""}</span>{(Number(todayAmount) || 0).toLocaleString()}</h5>
                     <p>Today Amount</p>
                   </div>
                 </LegacyCard>

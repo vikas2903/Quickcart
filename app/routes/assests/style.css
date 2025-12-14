@@ -42,11 +42,12 @@
 
 span.curecnySymbol {
     padding: .1rem .2rem .1rem .1rem;
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     opacity: .9;
+    vertical-align: middle;
 }
 
-
+.custom-antd-textarea{width: 100%;}
 
 
 /* ------------------------------------ */
@@ -134,3 +135,9 @@ span.curecnySymbol {
     }
   }
    
+
+
+  .custom-product-search, .custom-collection  {
+    width: 70%;
+    margin: auto;
+}
