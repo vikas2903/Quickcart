@@ -1,3 +1,27 @@
+/**
+ * ============================================================================
+ * SETTINGS PAGE COMPONENT
+ * ============================================================================
+ * This is the main settings page where users can configure app settings
+ * 
+ * Features:
+ * - Countdown/Timer settings (colors, border radius, enable/disable)
+ * - Cart Drawer styling (background color, text color, border radius)
+ * - Announcement Bar (enable/disable, content)
+ * - Collection Selection (enable/disable, select collection)
+ * - Product Selection (enable/disable, search and select product)
+ * - Third-party Integration (enable/disable, HTML content)
+ * 
+ * Data Flow:
+ * 1. On page load: Fetches settings from database via GET /app/api/settings
+ * 2. User makes changes: Updates local state variables
+ * 3. User clicks Save: Sends all settings to database via POST /app/api/settings
+ * 
+ * API Endpoint: /app/api/settings
+ * Database: MongoDB (via Mongoose)
+ * ============================================================================
+ */
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Page, Layout, Button, Banner, Select, TextField, LegacyCard, BlockStack, ResourceList, ResourceItem, Text, Thumbnail } from "@shopify/polaris";
 import antdResetHref from "antd/dist/reset.css?url";
@@ -13,13 +37,27 @@ export const links = () => [{ rel: "stylesheet", href: antdResetHref }];
 
 const { TextArea } = Input;
 
-const API_URL = "/app/api/cartdrawer";
+// API endpoint URL for settings
+const API_URL = "/app/api/settings";
 
+/**
+ * ============================================================================
+ * LOADER FUNCTION
+ * ============================================================================
+ * This function runs on the server before the page renders
+ * It fetches data needed for the settings page (collections list)
+ * 
+ * Returns:
+ * - shop: Current shop domain
+ * - collections: List of all collections for the dropdown selector
+ * ============================================================================
+ */
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
 
-   // Fetch collections for upsell dropdown
-   const collectionsQuery = `
+  // Fetch collections for collection selection dropdown
+  // This GraphQL query gets the first 50 collections from the shop
+  const collectionsQuery = `
    query {
      collections(first: 50) {
        edges {
@@ -33,10 +71,11 @@ export const loader = async ({ request }) => {
    }
  `;
 
- let collections = [];
+  let collections = [];
   try {
     const response = await admin.graphql(collectionsQuery);
     const result = await response.json();
+    // Transform GraphQL response to simple array format
     collections = result?.data?.collections?.edges?.map(edge => ({
       id: edge.node.id,
       title: edge.node.title,
@@ -46,21 +85,34 @@ export const loader = async ({ request }) => {
     console.error("Error fetching collections:", error);
   }
 
-
-
-
-
+  // Return data to component (accessible via useLoaderData hook)
   return json({ shop: session.shop, collections });
 };
 
-// Action for product search
+/**
+ * ============================================================================
+ * ACTION FUNCTION - PRODUCT SEARCH
+ * ============================================================================
+ * This function handles product search requests
+ * Called when user types in the product search field (via fetcher)
+ * 
+ * Flow:
+ * 1. Get search query from form data
+ * 2. Query Shopify GraphQL API for products matching the search term
+ * 3. Return list of matching products
+ * 
+ * Note: This is separate from the settings save action
+ * ============================================================================
+ */
 export const action = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
   const formData = await request.formData();
   const queryText = formData.get("query");
 
+  // Return empty array if no search query
   if (!queryText) return json({ products: [] });
 
+  // GraphQL query to search products by title
   const gqlQuery = `
     query getProductsByTitle($query: String!) {
       products(first: 10, query: $query) {
@@ -85,11 +137,13 @@ export const action = async ({ request }) => {
   `;
 
   // Format query for Shopify search (title contains search text)
+  // The * wildcards allow partial matching
   const searchQuery = `title:*${queryText}*`;
 
   try {
     const response = await admin.graphql(gqlQuery, { variables: { query: searchQuery } });
     const result = await response.json();
+    // Transform GraphQL response to simple array format
     const products = result?.data?.products?.edges?.map((edge) => edge.node) || [];
     return json({ products });
   } catch (error) {
@@ -252,30 +306,81 @@ function Settings() {
     setCountdownEnable(e.target.checked);
   };
 
-  // Load settings on mount
+  /**
+   * ============================================================================
+   * LOAD SETTINGS FROM DATABASE
+   * ============================================================================
+   * This function fetches all settings from the API when the component mounts
+   * 
+   * Flow:
+   * 1. Make GET request to /app/api/settings
+   * 2. Parse response JSON
+   * 3. Update all state variables with loaded data
+   * 4. Handle errors gracefully
+   * 
+   * This runs once when component mounts (useEffect with [shop] dependency)
+   * ============================================================================
+   */
   useEffect(() => {
     const loadSettings = async () => {
       setIsLoading(true);
       try {
+        // Step 1: Make GET request to API endpoint
         const res = await fetch(API_URL, {
           headers: {
-            "X-Shopify-Shop-Domain": shop,
+            "X-Shopify-Shop-Domain": shop, // Required: identifies which shop's settings to fetch
           },
         });
+        
+        // Step 2: Parse response JSON
         const json = await res.json();
+        
         if (json?.ok && json?.data) {
           const data = json.data;
-          setCountdownEnable(data.show_countdown ?? false);
-          setCountdownBackgroundColor(data.count_down_bg || "#5B9BD5");
-          setCountdownTextColor(data.countdown_text_color || "#ffffff");
-          setCountdownChipBackgroundColor(data.countdown_chip_bg || "#ffffff");
-          setCountdownChipTextColor(data.countdown_chip_text || "#2c3e50");
-          setCountdownBorderRadius(data.countdown_border_radius || 50);
-          setBodyBackgroundColor(data.body_color || "#f0e5e7");
-          setTextColor(data.text_color || "#000");
-          setBorderRadius(data.border_radius || 10);
+          
+          // Step 3: Update all state variables with loaded data
+          // Countdown settings - check both flat and nested structure
+          const countdown = data.countdown || {};
+          setCountdownEnable(countdown.show_countdown ?? data.show_countdown ?? false);
+          setCountdownBackgroundColor(countdown.count_down_bg || data.count_down_bg || "#5B9BD5");
+          setCountdownTextColor(countdown.countdown_text_color || data.countdown_text_color || "#ffffff");
+          setCountdownChipBackgroundColor(countdown.countdown_chip_bg || data.countdown_chip_bg || "#ffffff");
+          setCountdownChipTextColor(countdown.countdown_chip_text || data.countdown_chip_text || "#2c3e50");
+          setCountdownBorderRadius(countdown.countdown_border_radius || data.countdown_border_radius || 50);
+          
+          // Cart Drawer settings
+          const cartDrawer = data.cartDrawer || {};
+          setBodyBackgroundColor(cartDrawer.body_color || data.body_color || "#f0e5e7");
+          setTextColor(cartDrawer.text_color || data.text_color || "#000");
+          setBorderRadius(cartDrawer.border_radius || data.border_radius || 10);
+          
+          // Announcement Bar settings
+          const announcementBar = data.announcementBar || {};
+          setannouncementBarEnable(announcementBar.enabled ?? false);
+          setanouncmentbartTextarea(announcementBar.content || "Free shipping order above 999, Get 10% Off order above 1999");
+          
+          // Collection settings
+          const collection = data.collection || {};
+          setCollectionEnable(collection.enabled ?? false);
+          if (collection.selectedCollection) {
+            setSelectedCollection(collection.selectedCollection);
+          }
+          
+          // Product settings
+          const product = data.product || {};
+          setProductEnable(product.enabled ?? false);
+          if (product.selectedProduct) {
+            setSelectedProduct(product.selectedProduct);
+            setProductSearch(product.selectedProduct.title || "");
+          }
+          
+          // Third-party Integration settings
+          const thirdPartyIntegration = data.thirdPartyIntegration || {};
+          setThirdPartyIntegrationEnable(thirdPartyIntegration.enabled ?? false);
+          setThirdPartyHtmlContent(thirdPartyIntegration.htmlContent || "");
         }
       } catch (error) {
+        // Step 4: Handle errors gracefully
         console.error("Failed to load settings:", error);
         toast.error("Failed to load settings");
       } finally {
@@ -328,74 +433,95 @@ function Settings() {
     ]
   );
 
-  // Save settings
+  /**
+   * ============================================================================
+   * SAVE SETTINGS TO DATABASE
+   * ============================================================================
+   * This function saves all settings to the database via API
+   * 
+   * Flow:
+   * 1. Prepare all settings data from state variables
+   * 2. Make POST request to /app/api/settings with JSON body
+   * 3. Handle response and show success/error message
+   * 4. Reset saving state
+   * 
+   * This is called when user clicks "Save Settings" button
+   * ============================================================================
+   */
   const handleSave = async () => {
     setIsSaving(true);
     
-    // Prepare all data for logging
+    // Step 1: Prepare all data from state variables
+    // Organize data in the structure expected by the API
     const allData = {
-      shop: shop,
-      countdown: {
-        show_countdown: countdownEnable,
-        count_down_bg: countdownBackgroundColor,
-        countdown_text_color: countdownTextColor,
-        countdown_chip_bg: countdownChipBackgroundColor,
-        countdown_chip_text: countdownChipTextColor,
-        countdown_border_radius: countdownBorderRadius,
-      },
-      cartDrawer: {
-        body_color: bodyBackgroundColor,
-        text_color: textColor,
-        border_radius: borderRadius,
-      },
+      // Countdown settings - send as flat structure for backward compatibility
+      show_countdown: countdownEnable,
+      count_down_bg: countdownBackgroundColor,
+      countdown_text_color: countdownTextColor,
+      countdown_chip_bg: countdownChipBackgroundColor,
+      countdown_chip_text: countdownChipTextColor,
+      countdown_border_radius: countdownBorderRadius,
+      
+      // Cart Drawer settings - send as flat structure
+      body_color: bodyBackgroundColor,
+      text_color: textColor,
+      border_radius: borderRadius,
+      
+      // Announcement Bar settings - send as nested object
       announcementBar: {
         enabled: announcementBarEnable,
         content: anouncmentbartTextarea,
       },
+      
+      // Collection settings - send as nested object
       collection: {
         enabled: collectionEnable,
         selectedCollection: selectedCollection,
       },
+      
+      // Product settings - send as nested object
       product: {
         enabled: productEnable,
         selectedProduct: selectedProduct,
       },
+      
+      // Third-party Integration settings - send as nested object
       thirdPartyIntegration: {
         enabled: thirdPartyIntegrationEnable,
         htmlContent: thirdPartyHtmlContent,
       },
     };
     
-    // Log all data as JSON
-    console.log("All Settings Data:", JSON.stringify(allData, null, 2));
+    // Log all data for debugging (remove in production if needed)
+    console.log("Saving Settings Data:", JSON.stringify(allData, null, 2));
     
     try {
+      // Step 2: Make POST request to API endpoint
       const res = await fetch(API_URL, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "X-Shopify-Shop-Domain": shop,
-          Accept: "application/json",
+          "Content-Type": "application/json", // Required: tells server we're sending JSON
+          "X-Shopify-Shop-Domain": shop,      // Required: identifies which shop's settings to save
+          Accept: "application/json",         // Required: tells server we want JSON response
         },
-        body: JSON.stringify({
-          show_countdown: countdownEnable,
-          count_down_bg: countdownBackgroundColor,
-          countdown_text_color: countdownTextColor,
-          countdown_chip_bg: countdownChipBackgroundColor,
-          countdown_chip_text: countdownChipTextColor,
-          countdown_border_radius: countdownBorderRadius,
-        }),
+        body: JSON.stringify(allData), // Convert JavaScript object to JSON string
       });
+      
+      // Step 3: Parse response and handle result
       const json = await res.json();
       if (json?.ok) {
         toast.success("Settings saved successfully!");
+        console.log("Settings saved to database:", json.data);
       } else {
         toast.error(json?.error || "Failed to save settings");
+        console.error("Save error:", json?.error);
       }
     } catch (e) {
+      // Handle network errors or other exceptions
       console.error("Failed to save settings:", e);
       toast.error("Failed to save settings");
     } finally {
+      // Step 4: Reset saving state (always runs, even if error occurs)
       setIsSaving(false);
     }
   };
