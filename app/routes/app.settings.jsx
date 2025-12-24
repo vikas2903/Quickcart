@@ -681,7 +681,7 @@ function Settings() {
                 </Checkbox>
               </div>
             </div>
-            <div className="grid-item" style={{gridColumnStart:2, gridColumnEnd:4, width:'100%'}}>
+            <div className="grid-item" style={{gridColumnStart:2, gridColumnEnd:3, width:'100%'}}>
               <div className="column-title">Announcement Bar Content</div>
               <div className="custom-antd-textarea">
               <TextArea
@@ -747,7 +747,7 @@ function Settings() {
                 </Checkbox>
               </div>
             </div>
-            <div className="grid-item" style={{gridColumnStart:1, gridColumnEnd:4, width:'100%'}}>
+            <div className="grid-item" style={{gridColumnStart:1, gridColumnEnd:3, width:'100%'}}>
               <div className="column-title">Search & Select Product</div>
               <div className="custom-product-search">
                 <TextField
@@ -830,7 +830,7 @@ function Settings() {
                 </Checkbox>
               </div>
             </div>
-            <div className="grid-item" style={{gridColumnStart:1, gridColumnEnd:4, width:'100%'}}>
+            <div className="grid-item" style={{gridColumnStart:1, gridColumnEnd:3, width:'100%'}}>
               <div className="column-title">HTML Content</div>
               <div className="custom-antd-textarea">
                 <TextArea

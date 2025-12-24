@@ -43,15 +43,26 @@ export const loader = async ({ request }) => {
     return new Response(null, { status: 204, headers: cors(request) });
   }
 
-  // Step 1: Authenticate the admin request using Shopify authentication
-  const { session } = await authenticate.admin(request);
+  // Step 1: Allow both authenticated (dashboard) and unauthenticated (extension) access
+  let shop;
+  try {
+    const { session } = await authenticate.admin(request);
+    shop = session.shop;
+  } catch (e) {
+    // If authentication fails (including redirect Responses), suppress the error
+    // and get shop from header instead (for extension/storefront access)
+    // By catching and not re-throwing, we prevent redirects that cause CORS issues
+    shop = request.headers.get("X-Shopify-Shop-Domain") || 
+           request.headers.get("x-shopify-shop-domain");
+  }
   
-  // Step 2: Extract shop domain from request headers or session
-  // Priority: Header > Session > Empty string
-  const shop =
-    (request.headers.get("x-shopify-shop-domain") || session?.shop || "")
-      .toLowerCase()
-      .trim();
+  // Step 2: Normalize shop domain
+  if (shop) {
+    shop = shop.toLowerCase().trim();
+    if (!shop.includes('.')) {
+      shop = shop + '.myshopify.com';
+    }
+  }
 
   // Validate shop domain exists
   if (!shop) {
@@ -183,7 +194,40 @@ export const action = async ({ request }) => {
   }
 
   // Step 1: Authenticate the admin request
-  const { session } = await authenticate.admin(request);
+  let session;
+  try {
+    const authResult = await authenticate.admin(request);
+    session = authResult.session;
+  } catch (err) {
+    // Handle authentication errors gracefully - return JSON instead of redirect
+    // This prevents CORS issues when authentication fails
+    // Check if it's a redirect Response (status 3xx)
+    if (err instanceof Response) {
+      const status = err.status;
+      if (status >= 300 && status < 400) {
+        // It's a redirect - return JSON error instead to avoid CORS issues
+        return json(
+          { ok: false, error: "Authentication required", code: "UNAUTHORIZED" },
+          { status: 401, headers: cors(request) }
+        );
+      }
+    }
+    // Check for authentication error types
+    if (
+      err?.name === "ShopifyUnauthorizedError" ||
+      err?.message?.includes("No session found") ||
+      err?.message?.includes("Unauthorized") ||
+      err?.status === 401 ||
+      err?.statusCode === 401
+    ) {
+      return json(
+        { ok: false, error: "Authentication required", code: "UNAUTHORIZED" },
+        { status: 401, headers: cors(request) }
+      );
+    }
+    // Re-throw unexpected errors
+    throw err;
+  }
   
   // Step 2: Extract shop domain from request headers or session
   const shop =
