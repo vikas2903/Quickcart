@@ -29,19 +29,6 @@ async function getbxgy(shop) {
   });
 
 
-    const settingsData = await fetch(`https://quickcart-vf8k.onrender.com/app/api/settings`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Shop-Domain": shop,
-      Accept: "application/json",
-    },
-  })
-  console.log("shoppe 1", shop)
-  const jsonSettings =  await settingsData.json();
-  console.log("dataFromDB",jsonSettings)
-
-
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
