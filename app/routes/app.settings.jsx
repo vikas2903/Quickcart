@@ -31,7 +31,7 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./assests/style.css"; 
+import "./assests/style.css";
 
 export const links = () => [{ rel: "stylesheet", href: antdResetHref }];
 
@@ -164,7 +164,7 @@ function Settings() {
     title: "",
     handle: ""
   });
- 
+
   // Product state
   const [productEnable, setProductEnable] = useState(false);
   const [productSearch, setProductSearch] = useState("");
@@ -225,7 +225,7 @@ function Settings() {
 
   // countdown settings
   const [countdownBackgroundColor, setCountdownBackgroundColor] =
-    useState("#5B9BD5");
+    useState("#5B9BD4");
   const [countdownTextColor, setCountdownTextColor] = useState("#ffffff");
   const [countdownChipBackgroundColor, setCountdownChipBackgroundColor] =
     useState("#ffffff");
@@ -248,11 +248,11 @@ function Settings() {
   const [thirdPartyIntegrationEnable, setThirdPartyIntegrationEnable] = useState(false);
   const [thirdPartyHtmlContent, setThirdPartyHtmlContent] = useState('');
 
- 
+
   const handleAnnouncementBar = (e) => {
     setannouncementBarEnable(e.target.checked)
   }
-  const handleAnnouncementBarTextarea = (e) =>{
+  const handleAnnouncementBarTextarea = (e) => {
     setanouncmentbartTextarea(e.target.value)
   }
 
@@ -287,16 +287,16 @@ function Settings() {
 
   // Handle countdown color change
   const handlecountdownBackgroundColor = (color) => {
-    setCountdownBackgroundColor(color.hex);
+    setCountdownBackgroundColor(color.toHexString());
   };
   const handlecountdownTextColor = (color) => {
-    setCountdownTextColor(color.hex);
+    setCountdownTextColor(color.toHexString());
   };
   const handlecountdownChipBackgroundColor = (color) => {
-    setCountdownChipBackgroundColor(color.hex);
+    setCountdownChipBackgroundColor(color.toHexString());
   };
   const handlecountdownChipTextColor = (color) => {
-    setCountdownChipTextColor(color.hex);
+    setCountdownChipTextColor(color.toHexString());
   };
   const handlecountdownBorderRadius = (value) => {
     setCountdownBorderRadius(value || 0);
@@ -331,13 +331,13 @@ function Settings() {
             "X-Shopify-Shop-Domain": shop, // Required: identifies which shop's settings to fetch
           },
         });
-        
+
         // Step 2: Parse response JSON
         const json = await res.json();
-        
+
         if (json?.ok && json?.data) {
           const data = json.data;
-          
+
           // Step 3: Update all state variables with loaded data
           // Countdown settings - check both flat and nested structure
           const countdown = data.countdown || {};
@@ -347,25 +347,25 @@ function Settings() {
           setCountdownChipBackgroundColor(countdown.countdown_chip_bg || data.countdown_chip_bg || "#ffffff");
           setCountdownChipTextColor(countdown.countdown_chip_text || data.countdown_chip_text || "#2c3e50");
           setCountdownBorderRadius(countdown.countdown_border_radius || data.countdown_border_radius || 50);
-          
+
           // Cart Drawer settings
           const cartDrawer = data.cartDrawer || {};
           setBodyBackgroundColor(cartDrawer.body_color || data.body_color || "#f0e5e7");
           setTextColor(cartDrawer.text_color || data.text_color || "#000");
           setBorderRadius(cartDrawer.border_radius || data.border_radius || 10);
-          
+
           // Announcement Bar settings
           const announcementBar = data.announcementBar || {};
           setannouncementBarEnable(announcementBar.enabled ?? false);
           setanouncmentbartTextarea(announcementBar.content || "Free shipping order above 999, Get 10% Off order above 1999");
-          
+
           // Collection settings
           const collection = data.collection || {};
           setCollectionEnable(collection.enabled ?? false);
           if (collection.selectedCollection) {
             setSelectedCollection(collection.selectedCollection);
           }
-          
+
           // Product settings
           const product = data.product || {};
           setProductEnable(product.enabled ?? false);
@@ -373,7 +373,7 @@ function Settings() {
             setSelectedProduct(product.selectedProduct);
             setProductSearch(product.selectedProduct.title || "");
           }
-          
+
           // Third-party Integration settings
           const thirdPartyIntegration = data.thirdPartyIntegration || {};
           setThirdPartyIntegrationEnable(thirdPartyIntegration.enabled ?? false);
@@ -450,7 +450,7 @@ function Settings() {
    */
   const handleSave = async () => {
     setIsSaving(true);
-    
+
     // Step 1: Prepare all data from state variables
     // Organize data in the structure expected by the API
     const allData = {
@@ -461,40 +461,40 @@ function Settings() {
       countdown_chip_bg: countdownChipBackgroundColor,
       countdown_chip_text: countdownChipTextColor,
       countdown_border_radius: countdownBorderRadius,
-      
+
       // Cart Drawer settings - send as flat structure
       body_color: bodyBackgroundColor,
       text_color: textColor,
       border_radius: borderRadius,
-      
+
       // Announcement Bar settings - send as nested object
       announcementBar: {
         enabled: announcementBarEnable,
         content: anouncmentbartTextarea,
       },
-      
+
       // Collection settings - send as nested object
       collection: {
         enabled: collectionEnable,
         selectedCollection: selectedCollection,
       },
-      
+
       // Product settings - send as nested object
       product: {
         enabled: productEnable,
         selectedProduct: selectedProduct,
       },
-      
+
       // Third-party Integration settings - send as nested object
       thirdPartyIntegration: {
         enabled: thirdPartyIntegrationEnable,
         htmlContent: thirdPartyHtmlContent,
       },
     };
-    
+
     // Log all data for debugging (remove in production if needed)
     console.log("Saving Settings Data:", JSON.stringify(allData, null, 2));
-    
+
     try {
       // Step 2: Make POST request to API endpoint
       const res = await fetch(API_URL, {
@@ -506,7 +506,7 @@ function Settings() {
         },
         body: JSON.stringify(allData), // Convert JavaScript object to JSON string
       });
-      
+
       // Step 3: Parse response and handle result
       const json = await res.json();
       if (json?.ok) {
@@ -580,14 +580,17 @@ function Settings() {
               </div>
             </div>
             <div className="grid-item">
-              <div className="column-title">Update Backround Color</div>
+              <div className="column-title">Update Backround Color vs</div>
               <div className="color-picker-container">
-                <ColorPicker
-                  value={countdownBackgroundColor}
-                  onChange={handlecountdownBackgroundColor}
-                  size="large"
-                  showText
-                />
+              <ColorPicker
+                    value={countdownBackgroundColor}
+                    onChange={(color) =>
+                      setCountdownBackgroundColor(color.toHexString())
+                    }
+                    size="large"
+                    showText
+                  />
+
               </div>
             </div>
             <div className="grid-item">
@@ -681,16 +684,16 @@ function Settings() {
                 </Checkbox>
               </div>
             </div>
-            <div className="grid-item" style={{gridColumnStart:2, gridColumnEnd:3, width:'100%'}}>
+            <div className="grid-item" style={{ gridColumnStart: 2, gridColumnEnd:4 , width: '100%' }}>
               <div className="column-title">Announcement Bar Content</div>
               <div className="custom-antd-textarea">
-              <TextArea
-                      placeholder="Enter your message"
-                      rows={4}
-                      value={anouncmentbartTextarea}
-                      onChange={handleAnnouncementBarTextarea}
-                      className=""
-                    />
+                <TextArea
+                  placeholder="Enter your message"
+                  rows={4}
+                  value={anouncmentbartTextarea}
+                  onChange={handleAnnouncementBarTextarea}
+                  className=""
+                />
               </div>
             </div>
           </div>
@@ -709,7 +712,7 @@ function Settings() {
                 </Checkbox>
               </div>
             </div>
-            <div className="grid-item" style={{gridColumnStart:1, gridColumnEnd:4, width:'100%'}}>
+            <div className="grid-item" style={{ gridColumnStart: 2, gridColumnEnd: 4, width: '100%' }}>
               <div className="column-title">Select Collection</div>
               <div className="custom-collection">
                 <Select
@@ -747,7 +750,7 @@ function Settings() {
                 </Checkbox>
               </div>
             </div>
-            <div className="grid-item" style={{gridColumnStart:1, gridColumnEnd:3, width:'100%'}}>
+            <div className="grid-item" style={{ gridColumnStart: 2, gridColumnEnd: 4, width: '100%' }}>
               <div className="column-title">Search & Select Product</div>
               <div className="custom-product-search">
                 <TextField
@@ -830,7 +833,7 @@ function Settings() {
                 </Checkbox>
               </div>
             </div>
-            <div className="grid-item" style={{gridColumnStart:1, gridColumnEnd:3, width:'100%'}}>
+            <div className="grid-item" style={{ gridColumnStart: 2, gridColumnEnd: 4, width: '100%' }}>
               <div className="column-title">HTML Content</div>
               <div className="custom-antd-textarea">
                 <TextArea
@@ -844,6 +847,7 @@ function Settings() {
             </div>
           </div>
         </Layout.Section>
+
       </Layout>
     </Page>
   );
