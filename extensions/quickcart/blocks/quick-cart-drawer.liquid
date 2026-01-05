@@ -173,8 +173,11 @@
 
         <div class="cdp-v-slider" data-v-slider>
           <div class="cdp-v-track">
-            {% if block.settings.upsell_collection != blank %}
-              {% assign usell = collections[block.settings.upsell_collection] %}
+           {% if shop.metafields.custom.upsell_collection_handle != blank %}
+             {% assign upsell_collection = shop.metafields.custom.upsell_collection_handle.value %}
+
+              {% assign usell = collections[ upsell_collection ] %}
+
               {% for p in usell.products limit: 12 %}
                 <article class="cdp-u-card" data-upsell-card>
                   <div class="cdp-u-media">
@@ -221,7 +224,7 @@
       <!-- Left rail: vertical upsell slider with VARIANT PICKER -->
    
 
-      <!-- Right pane: scrollable content -->
+      <!-- Right pane: scrollable contenxt -->
       <main class="cdp-content">
     
        
@@ -309,8 +312,10 @@
 
         <div class="cdp-v-slider" data-v-slider>
           <div class="cdp-v-track">
-            {% if block.settings.upsell_collection != blank %}
-              {% assign usell = collections[block.settings.upsell_collection] %}
+               {% if shop.metafields.custom.upsell_collection_handle != blank %}
+                  {% assign upsell_collection = shop.metafields.custom.upsell_collection_handle %}
+
+              {% assign usell = collections[ upsell_collection ] %}
               {% for p in usell.products limit: 12 %}
                 <article class="cdp-u-card" data-upsell-card>
                   <div class="cdp-u-media">
@@ -343,7 +348,13 @@
 
 <!-- Gift Wrap Section -->
 <div class="cdp-gift-wrap-section">
-  {% render 'gift' giftproduct:block.settings.gift_wrap_product, show_gift_Card: block.settings.show_gift_product %}
+
+{% if shop.metafields.custom.gift_product_handle != blank %}
+ {% assign gift_product = shop.metafields.custom.gift_product_handle %}
+ {% render 'gift' giftproduct:gift_product, show_gift_Card: block.settings.show_gift_product %}
+{% endif %}
+
+ 
 </div>
 
 <div class="mini-cart-order-summary-content">

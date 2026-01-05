@@ -226,7 +226,7 @@ export default function ProgressBar() {
   /* ---------- RENDER ---------- */
   return (
     <Page fullWidth>
-      <TitleBar title="Unlock Offers" />
+      <TitleBar title="Discount Offers" />
 
       <Layout>
         <Layout.Section>
