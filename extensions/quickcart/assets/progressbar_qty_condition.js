@@ -29,7 +29,7 @@ async function getbxgy(shop) {
   });
 
 
-    const settingsData = await fetch(`https://quickcart-vf8k.onrender.com/app/api/settings`, {
+    const settingsData = await fetch(`https://quickcart-vf8k.onrender.com/app/api/settings?shop=${encodeURIComponent(shop)}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -37,7 +37,7 @@ async function getbxgy(shop) {
       Accept: "application/json",
     },
   })
-  console.log("shoppe 1", shop)
+  console.log("shoppe", shop)
   const jsonSettings =  await settingsData.json();
   console.log("dataFromDB",jsonSettings)
 
