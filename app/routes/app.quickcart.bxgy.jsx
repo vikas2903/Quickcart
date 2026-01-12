@@ -194,45 +194,74 @@ import { cors } from "../utils/cors.js";
 
 /** GET /api/bxgy */
 export const loader = async ({ request }) => {
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: cors(request) });
-  }
+  // Wrap entire handler to ensure we always return JSON with CORS headers
+  try {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: cors(request) });
+    }
 
-  // ✅ Only from header
-  const shop = (request.headers.get("x-shopify-shop-domain") || "")
-    .toLowerCase()
-    .trim();
+    // ✅ Only from header (no authentication required for storefront access)
+    const shop = (request.headers.get("x-shopify-shop-domain") || "")
+      .toLowerCase()
+      .trim();
 
-  if (!shop) {
+    if (!shop) {
+      return json(
+        { ok: false, error: "Missing X-Shopify-Shop-Domain header" },
+        { status: 400, headers: cors(request) }
+      );
+    }
+
+    await connectDatabase();
+    const cfg = await BxgyConfig.findOne({ shopName: shop }).lean();
+
     return json(
-      { ok: false, error: "Missing X-Shopify-Shop-Domain header" },
-      { status: 400, headers: cors(request) }
+      { ok: true, data: cfg || null },
+      { headers: { ...cors(request), "Cache-Control": "no-store" } }
+    );
+  } catch (err) {
+    // Ensure we always return JSON with CORS headers, even on errors
+    console.error("Error in bxgy loader:", err);
+    return json(
+      { 
+        ok: false, 
+        error: err?.message || "Failed to fetch bxgy configuration",
+        data: null
+      },
+      { status: 500, headers: cors(request) }
     );
   }
-
-  await connectDatabase();
-  const cfg = await BxgyConfig.findOne({ shopName: shop }).lean();
-
-  return json(
-    { ok: true, data: cfg || null },
-    { headers: { ...cors(request), "Cache-Control": "no-store" } }
-  );
 };
 
 /** POST /api/bxgy */
 export const action = async ({ request }) => {
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: cors(request) });
-  }
-  if (request.method !== "POST") {
-    return json(
-      { ok: false, error: "Method not allowed" },
-      { status: 405, headers: cors(request) }
-    );
-  }
+  // Wrap entire handler to ensure we always return JSON with CORS headers
+  try {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: cors(request) });
+    }
+    if (request.method !== "POST") {
+      return json(
+        { ok: false, error: "Method not allowed" },
+        { status: 405, headers: cors(request) }
+      );
+    }
 
-  // ✅ fallback: header > session
-  const { session } = await authenticate.admin(request);
+    // ✅ fallback: header > session (POST requires authentication)
+    let session;
+    try {
+      const authResult = await authenticate.admin(request);
+      session = authResult.session;
+    } catch (authErr) {
+      // Handle authentication errors gracefully
+      if (authErr instanceof Response && authErr.status >= 300 && authErr.status < 400) {
+        return json(
+          { ok: false, error: "Authentication required", code: "UNAUTHORIZED" },
+          { status: 401, headers: cors(request) }
+        );
+      }
+      throw authErr;
+    }
   const shopFromSession = (session?.shop || "").toLowerCase().trim();
   const shop = (request.headers.get("x-shopify-shop-domain") || shopFromSession)
     .toLowerCase()
@@ -304,5 +333,17 @@ export const action = async ({ request }) => {
     }
   ).lean();
 
-  return json({ ok: true, data: saved }, { headers: cors(request) });
+    return json({ ok: true, data: saved }, { headers: cors(request) });
+  } catch (err) {
+    // Ensure we always return JSON with CORS headers, even on errors
+    console.error("Error in bxgy action:", err);
+    return json(
+      { 
+        ok: false, 
+        error: err?.message || "Failed to save bxgy configuration",
+        data: null
+      },
+      { status: 500, headers: cors(request) }
+    );
+  }
 };

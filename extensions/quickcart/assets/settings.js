@@ -70,12 +70,46 @@
             if (settings.countdown.countdown_chip_radius !== undefined) {
                 root.style.setProperty('--countdown_chip_radius', settings.countdown.countdown_chip_radius + 'px');
             }
+            if (settings.countdown.show_countdown) {
+                const countdownElement = document.querySelector('[data-countdown]') || 
+                                    document.querySelector('.sr-countdown') ||
+                                    drawer.querySelector('[id*="countdown"]');
+                if (countdownElement) {
+                    countdownElement.style.display = settings.countdown.show_countdown ? '' : 'none';
+                }
+            }
+            if(settings.announcementBar.enabled) {
+                const announcementBarElement = drawer.querySelector('[data-announcement-bar]') ||
+                                         drawer.querySelector('[id*="announcement"]') ||
+                                         drawer.querySelector('.data-announcement-bar') ||
+                                         document.querySelector('[data-announcement-bar]');
+                if (announcementBarElement) {
+                    announcementBarElement.style.display = settings.announcementBar.enabled ? '' : 'none';
+                }
+                if(settings.announcementBar.background_color) {
+                    announcementBarElement.style.backgroundColor = settings.announcementBar.background_color;
+                }
+                if(settings.announcementBar.text_color) {
+                    announcementBarElement.style.color = settings.announcementBar.text_color;
+                }
+                if(settings.announcementBar.border_radius !== undefined) {
+                    announcementBarElement.style.borderRadius = settings.announcementBar.border_radius + 'px';
+                }   
+            }
             
             // Show/hide countdown
             const countdownElement = document.querySelector('[data-countdown]') || 
                                     document.querySelector('.sr-countdown') ||
                                     drawer.querySelector('[id*="countdown"]');
             if (countdownElement) {
+            if(settings.countdown.countdown_text_color) {
+                const countdownElement = document.querySelector('[data-countdown]') || 
+                                    document.querySelector('.sr-countdown') ||
+                                    drawer.querySelector('[id*="countdown"]');
+                if (countdownElement) {
+                    countdownElement.style.color = settings.countdown.countdown_text_color;
+                }
+            }
                 countdownElement.style.display = settings.countdown.show_countdown ? '' : 'none';
             }
         }
@@ -91,29 +125,85 @@
             if (settings.cartDrawer.border_radius !== undefined) {
                 root.style.setProperty('--border_radius', settings.cartDrawer.border_radius + 'px');
             }
+            if (settings.cartDrawer.button_color) {
+                document.querySelector('.cdp-checkout').style.backgroundColor = settings.cartDrawer.button_color;
+                document.querySelector('.combined-offer-badge').style.backgroundColor = settings.cartDrawer.button_color;
+            }
+            if (settings.cartDrawer.button_text_color) {
+                root.style.setProperty('--checkout_text_color', settings.cartDrawer.button_text_color);
+                document.querySelector('.combined-offer-badge').style.color = settings.cartDrawer.button_text_color;
+            }
+            if (settings.cartDrawer.button_border_radius !== undefined) {
+                root.style.setProperty('--checkout_border_radius', settings.cartDrawer.button_border_radius + 'px');
+            }
         }
 
         // Apply announcement bar settings
         if (settings.announcementBar) {
             const announcementBarElement = drawer.querySelector('[data-announcement-bar]') ||
                                          drawer.querySelector('[id*="announcement"]') ||
+                                         drawer.querySelector('.data-announcement-bar') ||
                                          document.querySelector('[data-announcement-bar]');
             
             if (announcementBarElement) {
-                // Show/hide
                 announcementBarElement.style.display = settings.announcementBar.enabled ? '' : 'none';
-                
-                // Update content
-                if (settings.announcementBar.content) {
-                    const contentElement = announcementBarElement.querySelector('[data-announcement-content]') ||
-                                         announcementBarElement.querySelector('p, span, div');
-                    if (contentElement) {
-                        contentElement.textContent = settings.announcementBar.content;
-                    } else {
-                        announcementBarElement.textContent = settings.announcementBar.content;
-                    }
+            }
+
+            
+            if(settings.announcementBar.background_color) {
+                announcementBarElement.style.backgroundColor = settings.announcementBar.background_color;
+            }
+            if(settings.announcementBar.text_color) {
+                announcementBarElement.style.color = settings.announcementBar.text_color;
+            }
+            if(settings.announcementBar.border_radius !== undefined) {
+                announcementBarElement.style.borderRadius = settings.announcementBar.border_radius + 'px';
+            }
+
+            if (settings.announcementBar.content) {
+                // Split by comma and clean spaces
+                const items = settings.announcementBar.content
+                  .split(',')
+                  .map(item => item.trim())
+                  .filter(Boolean);
+              
+                if (items.length > 0) {
+                    // Clear existing content
+                    announcementBarElement.innerHTML = '';
+                  
+                    // Build Swiper structure
+                    const swiper = document.createElement('div');
+                    swiper.classList.add('sr-banner-swiper', 'swiper');
+                    swiper.setAttribute('data-announcement-swiper', '');
+
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('swiper-wrapper');
+
+                    items.forEach(text => {
+                      const slide = document.createElement('div');
+                      slide.classList.add('swiper-slide');
+                      slide.textContent = text;
+                      wrapper.appendChild(slide);
+                    });
+
+                    swiper.appendChild(wrapper);
+                    announcementBarElement.appendChild(swiper);
+
+                    // Notify listeners to re-init swiper
+                    window.dispatchEvent(new CustomEvent('announcementbar:updated'));
                 }
             }
+
+        }
+
+            if(settings.announcementBar.items) {
+                const itemsElement = announcementBarElement.querySelector('[data-announcement-items]') ||
+                                     announcementBarElement.querySelector('.sr-banner-carousel-span');
+                if(itemsElement) {
+                    itemsElement.innerHTML = settings.announcementBar.items;
+                }
+            }
+            if(settings.announcementBar.display_time) {
         }
 
         // Apply collection (upsell) settings

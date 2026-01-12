@@ -10,10 +10,11 @@
   }
 {%- endcomment -%}
 
-{% if show_gift_Card %}
+
 
 {%- assign gw_product = all_products[giftproduct] -%}
 {%- if gw_product and gw_product.variants.size > 0 -%}
+
   {%- assign gw_variant = gw_product.selected_or_first_available_variant -%}
   {%- assign uid = sid | default: section.id | default: 'global' -%}
 
@@ -112,6 +113,7 @@
     syncChecked();
   })();
   </script>
+  
 {%- endif -%}
 
 {% endif %}

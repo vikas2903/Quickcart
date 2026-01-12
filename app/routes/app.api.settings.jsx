@@ -194,18 +194,20 @@ export const loader = async ({ request }) => {
  * ============================================================================
  */
 export const action = async ({ request }) => {
-  // Handle CORS preflight requests
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: cors(request) });
-  }
-
-  // Step 1: Authenticate the admin request
-  let session, admin;
+  // Wrap entire handler in try-catch to ensure we always return JSON
   try {
-    const authResult = await authenticate.admin(request);
-    session = authResult.session;
-    admin = authResult.admin;
-  } catch (err) {
+    // Handle CORS preflight requests
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: cors(request) });
+    }
+
+    // Step 1: Authenticate the admin request
+    let session, admin;
+    try {
+      const authResult = await authenticate.admin(request);
+      session = authResult.session;
+      admin = authResult.admin;
+    } catch (err) {
     // Handle authentication errors gracefully - return JSON instead of redirect
     // This prevents CORS issues when authentication fails
     // Check if it's a redirect Response (status 3xx)
@@ -465,6 +467,19 @@ export const action = async ({ request }) => {
     console.error("Error saving settings:", err);
     return json(
       { ok: false, error: err?.message || "Failed to save settings" },
+      { status: 500, headers: cors(request) }
+    );
+  }
+  } catch (outerErr) {
+    // Catch any unexpected errors that might cause HTML error pages
+    // This ensures we always return JSON, never HTML
+    console.error("Unexpected error in settings API action:", outerErr);
+    return json(
+      { 
+        ok: false, 
+        error: outerErr?.message || "An unexpected error occurred",
+        details: process.env.NODE_ENV === "development" ? outerErr?.stack : undefined
+      },
       { status: 500, headers: cors(request) }
     );
   }

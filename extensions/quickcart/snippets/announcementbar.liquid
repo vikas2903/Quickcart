@@ -1,78 +1,151 @@
-{% if show_announcementbar %}
-<style>
-:root {
-    --sr-banner-background-color: #7c3444;
-    --sr-banner-text-color: #ffffff;
-}
 
-/* CONTAINER */
-.sr-cart-banner-container {
- 
-    color: var(--sr-banner-text-color);
-    text-align: center;
-    height: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
-
-/* SLIDER WRAPPER */
-.sr-banner-carousel-css {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* TEXT ITEM */
-.sr-banner-carousel-span {
-    position: absolute;
-    left: 0;
-    right: 0;
-    white-space: nowrap;
-    font-size: 12px;
-    font-weight: 500;
-    color: #fff;
-    opacity: 0;
-    transform: translateX(100%);
-    /* animation is configured per-item below: total duration = items * display time */
-    animation-name: sr-slideIn;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-    animation-duration: calc(var(--items) * var(--sr-display-time));
-    animation-delay: calc((var(--index) - 1) * -1 * var(--sr-display-time));
-}
-
-
-/* SLIDE ANIMATION */
-@keyframes sr-slideIn {
-    0% { opacity: 0; transform: translateX(100%); }
-    5% { opacity: 1; transform: translateX(0); }
-    25% { opacity: 1; transform: translateX(0); }
-    30% { opacity: 0; transform: translateX(-100%); }
-    100% { opacity: 0; transform: translateX(-100%); }
-}
-/* Reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-    .sr-banner-carousel-span { animation: none !important; }
-}
-</style>
-
-{% assign announcementbar_text = announcementbar_text | split: ',' %}
-{% assign _ab_count = announcementbar_text | size %}
-
-<div class="sr-cart-banner-container" id="sr-cart-banner">
-    <div class="sr-banner-carousel-css" style="--items: {{ _ab_count }}; --sr-display-time: 4s;">
-        {% for text in announcementbar_text %}
-        <span class="sr-banner-carousel-span" style="--index: {{ forloop.index }}">
-            {{ text | strip }}
-        </span>
-        {% endfor %}
+    <style>
+    :root {
+      --sr-banner-background-color: #7c3444;
+      --sr-banner-text-color: #ffffff;
+    }
+    
+    .sr-cart-banner-container {
+      color: var(--sr-banner-text-color);
+      text-align: center;
+      height: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background: var(--sr-banner-background-color);
+    }
+    
+    .sr-banner-swiper {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .sr-banner-swiper .swiper-wrapper {
+      align-items: center;
+    }
+    
+    .sr-banner-swiper .swiper-slide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: #fff;
+      padding: 0 12px;
+      height: 32px;
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+    
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .sr-banner-swiper .swiper-slide {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+    </style>
+    
+    
+    <div class="sr-cart-banner-container" id="sr-cart-banner" data-announcement-bar>
+      <div class="sr-banner-swiper swiper" data-announcement-swiper>
+        <div class="swiper-wrapper">
+          
+        </div>
+      </div>
     </div>
-</div>
-
-{% endif %}
+    
+    <script>
+    (function () {
+      const SWIPER_CSS = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css';
+      const SWIPER_JS = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js';
+      let swiperInstance;
+    
+      function loadAsset(id, href, isStyle = false) {
+        return new Promise((resolve, reject) => {
+          if (document.getElementById(id)) return resolve();
+          const el = isStyle ? document.createElement('link') : document.createElement('script');
+          if (isStyle) {
+            el.rel = 'stylesheet';
+            el.href = href;
+          } else {
+            el.src = href;
+          }
+          el.id = id;
+          el.onload = () => resolve();
+          el.onerror = reject;
+          document.head.appendChild(el);
+        });
+      }
+    
+      function destroySwiper(container) {
+        if (container && container._announcementSwiper) {
+          container._announcementSwiper.destroy(true, true);
+          container._announcementSwiper = null;
+        }
+        swiperInstance = null;
+      }
+    
+      function initSwiper() {
+        const container = document.querySelector('[data-announcement-swiper]');
+        if (!container) return;
+    
+        const slides = container.querySelectorAll('.swiper-slide');
+        if (!slides || slides.length <= 1) {
+          destroySwiper(container);
+          return; // nothing to slide
+        }
+    
+        destroySwiper(container);
+    
+        swiperInstance = new Swiper(container, {
+          loop: true,
+          slidesPerView: 1,
+          allowTouchMove: false,
+          autoplay: {
+            delay: 2000,
+            disableOnInteraction: false,
+          },
+          speed: 500,
+          effect: 'slide',
+        });
+    
+        container._announcementSwiper = swiperInstance;
+      }
+    
+      async function setup() {
+        try {
+          await Promise.all([
+            loadAsset('sr-swiper-css', SWIPER_CSS, true),
+            loadAsset('sr-swiper-js', SWIPER_JS, false),
+          ]);
+          initSwiper();
+        } catch (e) {
+          console.error('Announcement bar swiper failed to load', e);
+        }
+      }
+    
+      // Initial load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setup);
+      } else {
+        setup();
+      }
+    
+      // Re-init when settings are applied and content is updated
+      window.addEventListener('quickcart-settings-loaded', () => {
+        // slight delay to allow DOM updates
+        setTimeout(() => {
+          setup();
+        }, 150);
+      });
+    
+      window.addEventListener('announcementbar:updated', () => {
+        setTimeout(() => {
+          setup();
+        }, 50);
+      });
+    })();
+    </script>
+    

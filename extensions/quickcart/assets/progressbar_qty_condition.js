@@ -18,60 +18,89 @@ let progressbar_text_unlocked = "";
 async function getbxgy(shop) {
   const url = `https://quickcart-vf8k.onrender.com/app/quickcart/bxgy`; 
 
-  const response = await fetch(url, {
-    method: "GET",
-    credentials: "include", // ensures cookies/sessions travel
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Shop-Domain": shop, // required by backend
-      Accept: "application/json",
-    },
-  });
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      // Remove credentials: "include" to avoid CORS issues with wildcard origin
+      // credentials: "include", 
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Shop-Domain": shop, // required by backend
+        Accept: "application/json",
+      },
+    });
 
+    // Check if response is OK
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("BXGY API error:", response.status, errorText);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
 
-    const settingsData = await fetch(`https://quickcart-vf8k.onrender.com/app/api/settings`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Shop-Domain": shop,
-      Accept: "application/json",
-    },
-  })
-  console.log("shoppe 1", shop)
-  const jsonSettings =  await settingsData.json();
-  console.log("dataFromDB",jsonSettings)
+    // Check if response is JSON
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      console.error("Non-JSON response from BXGY API:", text.substring(0, 200));
+      throw new Error("Server returned non-JSON response");
+    }
 
+    const json = await response.json();
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    if (json?.ok === false) {
+      throw new Error(json.error || "Endpoint returned error");
+    }
+    
+    let bxgyResponse = json.data || json;
+
+    // Safely extract data with defaults
+    progressbar_qty_enabled = bxgyResponse?.enabled || false;
+    progressbar_qty_buyqty = bxgyResponse?.offer?.buyQty || 0;
+    progressbar_qty_getqty = bxgyResponse?.offer?.getQty || 0;
+
+    progressbar_text_remainingMany = bxgyResponse?.offer?.remainingMany || "";
+    progressbar_text_remainingOne = bxgyResponse?.offer?.remainingOne || "";
+    progressbar_text_unlocked = bxgyResponse?.messages?.unlocked || "";
+  } catch (error) {
+    console.error("Error fetching BXGY configuration:", error);
+    // Set defaults on error to prevent breaking the app
+    progressbar_qty_enabled = false;
+    progressbar_qty_buyqty = 0;
+    progressbar_qty_getqty = 0;
+    progressbar_text_remainingMany = "";
+    progressbar_text_remainingOne = "";
+    progressbar_text_unlocked = "";
   }
-
-  const json = await response.json();
-
-  if (json?.ok === false) {
-    throw new Error(json.error || "Endpoint returned error");
-  }
-  let bxgyResponse = json.data;
-
-  // console.log("Enabled:", bxgyResponse.enabled);
-
-  // console.log("Offer Buy Qty:", bxgyResponse.offer.buyQty);
-  // console.log("Offer Get Qty:", bxgyResponse.offer.getQty);
-  // console.log("Remaing Many:", bxgyResponse.offer.remainingMany);
-  // console.log("Remaing Many:", bxgyResponse.offer.remainingOne);
-  // console.log("Remaing 1", bxgyResponse.messages.unlocked);
-
-  // console.log("Backend data", json.data);
-
-  progressbar_qty_enabled = bxgyResponse.enabled;
-  progressbar_qty_buyqty = bxgyResponse.offer.buyQty;
-  progressbar_qty_getqty = bxgyResponse.offer.getQty;
-
-  progressbar_text_remainingMany = bxgyResponse.offer.remainingMany;
-  progressbar_text_remainingOne = bxgyResponse.offer.buyQty;
-  progressbar_text_unlocked = bxgyResponse.messages.unlocked;
 }
-getbxgy(shop);
+
+// Fetch settings separately (if needed)
+async function getSettings(shop) {
+  try {
+    const settingsData = await fetch(`https://quickcart-vf8k.onrender.com/app/api/settings`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Shop-Domain": shop,
+        Accept: "application/json",
+      },
+    });
+    
+    if (settingsData.ok) {
+      const jsonSettings = await settingsData.json();
+      console.log("dataFromDB", jsonSettings);
+      return jsonSettings;
+    }
+  } catch (error) {
+    console.error("Error fetching settings:", error);
+  }
+  return null;
+}
+
+// Initialize both
+if (shop) {
+  getbxgy(shop);
+  getSettings(shop);
+}
 
 (function () {
   // Custom function to run when cart updates

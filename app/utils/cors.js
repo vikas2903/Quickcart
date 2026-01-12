@@ -9,7 +9,7 @@ export function cors(request) {
     "https://quickcart-vf8k.onrender.com", // your app host
   ];
 
-  let allowOrigin = "";
+  let allowOrigin = null;
   if (
     origin &&
     allowed.some(rule =>
@@ -19,10 +19,23 @@ export function cors(request) {
     allowOrigin = origin;
   }
 
-  return {
-    "Access-Control-Allow-Origin": allowOrigin || "*", // tighten later
+  // Build CORS headers
+  const corsHeaders = {
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Shopify-Shop-Domain",
-    "Access-Control-Allow-Credentials": "true",
   };
+
+  // If we have an allowed origin, use it with credentials
+  // If no origin or not allowed, use * but without credentials (CORS spec requirement)
+  if (allowOrigin) {
+    corsHeaders["Access-Control-Allow-Origin"] = allowOrigin;
+    corsHeaders["Access-Control-Allow-Credentials"] = "true";
+  } else {
+    // Fallback: allow all origins but without credentials
+    // This is needed for storefront extensions that might not send origin header
+    corsHeaders["Access-Control-Allow-Origin"] = "*";
+    // Note: Cannot use credentials with wildcard origin
+  }
+
+  return corsHeaders;
 }

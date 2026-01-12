@@ -176,10 +176,12 @@
 
       
 
-      // 4) Debug logs (same scenario style)
+    // 4) Debug logs (same scenario style)
     //   console.log("cartHasProduct", cartItems);
     //   console.log("codtionProduct", Array.from(conditionIdSet));
     //   console.log("cartProductIds", cartProductIds);
+
+    
       setTimeout(async() => {
         // console.log("hasAnyConditionProduct", hasAnyConditionProduct);
         
@@ -235,9 +237,7 @@
 //       console.error("Failed to remove free product:", e);
 //     }
 //   }
-// }
-
-        
+// } 
       }, 2000);
  
  

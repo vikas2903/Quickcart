@@ -25,7 +25,6 @@
   border-radius: var(--countdown_chip_radius);
 }
 .sr-cart-banner-container {background: var(--bg_color);}
-.cdp-checkout {background: var(--bg_color);   border-radius:var(--border_radius);}
 .cdp-u-add {background: var(--bg_color); border-radius:var(--border_radius); text-align:center;}
 .cdp-line{border-radius:var(--border_radius);}
 .cdp-line-media img{border-radius:var(--border_radius);}
@@ -351,7 +350,7 @@
 
 {% if shop.metafields.custom.gift_product_handle != blank %}
  {% assign gift_product = shop.metafields.custom.gift_product_handle %}
- {% render 'gift' giftproduct:gift_product, show_gift_Card: block.settings.show_gift_product %}
+    {% render 'gift' giftproduct:gift_product %}
 {% endif %}
 
  

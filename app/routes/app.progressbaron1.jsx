@@ -200,7 +200,6 @@ function BuyXGetYSection({ shop }) {
                 autoComplete="off"
               />
             </InlineStack>
-visibility:
             {/* <LegacyCard sectioned>
               <BlockStack gap="300">
                 <strong>Messages</strong>

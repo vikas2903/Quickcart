@@ -669,7 +669,30 @@ function Settings() {
         body: JSON.stringify(allData), // Convert JavaScript object to JSON string
       });
 
-      // Step 3: Parse response and handle result
+      // Step 3: Check if response is OK and is JSON
+      if (!res.ok) {
+        // If response is not OK, try to get error message
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const errorJson = await res.json();
+          throw new Error(errorJson?.error || `HTTP ${res.status}: ${res.statusText}`);
+        } else {
+          // Response is HTML (error page), get text for debugging
+          const text = await res.text();
+          console.error("Non-JSON error response:", text.substring(0, 200));
+          throw new Error(`HTTP ${res.status}: ${res.statusText}. Server returned HTML instead of JSON.`);
+        }
+      }
+
+      // Check if response is actually JSON
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON response received:", text.substring(0, 200));
+        throw new Error("Server returned non-JSON response. Please check the API endpoint.");
+      }
+
+      // Step 4: Parse response and handle result
       const json = await res.json();
       if (json?.ok) {
         toast.success("Settings saved successfully!");
@@ -681,7 +704,8 @@ function Settings() {
     } catch (e) {
       // Handle network errors or other exceptions
       console.error("Failed to save settings:", e);
-      toast.error("Failed to save settings");
+      const errorMessage = e instanceof Error ? e.message : "Failed to save settings";
+      toast.error(errorMessage);
     } finally {
       // Step 4: Reset saving state (always runs, even if error occurs)
       setIsSaving(false);
