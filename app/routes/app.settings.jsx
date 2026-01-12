@@ -321,7 +321,8 @@ function Settings() {
   const [countdownEnable, setCountdownEnable] = useState(false);
 
   // cart drawer settings
-  const [bodyBackgroundColor, setBodyBackgroundColor] = useState("#f0e5e7");
+  // const [cartDrawerBackgroundColor, setcartDrawerBackgroundColor] = useState("#f0e5e7");
+  const [cartDrawerBackgroundColor, setCartDrawerBackgroundColor] = useState("#f0e5e7");
   const [textColor, setTextColor] = useState("#000");
   const [borderRadius, setBorderRadius] = useState(10);
 
@@ -336,6 +337,31 @@ function Settings() {
   const [thirdPartyIntegrationEnable, setThirdPartyIntegrationEnable] =
     useState(false);
   const [thirdPartyHtmlContent, setThirdPartyHtmlContent] = useState("");
+
+  const [buttonColor, setButtonColor] = useState("#f0e5e7");
+  const [buttonTextColor, setButtonTextColor] = useState("#000");
+  const [buttonBorderRadius, setButtonBorderRadius] = useState(10);
+
+  const [announcementBarTextColor, setAnnouncementBarTextColor] = useState("#000");
+  const [announcementBarBackgroundColor, setAnnouncementBarBackgroundColor] = useState("#f0e5e7");
+  
+
+  const handleAnnouncementBarTextColor = (color) => {
+    setAnnouncementBarTextColor(color.toHexString());
+  };
+  const handleAnnouncementBarBackgroundColor = (color) => {
+    setAnnouncementBarBackgroundColor(color.toHexString());
+  };
+
+  const handleButtonColor = (color) => {
+    setButtonColor(color.toHexString());
+  };
+  const handleButtonTextColor = (color) => {
+    setButtonTextColor(color.toHexString());
+  };
+  const handleButtonBorderRadius = (value) => {
+    setButtonBorderRadius(value || 0);
+  };
 
   const handleAnnouncementBar = (e) => {
     setannouncementBarEnable(e.target.checked);
@@ -359,12 +385,11 @@ function Settings() {
     setProductEnable(e.target.checked);
   };
 
-  // Handle cart drawer color change
-  const handlebodyBackgroundColor = (color) => {
-    setBodyBackgroundColor(color.hex);
+  const handlecartDrawerBackgroundColoronchnage = (color) => {
+    setCartDrawerBackgroundColor(color.toHexString());
   };
   const handleTextColor = (color) => {
-    setTextColor(color.hex);
+    setTextColor(color.toHexString());
   };
   const handleBorderRadius = (value) => {
     setBorderRadius(value || 0);
@@ -453,11 +478,16 @@ function Settings() {
 
           // Cart Drawer settings
           const cartDrawer = data.cartDrawer || {};
-          setBodyBackgroundColor(
+          setCartDrawerBackgroundColor(
             cartDrawer.body_color || data.body_color || "#f0e5e7",
           );
           setTextColor(cartDrawer.text_color || data.text_color || "#000");
           setBorderRadius(cartDrawer.border_radius || data.border_radius || 10);
+          
+          // Button settings (within cartDrawer)
+          setButtonColor(cartDrawer.button_color || data.button_color || "#f0e5e7");
+          setButtonTextColor(cartDrawer.button_text_color || data.button_text_color || "#000");
+          setButtonBorderRadius(cartDrawer.button_border_radius || data.button_border_radius || 10);
 
           // Announcement Bar settings
           const announcementBar = data.announcementBar || {};
@@ -465,6 +495,13 @@ function Settings() {
           setanouncmentbartTextarea(
             announcementBar.content ||
               "Free shipping order above 999, Get 10% Off order above 1999",
+          );
+          // Announcement Bar colors
+          setAnnouncementBarBackgroundColor(
+            announcementBar.background_color || data.announcementBar?.background_color || "#f0e5e7"
+          );
+          setAnnouncementBarTextColor(
+            announcementBar.text_color || data.announcementBar?.text_color || "#000"
           );
 
           // Collection settings
@@ -509,7 +546,7 @@ function Settings() {
       countdownChipTextColor,
       countdownBorderRadius,
       countdownEnable,
-      bodyBackgroundColor,
+      cartDrawerBackgroundColor,
       textColor,
       borderRadius,
       selectedCollection,
@@ -520,6 +557,11 @@ function Settings() {
       anouncmentbartTextarea,
       thirdPartyIntegrationEnable,
       thirdPartyHtmlContent,
+      buttonColor,
+      buttonTextColor,
+      buttonBorderRadius,
+      announcementBarTextColor,
+      announcementBarBackgroundColor,
     }),
     [
       countdownBackgroundColor,
@@ -528,7 +570,7 @@ function Settings() {
       countdownChipTextColor,
       countdownBorderRadius,
       countdownEnable,
-      bodyBackgroundColor,
+      cartDrawerBackgroundColor,
       textColor,
       borderRadius,
       selectedCollection,
@@ -539,6 +581,11 @@ function Settings() {
       anouncmentbartTextarea,
       thirdPartyIntegrationEnable,
       thirdPartyHtmlContent,
+      buttonColor,
+      buttonTextColor,
+      buttonBorderRadius,
+      announcementBarTextColor,
+      announcementBarBackgroundColor,
     ],
   );
 
@@ -573,14 +620,19 @@ function Settings() {
       countdown_border_radius: countdownBorderRadius,
 
       // Cart Drawer settings - send as flat structure
-      body_color: bodyBackgroundColor,
+      body_color: cartDrawerBackgroundColor,
       text_color: textColor,
       border_radius: borderRadius,
+      button_color: buttonColor,
+      button_text_color: buttonTextColor,
+      button_border_radius: buttonBorderRadius,
 
       // Announcement Bar settings - send as nested object
       announcementBar: {
         enabled: announcementBarEnable,
         content: anouncmentbartTextarea,
+        background_color: announcementBarBackgroundColor,
+        text_color: announcementBarTextColor,
       },
 
       // Collection settings - send as nested object
@@ -646,7 +698,7 @@ function Settings() {
         </Layout>
       </Page>
     );
-  }
+  } 
 
   return (
     <Page fullWidth>
@@ -805,8 +857,8 @@ function Settings() {
                       <div className="column-title">Background Color</div>
                       <div className="color-picker-container">
                         <ColorPicker
-                          value={bodyBackgroundColor}
-                          onChange={handlebodyBackgroundColor}
+                          value={cartDrawerBackgroundColor}
+                          onChange={handlecartDrawerBackgroundColoronchnage}
                           size="large"
                           showText
                         />
@@ -839,6 +891,48 @@ function Settings() {
                       </div>
                     </div>
                   </LegacyCard>
+
+                  <LegacyCard sectioned>
+                    <div className="grid-item">
+                      <div className="column-title">Button Text Color</div>
+                      <div className="color-picker-container">
+                        <ColorPicker
+                          value={buttonTextColor}
+                          onChange={handleButtonTextColor}
+                          size="large"
+                          showText
+                        />
+                      </div>
+                    </div>
+                  </LegacyCard>
+                  <LegacyCard sectioned>
+                    <div className="grid-item">
+                      <div className="column-title">Button Background Color</div>
+                      <div className="color-picker-container">
+                        <ColorPicker
+                          value={buttonColor}
+                          onChange={handleButtonColor}
+                          size="large"
+                          showText
+                        />
+                      </div>
+                    </div>
+                  </LegacyCard>
+
+                  <LegacyCard sectioned>
+                    <div className="grid-item">
+                      <div className="column-title">Border Radius</div>
+                      <div className="color-picker-container">
+                        <InputNumber
+                          value={buttonBorderRadius}
+                          onChange={handleButtonBorderRadius}
+                          min={0}
+                          max={50}
+                        />
+                      </div>
+                    </div>
+                  </LegacyCard>
+
                 </BlockStack>
               </Grid.Cell>
             </Grid>
@@ -888,6 +982,33 @@ function Settings() {
                           value={anouncmentbartTextarea}
                           onChange={handleAnnouncementBarTextarea}
                           className=""
+                        />
+                      </div>
+                    </div>
+                  </LegacyCard>
+                  <LegacyCard sectioned>
+                    <div className="grid-item">
+                      <div className="column-title">text color</div>
+                      <div className="color-picker-container">
+                        <ColorPicker
+                          value={announcementBarTextColor}
+                          onChange={handleAnnouncementBarTextColor}
+                          size="large"
+                          showText
+                        />
+                      </div>
+                    </div>
+                  </LegacyCard>
+
+                  <LegacyCard sectioned>
+                    <div className="grid-item">
+                      <div className="column-title">Background color</div>
+                      <div className="color-picker-container">
+                        <ColorPicker
+                          value={announcementBarBackgroundColor}
+                          onChange={handleAnnouncementBarBackgroundColor}
+                          size="large"
+                          showText
                         />
                       </div>
                     </div>
@@ -1141,3 +1262,4 @@ function Settings() {
 }
 
 export default Settings;
+

@@ -54,7 +54,10 @@ const CountdownSchema = new mongoose.Schema({
 const CartDrawerSchema = new mongoose.Schema({
   body_color: { type: String, default: '#f0e5e7' }, // Updated default to match frontend
   text_color: { type: String, default: '#000' }, // Updated default to match frontend
-  border_radius: { type: Number, default: 10 } // Updated default to match frontend
+  border_radius: { type: Number, default: 10 }, // Updated default to match frontend
+  button_color: { type: String, default: '#f0e5e7' },
+  button_text_color: { type: String, default: '#000' },
+  button_border_radius: { type: Number, default: 10 }
 }, { _id: false })
 
 /**
@@ -69,7 +72,10 @@ const CartDrawerSchema = new mongoose.Schema({
  */
 const AnnouncementBarSchema = new mongoose.Schema({
   enabled: { type: Boolean, default: false },
-  content: { type: String, default: 'Free shipping order above 999, Get 10% Off order above 1999' }
+  content: { type: String, default: 'Free shipping order above 999, Get 10% Off order above 1999' },
+  background_color: { type: String, default: '#f0e5e7' },
+  text_color: { type: String, default: '#000' },
+  border_radius: { type: Number, default: 10 }
 }, { _id: false })
 
 /**
@@ -177,4 +183,7 @@ const SettingsSchema = new mongoose.Schema(
 
 // Export the model for use in API routes
 // Model name 'Settings' will create collection 'settings' in MongoDB
-export default mongoose.model('Settings', SettingsSchema)
+// export default mongoose.model('Settings', SettingsSchema)
+export default mongoose.models.Settings
+  || mongoose.model('Settings', SettingsSchema)
+

@@ -27,7 +27,7 @@ export default function BuyXGetYPage() {
 
   return (
     <Page fullWidth>
-      <TitleBar title="Buy X Get Y Offer" />
+      <TitleBar title="Buy X Get Y Progress Bar" />
       <Layout>
         <Layout.Section>
           <BuyXGetYSection shop={shop} />
@@ -59,7 +59,7 @@ function BuyXGetYSection({ shop }) {
   const [msgOne, setMsgOne] = useState("Add 1 more item to unlock B{{buy}}G{{get}}");
   const [msgUnlocked, setMsgUnlocked] = useState("🎁 Offer unlocked! B{{buy}}G{{get}} applied at checkout");
 
-  const [previewQty, setPreviewQty] = useState("0");
+  const [previewQty, setPreviewQty] = useState("1");
   const [tab, setTab] = useState(0);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -200,15 +200,15 @@ function BuyXGetYSection({ shop }) {
                 autoComplete="off"
               />
             </InlineStack>
-
-            <LegacyCard sectioned>
+visibility:
+            {/* <LegacyCard sectioned>
               <BlockStack gap="300">
                 <strong>Messages</strong>
                 <TextField label="When 2+ remaining" value={msgMany} onChange={setMsgMany} autoComplete="off" />
                 <TextField label="When 1 remaining" value={msgOne} onChange={setMsgOne} autoComplete="off" />
                 <TextField label="When unlocked" value={msgUnlocked} onChange={setMsgUnlocked} autoComplete="off" />
               </BlockStack>
-            </LegacyCard>
+            </LegacyCard> */}
 
             <Button variant="primary" onClick={handleSubmit} loading={isSubmitting}>
               Submit
@@ -231,10 +231,10 @@ function BuyXGetYSection({ shop }) {
           <LegacyCard.Section>
             <BlockStack gap="400">
               <TextField
-                label="Preview cart quantity"
+                label="Preview cart quantity (X)"
                 type="number"
                 inputMode="numeric"
-                min={0}
+                min={1}
                 value={previewQty}
                 onChange={setPreviewQty}
                 autoComplete="off"

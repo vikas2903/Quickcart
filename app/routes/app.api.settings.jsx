@@ -102,12 +102,18 @@ export const loader = async ({ request }) => {
             cartDrawer: {
               body_color: "#f0e5e7",
               text_color: "#000",
-              border_radius: 10
+              border_radius: 10,
+              button_color: "#f0e5e7",
+              button_text_color: "#000",
+              button_border_radius: 10
+
             },
             // Announcement Bar settings
             announcementBar: {
               enabled: false,
-              content: "Free shipping order above 999, Get 10% Off order above 1999"
+              content: "Free shipping order above 999, Get 10% Off order above 1999",
+              background_color: "#f0e5e7",
+              text_color: "#000"
             },
             // Collection selection settings
             collection: {
@@ -281,12 +287,19 @@ export const action = async ({ request }) => {
           cartDrawer: {
             body_color: body.body_color ?? body.cartDrawer?.body_color ?? "#f0e5e7",
             text_color: body.text_color ?? body.cartDrawer?.text_color ?? "#000",
-            border_radius: body.border_radius ?? body.cartDrawer?.border_radius ?? 10
+            border_radius: body.border_radius ?? body.cartDrawer?.border_radius ?? 10,
+            button_color: body.button_color ?? body.cartDrawer?.button_color ?? "#f0e5e7",
+            button_text_color: body.button_text_color ?? body.cartDrawer?.button_text_color ?? "#000",
+            button_border_radius: body.button_border_radius ?? body.cartDrawer?.button_border_radius ?? 10
+
+
           },
           // Announcement Bar settings
-          announcementBar: body.announcementBar || {
-            enabled: false,
-            content: "Free shipping order above 999, Get 10% Off order above 1999"
+          announcementBar: {
+            enabled: body.announcementBar?.enabled ?? false,
+            content: body.announcementBar?.content ?? "Free shipping order above 999, Get 10% Off order above 1999",
+            background_color: body.announcementBar?.background_color ?? "#f0e5e7",
+            text_color: body.announcementBar?.text_color ?? "#000",
           },
           // Collection settings
           collection: body.collection || {

@@ -1429,49 +1429,102 @@ function unlockBodyScroll() {
 
   /* ============ ADD-TO-CART INTERCEPT (DEBOUNCED) ============ */
   let atcBusy = false;
-  document.addEventListener("submit", function (e) {
-    const form = e.target.closest('form[action*="/cart/add"], form[action="/cart/add"]');
-    if (!form) return;
+  
+  // Ensure we only attach the handler once to prevent duplicates
+  if (!window.__upcartSubmitHandlerAttached) {
+    window.__upcartSubmitHandlerAttached = true;
+    
+    document.addEventListener("submit", function (e) {
+      const form = e.target.closest('form[action*="/cart/add"], form[action="/cart/add"]');
+      if (!form) return;
 
-    e.preventDefault();
-    e.stopPropagation();
+      // Prevent default immediately to stop theme's native handler
+      e.preventDefault();
+      e.stopImmediatePropagation();
 
-    if (atcBusy) {
-      console.warn("ATC ignored due to debounce");
-      return;
-    }
-    atcBusy = true;
+      if (atcBusy) {
+        console.warn("ATC ignored due to debounce");
+        return false;
+      }
+      atcBusy = true;
 
-    const btn =
-      form.querySelector('button[type="submit"][name="add"], .ProductForm__AddToCart, button[type="submit"]');
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add("is-loading");
-    }
+      const btn =
+        form.querySelector('button[type="submit"][name="add"], .ProductForm__AddToCart, button[type="submit"]');
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add("is-loading");
+      }
 
-    const fd = new FormData(form);
-    fetch(form.action, {
-      method: "POST",
-      headers: { Accept: "application/json" },
-      body: fd,
-      credentials: "same-origin"
-    })
-      .then(() => {
-        openDrawer();
-        return refreshUI();
-      })
-      .catch((err) => console.error("Add to cart error", err))
-      .finally(() => {
+      // Extract quantity from form - check multiple possible locations
+      let quantity = 1;
+      const quantityInput = form.querySelector('input[name="quantity"], input[type="number"][name*="quantity"], .quantity-input, [data-quantity-input]');
+      if (quantityInput) {
+        const qtyValue = parseInt(quantityInput.value, 10);
+        if (!isNaN(qtyValue) && qtyValue > 0) {
+          quantity = qtyValue;
+        }
+      }
+
+      // Create FormData and ensure quantity is set correctly (not duplicated)
+      const fd = new FormData(form);
+      
+      // Remove any existing quantity entries to avoid duplication
+      fd.delete('quantity');
+      // Set the correct quantity
+      fd.set('quantity', String(quantity));
+      
+      // Ensure variant ID is present
+      const variantId = fd.get('id') || form.querySelector('input[name="id"]')?.value;
+      if (!variantId) {
+        console.error("No variant ID found in form");
+        atcBusy = false;
         if (btn) {
           btn.disabled = false;
           btn.classList.remove("is-loading");
         }
-        // small delay to avoid ultra-fast double click
-        setTimeout(() => {
-          atcBusy = false;
-        }, 600);
-      });
-  });
+        return false;
+      }
+
+      fetch(form.action || "/cart/add.js", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: fd,
+        credentials: "same-origin"
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(() => {
+          openDrawer();
+          return refreshUI();
+        })
+        .catch((err) => {
+          console.error("Add to cart error", err);
+          // Show error to user if possible
+          if (btn) {
+            btn.textContent = "Error - Try Again";
+            setTimeout(() => {
+              if (btn) btn.textContent = btn.getAttribute('data-original-text') || 'Add to cart';
+            }, 2000);
+          }
+        })
+        .finally(() => {
+          if (btn) {
+            btn.disabled = false;
+            btn.classList.remove("is-loading");
+          }
+          // small delay to avoid ultra-fast double click
+          setTimeout(() => {
+            atcBusy = false;
+          }, 800);
+        });
+      
+      return false;
+    }, true); // Use capture phase to intercept early
+  }
 
   /* ============ HEADER CART ICON OPENER ============ */
   document.addEventListener("click", function (e) {
