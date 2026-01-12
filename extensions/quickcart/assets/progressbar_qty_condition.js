@@ -29,7 +29,7 @@ async function getbxgy(shop) {
   });
 
 
-    const settingsData = await fetch(`https://quickcart-vf8k.onrender.com/app/api/settings?shop=${encodeURIComponent(shop)}`, {
+    const settingsData = await fetch(`https://quickcart-vf8k.onrender.com/app/api/settings`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -37,7 +37,7 @@ async function getbxgy(shop) {
       Accept: "application/json",
     },
   })
-  console.log("shoppe", shop)
+  console.log("shoppe 1", shop)
   const jsonSettings =  await settingsData.json();
   console.log("dataFromDB",jsonSettings)
 
@@ -304,56 +304,5 @@ getbxgy(shop);
   };
 
   // ---- 4. Run once on page load ----
-  onCartUpdateQty();
-})();
-(function () {
-  // Custom function to run when cart updates
-  async function onCartUpdateQty() {
-    try {
-      const response = await fetch("/cart.js");
-      const cart = await response.json();
-
-      // console.log("Cart updated:", cart);
-    } catch (err) {
-      console.error("Error fetching cart:", err);
-    }
-  }
-
-  // ---- 1. Listen for Shopify events (if theme supports) ----
-  document.addEventListener("cart:updated", onCartUpdateQty);
-
-  // ---- 2. Intercept Shopify AJAX API calls (/cart/add, /cart/change, /cart/update) ----
-  const originalFetch = window.fetch;
-  window.fetch = async (...args) => {
-    const response = await originalFetch(...args);
-
-    if (
-      typeof args[0] === "string" &&
-      (args[0].includes("/cart/add") ||
-        args[0].includes("/cart/change") ||
-        args[0].includes("/cart/update"))
-    ) {
-      document.dispatchEvent(new Event("cart:updated"));
-    }
-
-    return response;
-  };
-
-  // ---- 3. Intercept older themes using XMLHttpRequest ----
-  const originalOpen = XMLHttpRequest.prototype.open;
-  XMLHttpRequest.prototype.open = function (...args) {
-    this.addEventListener("load", function () {
-      if (
-        typeof args[1] === "string" &&
-        (args[1].includes("/cart/add") ||
-          args[1].includes("/cart/change") ||
-          args[1].includes("/cart/update"))
-      ) {
-        document.dispatchEvent(new Event("cart:updated"));
-      }
-    });
-    return originalOpen.apply(this, args);
-  };
-
   onCartUpdateQty();
 })();

@@ -660,7 +660,7 @@ ease;
   gap: 1px;
 }
 
-.cdp-line-title {
+.cdp-line-title, .cdp-line-variant {
   font-weight: 600;
   font-size: 12px;
   color: #333;

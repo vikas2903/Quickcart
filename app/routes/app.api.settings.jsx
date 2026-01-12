@@ -43,15 +43,26 @@ export const loader = async ({ request }) => {
     return new Response(null, { status: 204, headers: cors(request) });
   }
 
-  // Step 1: Authenticate the admin request using Shopify authentication
-  const { session } = await authenticate.admin(request);
+  // Step 1: Allow both authenticated (dashboard) and unauthenticated (extension) access
+  let shop;
+  try {
+    const { session } = await authenticate.admin(request);
+    shop = session.shop;
+  } catch (e) {
+    // If authentication fails (including redirect Responses), suppress the error
+    // and get shop from header instead (for extension/storefront access)
+    // By catching and not re-throwing, we prevent redirects that cause CORS issues
+    shop = request.headers.get("X-Shopify-Shop-Domain") || 
+           request.headers.get("x-shopify-shop-domain");
+  }
   
-  // Step 2: Extract shop domain from request headers or session
-  // Priority: Header > Session > Empty string
-  const shop =
-    (request.headers.get("x-shopify-shop-domain") || session?.shop || "")
-      .toLowerCase()
-      .trim();
+  // Step 2: Normalize shop domain
+  if (shop) {
+    shop = shop.toLowerCase().trim();
+    if (!shop.includes('.')) {
+      shop = shop + '.myshopify.com';
+    }
+  }
 
   // Validate shop domain exists
   if (!shop) {
@@ -183,7 +194,41 @@ export const action = async ({ request }) => {
   }
 
   // Step 1: Authenticate the admin request
-  const { session } = await authenticate.admin(request);
+  let session, admin;
+  try {
+    const authResult = await authenticate.admin(request);
+    session = authResult.session;
+    admin = authResult.admin;
+  } catch (err) {
+    // Handle authentication errors gracefully - return JSON instead of redirect
+    // This prevents CORS issues when authentication fails
+    // Check if it's a redirect Response (status 3xx)
+    if (err instanceof Response) {
+      const status = err.status;
+      if (status >= 300 && status < 400) {
+        // It's a redirect - return JSON error instead to avoid CORS issues
+        return json(
+          { ok: false, error: "Authentication required", code: "UNAUTHORIZED" },
+          { status: 401, headers: cors(request) }
+        );
+      }
+    }
+    // Check for authentication error types
+    if (
+      err?.name === "ShopifyUnauthorizedError" ||
+      err?.message?.includes("No session found") ||
+      err?.message?.includes("Unauthorized") ||
+      err?.status === 401 ||
+      err?.statusCode === 401
+    ) {
+      return json(
+        { ok: false, error: "Authentication required", code: "UNAUTHORIZED" },
+        { status: 401, headers: cors(request) }
+      );
+    }
+    // Re-throw unexpected errors
+    throw err;
+  }
   
   // Step 2: Extract shop domain from request headers or session
   const shop =
@@ -277,7 +322,127 @@ export const action = async ({ request }) => {
       }
     ).lean(); // Return plain JavaScript object
 
-    // Step 6: Return saved settings
+    console.log("Database save successful, proceeding to metafield update...");
+
+    // Step 6: Update shop metafields
+    console.log("Starting metafield update process...");
+    console.log("Admin object available:", !!admin);
+    try {
+      // Test basic GraphQL connectivity
+      const testQuery = `
+        query {
+          shop {
+            id
+            name
+          }
+        }
+      `;
+      const testRes = await admin.graphql(testQuery);
+      const testData = await testRes.json();
+      console.log("GraphQL test response:", testData);
+
+      if (testData.errors) {
+        console.error("GraphQL test failed:", testData.errors);
+        throw new Error("GraphQL client not working");
+      }
+
+      const namespace = "custom";
+
+      // Get shop ID for metafield owner
+      const shopQuery = `
+        query {
+          shop {
+            id
+          }
+        }
+      `;
+
+      const shopRes = await admin.graphql(shopQuery);
+      const shopData = await shopRes.json();
+      console.log("Shop query response:", shopData);
+      
+      if (shopData.errors) {
+        console.error("Errors in shop query:", shopData.errors);
+        throw new Error("Failed to get shop ID");
+      }
+      
+      const shopId = shopData.data.shop.id;
+      console.log("Shop ID:", shopId);
+      console.log("Request body collection:", body.collection);
+      console.log("Request body product:", body.product);
+
+      // Build metafields array - always use the same structure for create/update
+      const metafields = [];
+
+      // Metafield for collection handle
+      const collectionHandle = body.collection?.selectedCollection?.handle || "";
+      console.log("Collection handle to set:", collectionHandle);
+
+      metafields.push({
+        ownerId: shopId,
+        namespace,
+        key: "upsell_collection_handle",
+        type: "single_line_text_field",
+        value: collectionHandle,
+      });
+
+      // Metafield for product handle
+      const productHandle = body.product?.selectedProduct?.handle || "";
+      console.log("Product handle to set:", productHandle);
+
+      metafields.push({
+        ownerId: shopId,
+        namespace,
+        key: "gift_product_handle",
+        type: "single_line_text_field",
+        value: productHandle,
+      });
+
+      console.log("Metafields array to update:", metafields);
+
+      // Only run mutation if there are metafields to update
+      if (metafields.length > 0) {
+        // Upsert metafields
+        const mutation = `
+          mutation metafieldsSet($metafields: [MetafieldsSetInput!]!) {
+            metafieldsSet(metafields: $metafields) {
+              metafields {
+                id
+                key
+                value
+              }
+              userErrors {
+                field
+                message
+              }
+            }
+          }
+        `;
+
+        const updateRes = await admin.graphql(mutation, {
+          variables: { metafields },
+        });
+
+        const updateData = await updateRes.json();
+        console.log("Metafields update response:", updateData);
+
+        if (updateData.errors) {
+          console.error("GraphQL errors in metafield update:", updateData.errors);
+        }
+
+        if (updateData.data?.metafieldsSet?.userErrors?.length > 0) {
+          console.error("User errors in metafield update:", updateData.data.metafieldsSet.userErrors);
+        }
+      } else {
+        console.log("No metafields to update");
+      }
+
+    } catch (metafieldError) {
+      console.error("Error updating metafields:", metafieldError);
+      // Don't fail the entire request if metafields update fails
+    }
+
+    // Step 7: Return saved settings
     return json(
       { ok: true, data: saved },
       { headers: cors(request) }

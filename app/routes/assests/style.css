@@ -54,7 +54,7 @@ span.curecnySymbol {
 
 
 /* Grid Container */
-.grid-container {
+/* .grid-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
     grid-template-rows: repeat(2, auto); 
@@ -64,8 +64,8 @@ span.curecnySymbol {
     background: #fff;
     padding: 16px;
     border-radius: 6px;
-  }
-  .column-title {
+  } */
+  /* .column-title {
     font-size: .9rem;
     text-transform: capitalize;
     margin-bottom: 10px;
@@ -82,9 +82,9 @@ span.curecnySymbol {
     align-items: center;
     border: 1px solid #e4e4e4; 
   }
-  
+   */
  
-  .column-title {
+  /* .column-title {
     font-weight: bold;
     font-size: 16px;
     margin-bottom: 10px;
@@ -100,10 +100,10 @@ span.curecnySymbol {
     justify-content: center;
     align-items: center;
     
-  }
+  } */
   
 
-  .ant-color-picker-trigger {
+  /* .ant-color-picker-trigger {
     width: 100%;
 
   }
@@ -121,9 +121,9 @@ span.curecnySymbol {
 .grid-items {
     padding: 2rem;
     border: 1px solid #eee;
-}
+} */
 
-.color-picker-container > div {
+/* .color-picker-container > div {
     width: auto;
     border: 1px solid #eee;
     padding: 4px 8px;
@@ -133,11 +133,23 @@ span.curecnySymbol {
     .grid-container {
       grid-template-columns: 1fr 1fr; 
     }
-  }
+  } */
    
 
-
+/* 
   .custom-product-search, .custom-collection  {
     width: 70%;
     margin: auto;
+} */
+
+.Polaris-Button--textAlignCenter {
+
+    margin-right: 5px  !important ;
+}
+.column-title {
+    font-size: .9rem;
+    padding-bottom: 4px;
+    text-transform: capitalize;
+    margin-bottom: 10px;
+    opacity: .8;
 }
