@@ -80,13 +80,52 @@ export const loader = async ({ request }) => {
     // .lean() returns plain JavaScript object instead of Mongoose document (faster)
     const settings = await Settings.findOne({ shop }).lean();
 
+    // Step 4.5: Fetch third-party HTML content from shop metafield
+    let thirdPartyHtmlContent = "";
+    try {
+      // Try to get admin session for metafield access
+      let admin;
+      try {
+        const { admin: adminSession } = await authenticate.admin(request);
+        admin = adminSession;
+      } catch {
+        // If admin auth fails, skip metafield fetch (for extension access)
+        admin = null;
+      }
+
+      if (admin) {
+        const metafieldQuery = `
+          query {
+            shop {
+              id
+              metafield(namespace: "custom", key: "third_party_checkout_html") {
+                id
+                value
+              }
+            }
+          }
+        `;
+        const metafieldRes = await admin.graphql(metafieldQuery);
+        const metafieldData = await metafieldRes.json();
+        
+        if (metafieldData?.data?.shop?.metafield?.value) {
+          thirdPartyHtmlContent = metafieldData.data.shop.metafield.value;
+        }
+      }
+    } catch (metafieldErr) {
+      console.warn("Error fetching third-party HTML from metafield:", metafieldErr);
+      // Continue without metafield data
+    }
+
     // Step 5: Return settings or default values if not found
-    // This ensures the frontend always receives a complete settings object
-    return json(
-      {
-        ok: true,
-        data:
-          settings || {
+    // Merge third-party HTML from metafield into settings
+    const finalSettings = settings ? {
+      ...settings,
+      thirdPartyIntegration: {
+        ...settings.thirdPartyIntegration,
+        htmlContent: thirdPartyHtmlContent || settings.thirdPartyIntegration?.htmlContent || ""
+      }
+    } : {
             // Default settings structure when no settings exist in database
             shop,
             // Countdown/Timer settings
@@ -135,9 +174,14 @@ export const loader = async ({ request }) => {
             // Third-party integration settings
             thirdPartyIntegration: {
               enabled: false,
-              htmlContent: ""
+              htmlContent: thirdPartyHtmlContent || ""
             }
-          }
+    };
+
+    return json(
+      {
+        ok: true,
+        data: finalSettings
       },
       { headers: cors(request) }
     );
@@ -321,9 +365,10 @@ export const action = async ({ request }) => {
             }
           },
           // Third-party Integration settings
-          thirdPartyIntegration: body.thirdPartyIntegration || {
-            enabled: false,
-            htmlContent: ""
+          // Note: htmlContent is stored in metafield, not database
+          thirdPartyIntegration: {
+            enabled: body.thirdPartyIntegration?.enabled ?? false,
+            htmlContent: "" // Will be stored in metafield separately
           }
         },
         // Only set shop field when creating new document (not on updates)
@@ -411,6 +456,18 @@ export const action = async ({ request }) => {
         key: "gift_product_handle",
         type: "single_line_text_field",
         value: productHandle,
+      });
+
+      // Metafield for third-party checkout HTML/Liquid content
+      const thirdPartyHtmlContent = body.thirdPartyIntegration?.htmlContent || "";
+      console.log("Third-party HTML content to set:", thirdPartyHtmlContent ? "Content provided (length: " + thirdPartyHtmlContent.length + ")" : "Empty");
+
+      metafields.push({
+        ownerId: shopId,
+        namespace,
+        key: "third_party_checkout_html",
+        type: "multi_line_text_field",
+        value: thirdPartyHtmlContent,
       });
 
       console.log("Metafields array to update:", metafields);

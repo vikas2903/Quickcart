@@ -708,7 +708,6 @@
   window.upcartInitialized = true;
 
   console.log("Upcart: Progressbar + Upsell products initialize...");
-  console.log("vikas: november changes 19-11-2025 | 11:41 AM");
 
   /* ============ PARTY POPPER ============ */
   function triggerPartyPopper() {
@@ -884,7 +883,7 @@
     document.documentElement.style.paddingRight = scrollBarWidth + "px";
     document.body.style.paddingRight = scrollBarWidth + "px";
   }
-  console.log("lockBodyScroll | vs")
+
 }
 
 function unlockBodyScroll() {
@@ -897,7 +896,7 @@ function unlockBodyScroll() {
   document.documentElement.style.paddingRight = "";
   document.body.style.paddingRight = "";
 
-  console.log("unlockBodyScroll | vs")
+  
 }
 
 
@@ -1528,12 +1527,49 @@ function unlockBodyScroll() {
 
   /* ============ HEADER CART ICON OPENER ============ */
   document.addEventListener("click", function (e) {
-   const icon = e.target.closest(
-  ".header__icon--cart, .m-cart-icon-bubble, .navlink--cart, a[aria-label='Cart'], .header-actions__cart-icon a[href*='/cart']"
-);
-
-
-    if (!icon) return;
+    // Comprehensive list of cart icon selectors to support all themes
+    const cartIconSelectors = [
+      ".header__cart-icon",                    // Specific theme
+      ".header__icon--cart",                   // Dawn theme and variants
+      ".m-cart-icon-bubble",                   // Mobile cart icon
+      ".navlink--cart",                        // Navigation cart link
+      "a[aria-label='Cart']",                  // Accessible cart link
+      "a[aria-label='cart']",                   // Lowercase variant
+      ".header-actions__cart-icon",            // Header actions cart
+      "a[href*='/cart']",                      // Any link to cart page
+      ".cart-icon",                            // Generic cart icon
+      ".header__icon",                         // Generic header icon (if it's a cart link)
+      ".site-nav__link[href*='cart']",         // Site nav cart link
+      ".Header__Icon[href*='cart']",           // Header icon with cart href
+      "[data-cart-icon]",                      // Data attribute cart icon
+      "[data-cart-toggle]",                    // Cart toggle button
+      ".cart-toggle",                          // Cart toggle class
+      ".cart-link",                            // Cart link class
+      ".header__cart",                         // Header cart
+      "#cart-icon",                            // ID selector
+      ".icon-cart",                            // Icon cart class
+      ".cart-count-wrapper",                   // Cart count wrapper (often clickable)
+      ".cart-bubble",                          // Cart bubble
+      ".cart-drawer-toggle"                    // Cart drawer toggle
+    ].join(", ");
+    
+    const icon = e.target.closest(cartIconSelectors);
+    
+    // Additional check: if clicked element or parent has cart-related href
+    if (!icon) {
+      const link = e.target.closest("a");
+      if (link && (link.href.includes("/cart") || link.getAttribute("href")?.includes("/cart"))) {
+        const icon = link;
+        if (window.CartDrawerPremium && typeof window.CartDrawerPremium.open === "function") {
+          e.preventDefault();
+          e.stopPropagation();
+          window.CartDrawerPremium.open();
+        }
+        return;
+      }
+      return;
+    }
+    
     if (window.CartDrawerPremium && typeof window.CartDrawerPremium.open === "function") {
       e.preventDefault();
       e.stopPropagation();

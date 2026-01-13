@@ -442,15 +442,30 @@
         </div>
 
        </div>
-        
-        {% if block.settings.show-checkout-field  %}
-           <div id="third-party-integration-wrapper" style="position: relative; z-index: 100; pointer-events: auto;">
-             {{block.settings.checkout-integration-code}}
-           </div>
-        
-        {% else %}
-           <a href="/checkout" class="cdp-checkout" data-checkout aria-label="Proceed to checkout">Checkout</a>
-        {% endif %}
+
+       
+      {% assign thirdPartyHtml = shop.metafields.custom.third_party_checkout_html | strip %}
+
+      {% if thirdPartyHtml != blank %}
+        <div 
+          id="third-party-integration-wrapper"
+          style="position: relative; z-index: 100; pointer-events: auto;"
+        >
+          {{ thirdPartyHtml | liquid }}
+        </div>
+      {% endif %}
+
+
+  <a
+    href="/checkout"
+    class="cdp-checkout"
+    data-checkout
+    aria-label="Proceed to checkout"
+  >
+    Checkout
+  </a>
+
+
      
     </footer>
 
