@@ -1067,7 +1067,7 @@ function unlockBodyScroll() {
             <span class="cart-item-variant-title">
               ${
                 item.variant_title && item.variant_title !== "Default Title"
-                  ? `<span class="cdp-line-variant">${item.variant_title} | </span>`
+                  ? `<span class="cdp-line-variant">${item.variant_title} </span>`
                   : ""
               }
               <span class="cdp-line-prices">
@@ -1079,9 +1079,9 @@ function unlockBodyScroll() {
                       )}</span>`
                     : ""
                 }
-              </span> | ${
+              </span>  ${
                 item.discounts?.length
-                  ? `<span class="discount">${item.discounts[0]?.title || ""}</span>`
+                  ? `|<span class="discount">${item.discounts[0]?.title || ""}</span>`
                   : ""
               }
             </span>

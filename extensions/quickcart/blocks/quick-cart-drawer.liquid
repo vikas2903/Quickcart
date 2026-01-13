@@ -350,7 +350,7 @@
 
 {% if shop.metafields.custom.gift_product_handle != blank %}
  {% assign gift_product = shop.metafields.custom.gift_product_handle %}
-    {% render 'gift' giftproduct:gift_product %}
+ {% render 'gift' giftproduct:gift_product, show_gift_Card: block.settings.show_gift_product %}
 {% endif %}
 
  

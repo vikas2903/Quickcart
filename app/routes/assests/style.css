@@ -142,14 +142,14 @@ span.curecnySymbol {
     margin: auto;
 } */
 
-.Polaris-Button--textAlignCenter {
 
-    margin-right: 5px  !important ;
-}
+.Polaris-Button--textAlignCenter{margin: 2px !important;}
 .column-title {
     font-size: .9rem;
-    padding-bottom: 4px;
+    padding-bottom: 6px;
     text-transform: capitalize;
-    margin-bottom: 10px;
     opacity: .8;
+}
+.column-title +div{
+    margin-bottom: 10px;
 }
