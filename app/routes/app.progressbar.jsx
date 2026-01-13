@@ -243,6 +243,10 @@ export default function ProgressBar() {
                     </Banner>
                   )}
 
+                  <Banner tone="info">
+                    Update Milestones to see the progress bar (IMPORTANT : Create Disount as per the Milestones in Shopify Discounts)
+                  </Banner>
+
                   <Checkbox
                     label="Enable progress bar"
                     checked={enabled}
@@ -300,10 +304,7 @@ export default function ProgressBar() {
                     </div>
                   </div>
 
-                  <Banner tone="info">
-                    Use <strong>{`{{price}}`}</strong> in the text to auto-insert
-                    each milestone price.
-                  </Banner>
+                
 
                   {[0, 1, 2].map((i) => (
                     <LegacyCard key={i} sectioned>

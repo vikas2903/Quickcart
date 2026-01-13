@@ -549,6 +549,29 @@ export default function Dashboard() {
     return `${path}${path.includes("?") ? "&" : "?"}${params.toString()}`;
   };
 
+  // Helper to build theme editor URL
+  const getThemeEditorUrl = () => {
+    if (!mainThemeId || !storeShort) {
+      return null;
+    }
+    return `https://admin.shopify.com/store/${storeShort}/themes/${mainThemeId}/editor?context=apps`;
+  };
+
+  // Handle theme editor button click
+  const handleThemeEditorClick = () => {
+    const url = getThemeEditorUrl();
+    if (url) {
+      window.open(url, "_blank");
+    } else {
+      const shouldReload = window.confirm(
+        "Theme ID not found. Click OK to reload the page and try again."
+      );
+      if (shouldReload) {
+        window.location.reload();
+      }
+    }
+  };
+
   return (
     <Page>
       <TitleBar title="Dashboard" />
@@ -588,11 +611,7 @@ export default function Dashboard() {
               onDismiss={() => {setDismiss1(false)}}
               action={{
                 content: "Activate extension in theme",
-                url: withParams(
-                  `https://admin.shopify.com/store/${storeShort}/themes/${mainThemeId ?? ""}/editor?context=apps`
-                ),
-                external: true,
-                target: "_blank",
+                onAction: handleThemeEditorClick,
               }}
               secondaryAction={{
                 content: "How to use & Customize",
@@ -702,13 +721,10 @@ export default function Dashboard() {
                   <h4 className="i-gs-grid-heading">Integrate with theme</h4>
                   <p className="i-gs-grid-subheading">Activate the app block in Theme Editor to go live.</p>
                   <Button
-                    external
-                    target="_blank"
                     fullWidth
-                    url={withParams(
-                      `https://admin.shopify.com/store/${storeShort}/themes/${mainThemeId ?? ""}/editor?context=apps`
-                    )}
+                    onClick={handleThemeEditorClick}
                     variant="primary"
+                    disabled={!mainThemeId || !storeShort}
                   >
                     Activate Theme
                   </Button>

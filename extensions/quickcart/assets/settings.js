@@ -311,19 +311,44 @@
 
     // Apply third-party integration
     if (settings.thirdPartyIntegration) {
-
-        document.querySelector(".cdp-checkout").style.display = settings.thirdPartyIntegration.enabled ? "none" : "";
-
-        if (settings.thirdPartyIntegration.htmlContent) {
-          let third_party_html = document.querySelector("#third-party-integration").innerHTML = settings.thirdPartyIntegration.htmlContent;
-          const third_party_btn = `
-            <a href="#" class="cdp-checkout" data-checkout="" aria-label="Proceed to checkout" style="background-color: rgb(115, 39, 39);">${third_party_html}</a>
-          `;
-
-          document.querySelector(".cdp-footer-right").insertAdjacentElement("beforeend", third_party_btn);
+      const existingCheckout = document.querySelector(".cdp-checkout");
+      const footerRight = document.querySelector(".cdp-footer-right");
+      
+      if (settings.thirdPartyIntegration.enabled) {
+        // Hide or remove existing checkout button
+        if (existingCheckout) {
+          existingCheckout.style.display = "none";
         }
         
-      
+        // Remove any existing third-party button to avoid duplicates
+        const existingThirdPartyBtn = document.querySelector(".cdp-third-party-checkout");
+        if (existingThirdPartyBtn) {
+          existingThirdPartyBtn.remove();
+        }
+        
+        // Create button wrapper and insert htmlContent inside
+        if (settings.thirdPartyIntegration.htmlContent && footerRight) {
+          const thirdPartyButton = document.createElement("a");
+          thirdPartyButton.href = "#";
+          thirdPartyButton.className = "cdp-checkout cdp-third-party-checkout";
+          thirdPartyButton.setAttribute("data-checkout", "");
+          thirdPartyButton.setAttribute("aria-label", "Proceed to checkout");
+          thirdPartyButton.innerHTML = settings.thirdPartyIntegration.htmlContent;
+          
+          footerRight.appendChild(thirdPartyButton);
+        }
+      } else {
+        // Show existing checkout button if third party is disabled
+        if (existingCheckout) {
+          existingCheckout.style.display = "";
+        }
+        
+        // Remove third-party button if it exists
+        const existingThirdPartyBtn = document.querySelector(".cdp-third-party-checkout");
+        if (existingThirdPartyBtn) {
+          existingThirdPartyBtn.remove();
+        }
+      }
     }
 
     // Dispatch event to notify other scripts that settings have been applied

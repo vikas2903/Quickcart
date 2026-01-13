@@ -177,7 +177,7 @@ function BuyXGetYSection({ shop }) {
             <Checkbox label="Enable Buy X Get Y" checked={enabled} onChange={setEnabled} />
 
             <Banner tone="info">
-              Use placeholders in messages: <b>{`{{remaining}}`}</b>, <b>{`{{buy}}`}</b>, <b>{`{{get}}`}</b>
+             Update Buy Quantity and Get Quantity to see the progress bar (IMPORTANT : Create Disount as per the Buy Quantity and Get Quantity in Shopify Discounts)
             </Banner>
 
             <InlineStack gap="300">
