@@ -860,6 +860,14 @@
     return;
   }
 
+  // Ensure cart drawer is always at body level to prevent positioning issues
+  // Some themes place app blocks inside main/footer, which can break position:fixed
+  if (drawer.parentElement !== document.body) {
+    // Move drawer to body to ensure fixed positioning works correctly
+    document.body.appendChild(drawer);
+    console.log("CartDrawerPremium moved to document.body for proper positioning");
+  }
+
   const openClass = drawer.dataset.openClass || "cdp-open";
   const linesRoot = drawer.querySelector("[data-lines]");
   const cartCountEl = drawer.querySelector("[data-cart-count]");

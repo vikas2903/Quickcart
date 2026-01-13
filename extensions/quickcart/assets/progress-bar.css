@@ -274,3 +274,8 @@ span.cart-item-variant-title {
 .milestone-dot.greyscale img {
     filter: grayscale(100%);
 }
+
+div#third-party-integration-wrapper {
+    display: block;
+    width: 70%;
+}
