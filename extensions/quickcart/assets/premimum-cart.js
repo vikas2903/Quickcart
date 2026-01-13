@@ -860,13 +860,60 @@
     return;
   }
 
-  // Ensure cart drawer is always at body level to prevent positioning issues
-  // Some themes place app blocks inside main/footer, which can break position:fixed
-  if (drawer.parentElement !== document.body) {
-    // Move drawer to body to ensure fixed positioning works correctly
-    document.body.appendChild(drawer);
-    console.log("CartDrawerPremium moved to document.body for proper positioning");
+  // Ensure cart drawer is always a direct child of body to prevent positioning issues
+  // Some themes place app blocks inside main/footer/sections, which can break position:fixed
+  function ensureDrawerAtBodyLevel() {
+    const drawer = document.getElementById("CartDrawerPremium");
+    if (!drawer) return false;
+    
+    // Check if drawer is not a direct child of body (could be inside main, section, footer, etc.)
+    if (drawer.parentElement !== document.body) {
+      const parent = drawer.parentElement;
+      const parentTag = parent?.tagName || parent?.className || "unknown";
+      // Move drawer to body to ensure fixed positioning works correctly
+      document.body.appendChild(drawer);
+      console.log("CartDrawerPremium moved from", parentTag, "to document.body for proper positioning");
+      return true;
+    }
+    return false;
   }
+
+  // Run immediately
+  ensureDrawerAtBodyLevel();
+
+  // Also run after DOM is fully loaded in case drawer is added dynamically
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureDrawerAtBodyLevel);
+  }
+
+  // Run after short delays to catch any late DOM manipulations
+  setTimeout(ensureDrawerAtBodyLevel, 100);
+  setTimeout(ensureDrawerAtBodyLevel, 500);
+  setTimeout(ensureDrawerAtBodyLevel, 1000);
+
+  // Use MutationObserver to watch for drawer being moved or added to wrong parent
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'childList') {
+        // Check if drawer was added to a node
+        mutation.addedNodes.forEach(function(node) {
+          if (node.nodeType === 1 && (node.id === 'CartDrawerPremium' || node.querySelector && node.querySelector('#CartDrawerPremium'))) {
+            setTimeout(ensureDrawerAtBodyLevel, 50);
+          }
+        });
+        // Check if drawer was moved
+        if (drawer && drawer.parentElement !== document.body) {
+          ensureDrawerAtBodyLevel();
+        }
+      }
+    });
+  });
+
+  // Observe body for changes
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
 
   const openClass = drawer.dataset.openClass || "cdp-open";
   const linesRoot = drawer.querySelector("[data-lines]");
