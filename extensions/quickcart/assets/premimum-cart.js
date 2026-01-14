@@ -1174,7 +1174,7 @@ function unlockBodyScroll() {
                 }" data-qty ${isFreeGift ? 'readonly disabled style="cursor: not-allowed;"' : ''}>
                 <button class="cdp-qty-btn" data-qty-up ${isFreeGift ? 'disabled style="cursor: not-allowed;"' : ''}>+</button>
               </div>
-              <button class="cdp-line-remove" data-remove="${item.key}" aria-label="Remove" ${isFreeGift ? 'disabled style="opacity: 0.5; cursor: not-allowed; pointer-events: none;"' : ''}>&#x2715;</button>
+              <button class="cdp-line-remove" data-remove="${item.key}" aria-label="Remove" ${isFreeGift ? 'disabled style="opacity: 0.5; cursor: not-allowed; pointer-events: none;"' : ''}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
             </div>
           </div>
         </div>
@@ -1754,6 +1754,137 @@ function unlockBodyScroll() {
 
   // Store current product data for variant changes
   let currentProductData = null;
+  let currentSelectedOptions = {}; // Track selected options for current product
+
+  // Function to find variant based on selected options
+  function findVariantByOptions(productData, selectedOptions) {
+    return productData.variants.find(variant => {
+      return productData.options.every((option, index) => {
+        return variant.options[index] === selectedOptions[option.name];
+      });
+    });
+  }
+
+  // Function to update variant selection and UI
+  function updateVariantSelection(productData, selectedOptions, targetVariant, moneyFormat, drawerEl) {
+    if (!productData || !selectedOptions) return;
+    
+    // Find the matching variant
+    let selectedVariant = targetVariant;
+    if (!selectedVariant) {
+      selectedVariant = findVariantByOptions(productData, selectedOptions);
+    }
+    
+    if (!selectedVariant) {
+      // Try to find first available variant with selected options
+      selectedVariant = productData.variants.find(v => {
+        if (!v.available) return false;
+        return productData.options.every((option, index) => {
+          return v.options[index] === selectedOptions[option.name];
+        });
+      });
+    }
+    
+    // If still no variant found, try to find any available variant that matches most options
+    if (!selectedVariant) {
+      selectedVariant = productData.variants.find(v => v.available) || productData.variants[0];
+      // Update selectedOptions to match the found variant
+      if (selectedVariant && selectedVariant.options) {
+        productData.options.forEach((option, index) => {
+          if (selectedVariant.options[index]) {
+            selectedOptions[option.name] = selectedVariant.options[index];
+          }
+        });
+      }
+    }
+    
+    if (!selectedVariant) return;
+    
+    // Update active buttons for each option
+    Object.keys(selectedOptions).forEach(optionName => {
+      const selectedValue = selectedOptions[optionName];
+      const buttons = document.querySelectorAll(
+        `.cdp-variant-option-btn[data-option-name="${optionName}"]`
+      );
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.optionValue === selectedValue) {
+          btn.classList.add('active');
+        }
+      });
+    });
+    
+    // Format prices
+    let formattedPrice = "";
+    let formattedComparePrice = "";
+    
+    if (window.Shopify && typeof Shopify.formatMoney === "function") {
+      formattedPrice = Shopify.formatMoney(selectedVariant.price, moneyFormat);
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = formattedPrice;
+      formattedPrice = tempDiv.textContent || tempDiv.innerText || formattedPrice;
+      formattedPrice = formattedPrice.replace(/\.00$/, "").replace(/\.0$/, "");
+      
+      if (selectedVariant.compare_at_price && selectedVariant.compare_at_price > selectedVariant.price) {
+        formattedComparePrice = Shopify.formatMoney(selectedVariant.compare_at_price, moneyFormat);
+        const tempDiv2 = document.createElement("div");
+        tempDiv2.innerHTML = formattedComparePrice;
+        formattedComparePrice = tempDiv2.textContent || tempDiv2.innerText || formattedComparePrice;
+        formattedComparePrice = formattedComparePrice.replace(/\.00$/, "").replace(/\.0$/, "");
+      }
+    } else {
+      const priceAmount = selectedVariant.price / 100;
+      formattedPrice = priceAmount.toLocaleString("en-IN", { 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 0 
+      });
+      const currency = drawerEl?.getAttribute("data-currency") || "INR";
+      if (currency === "INR") {
+        formattedPrice = "₹" + formattedPrice;
+      }
+      
+      if (selectedVariant.compare_at_price && selectedVariant.compare_at_price > selectedVariant.price) {
+        const compareAmount = selectedVariant.compare_at_price / 100;
+        formattedComparePrice = compareAmount.toLocaleString("en-IN", { 
+          minimumFractionDigits: 0, 
+          maximumFractionDigits: 0 
+        });
+        if (currency === "INR") {
+          formattedComparePrice = "₹" + formattedComparePrice;
+        }
+      }
+    }
+    
+    formattedPrice = formattedPrice.replace(/Rs\.?/g, "₹");
+    formattedComparePrice = formattedComparePrice.replace(/Rs\.?/g, "₹");
+    
+    // Update price display
+    if (popupProductPrice) {
+      popupProductPrice.textContent = formattedPrice;
+    }
+    
+    if (popupProductCompare) {
+      if (formattedComparePrice && formattedComparePrice !== "") {
+        popupProductCompare.textContent = formattedComparePrice;
+        popupProductCompare.style.display = "inline";
+      } else {
+        popupProductCompare.style.display = "none";
+      }
+    }
+    
+    // Update variant ID for add button
+    if (popupAddBtn) {
+      popupAddBtn.dataset.variantId = selectedVariant.id;
+    }
+    
+    // Update image if variant has different image
+    if (popupProductImage && selectedVariant.featured_image) {
+      popupProductImage.src = selectedVariant.featured_image.src || productData.featured_image;
+    }
+    
+    // Store current selected options
+    currentSelectedOptions = { ...selectedOptions };
+  }
 
   // Format price for popup using Shopify money format
   function formatPopupPrice(cents) {
@@ -1783,42 +1914,24 @@ function unlockBodyScroll() {
     }
   }
 
-  // Handle variant button click
-  function handleVariantButtonClick(btn) {
-    if (btn.disabled) return;
-
-    // Remove active class from all buttons
-    popupVariantBtns.querySelectorAll('.cdp-variant-btn').forEach(b => b.classList.remove('active'));
-    // Add active class to clicked button
-    btn.classList.add('active');
-
-    const variantId = btn.dataset.variantId;
-    const variantPrice = btn.dataset.price;
-    const variantComparePrice = btn.dataset.comparePrice;
-    const variantImage = btn.dataset.image;
-
-    // Update Add button variant ID
-    if (popupAddBtn) popupAddBtn.dataset.variantId = variantId;
-
-    // Update price display - use Liquid-formatted price directly from data attribute
-    if (popupProductPrice && variantPrice) {
-      popupProductPrice.textContent = variantPrice; // Already formatted using Shopify money format
-    }
-
-    // Update compare price - use Liquid-formatted price directly from data attribute
-    if (popupProductCompare) {
-      if (variantComparePrice && variantComparePrice !== "") {
-        popupProductCompare.textContent = variantComparePrice; // Already formatted using Shopify money format
-        popupProductCompare.style.display = "inline";
-      } else {
-        popupProductCompare.style.display = "none";
-      }
-    }
-
-    // Update image if variant has different image
-    if (popupProductImage && variantImage) {
-      popupProductImage.src = variantImage;
-    }
+  // Handle variant option button click
+  function handleVariantOptionClick(btn) {
+    if (!btn || !currentProductData) return;
+    
+    const optionName = btn.dataset.optionName;
+    const optionValue = btn.dataset.optionValue;
+    
+    if (!optionName || !optionValue) return;
+    
+    // Update selected option
+    currentSelectedOptions[optionName] = optionValue;
+    
+    // Get money format
+    const drawerEl = document.getElementById("CartDrawerPremium");
+    const moneyFormat = drawerEl?.getAttribute("data-money-format") || "${{amount}}";
+    
+    // Update variant selection
+    updateVariantSelection(currentProductData, currentSelectedOptions, null, moneyFormat, drawerEl);
   }
 
   // Open popup when clicking Add button on upsell card
@@ -1954,82 +2067,88 @@ function unlockBodyScroll() {
           }
         }
 
-        // Handle variants
-        if (hasVariants && popupVariantsWrap && popupVariantBtns) {
+        // Handle variants - Group by option name
+        const popupVariantOptions = document.getElementById("popupVariantOptions");
+        if (hasVariants && popupVariantsWrap && popupVariantOptions) {
           popupVariantsWrap.style.display = "block";
 
-          // Generate variant buttons with Liquid-formatted prices
           // Using Shopify.formatMoney with shop.money_format (same as Liquid's {{ price | money_without_trailing_zeros }})
           const drawerEl = document.getElementById("CartDrawerPremium");
           const moneyFormat = drawerEl?.getAttribute("data-money-format") || "${{amount}}";
           
-          const variantButtons = productData.variants.map((v, index) => {
-            const isActive = initialVariant && v.id === initialVariant.id;
-            // Format prices using Liquid's money format (Shopify.formatMoney uses shop.money_format)
-            let formattedPrice = "";
-            let formattedComparePrice = "";
+          // Group variants by option
+          const optionGroups = {};
+          const selectedOptions = {}; // Track selected option for each option name
+          
+          // Initialize selected options with first available variant
+          if (initialVariant && initialVariant.options) {
+            productData.options.forEach((option, index) => {
+              if (initialVariant.options[index]) {
+                selectedOptions[option.name] = initialVariant.options[index];
+              }
+            });
+          }
+          
+          // Group variants by option values
+          productData.options.forEach((option, optionIndex) => {
+            const optionName = option.name;
+            const uniqueValues = [...new Set(productData.variants
+              .filter(v => v.available)
+              .map(v => v.options[optionIndex])
+            )];
             
-            if (window.Shopify && typeof Shopify.formatMoney === "function") {
-              // This uses the same format as Liquid's {{ price | money_without_trailing_zeros }}
-              formattedPrice = Shopify.formatMoney(v.price, moneyFormat);
-              // Extract text content if HTML is present (remove HTML tags)
-              const tempDiv = document.createElement("div");
-              tempDiv.innerHTML = formattedPrice;
-              formattedPrice = tempDiv.textContent || tempDiv.innerText || formattedPrice;
-              // Remove trailing zeros to match money_without_trailing_zeros
-              formattedPrice = formattedPrice.replace(/\.00$/, "").replace(/\.0$/, "");
-              
-              if (v.compare_at_price && v.compare_at_price > v.price) {
-                formattedComparePrice = Shopify.formatMoney(v.compare_at_price, moneyFormat);
-                // Extract text content if HTML is present (remove HTML tags)
-                const tempDiv2 = document.createElement("div");
-                tempDiv2.innerHTML = formattedComparePrice;
-                formattedComparePrice = tempDiv2.textContent || tempDiv2.innerText || formattedComparePrice;
-                // Remove trailing zeros to match money_without_trailing_zeros
-                formattedComparePrice = formattedComparePrice.replace(/\.00$/, "").replace(/\.0$/, "");
-              }
-            } else {
-              // Fallback: format like Liquid would
-              const priceAmount = v.price / 100;
-              formattedPrice = priceAmount.toLocaleString("en-IN", { 
-                minimumFractionDigits: 0, 
-                maximumFractionDigits: 0 
-              });
-              // Add currency symbol based on shop currency
-              const currency = drawerEl?.getAttribute("data-currency") || "INR";
-              if (currency === "INR") {
-                formattedPrice = "₹" + formattedPrice;
-              } else {
-                formattedPrice = formattedPrice;
-              }
-              
-              if (v.compare_at_price && v.compare_at_price > v.price) {
-                const compareAmount = v.compare_at_price / 100;
-                formattedComparePrice = compareAmount.toLocaleString("en-IN", { 
-                  minimumFractionDigits: 0, 
-                  maximumFractionDigits: 0 
-                });
-                if (currency === "INR") {
-                  formattedComparePrice = "₹" + formattedComparePrice;
-                }
-              }
-            }
-            // Replace Rs. with ₹ symbol to match Liquid
-            formattedPrice = formattedPrice.replace(/Rs\.?/g, "₹");
-            formattedComparePrice = formattedComparePrice.replace(/Rs\.?/g, "₹");
+            optionGroups[optionName] = {
+              name: optionName,
+              values: uniqueValues,
+              index: optionIndex
+            };
+          });
+          
+          // Generate HTML for each option group
+          let variantOptionsHTML = '';
+          
+          Object.keys(optionGroups).forEach(optionName => {
+            const optionGroup = optionGroups[optionName];
+            const selectedValue = selectedOptions[optionName] || optionGroup.values[0];
             
-            return `<button 
-              type="button"
-              class="cdp-variant-btn ${isActive ? 'active' : ''} ${!v.available ? 'disabled' : ''}" 
-              data-variant-id="${v.id}" 
-              data-price="${formattedPrice}" 
-              data-compare-price="${formattedComparePrice}" 
-              data-image="${v.featured_image?.src || productData.featured_image}"
-              ${!v.available ? 'disabled' : ''}
-            >${v.title}${!v.available ? ' (Out of Stock)' : ''}</button>`;
-          }).join('');
-
-          popupVariantBtns.innerHTML = variantButtons;
+            variantOptionsHTML += `
+              <div class="cdp-popup-variant-group" data-option-name="${optionName}" data-option-index="${optionGroup.index}">
+                <label class="cdp-popup-variant-label">${optionName}:</label>
+                <div class="cdp-popup-variant-btns">
+            `;
+            
+            optionGroup.values.forEach(value => {
+              // Find a variant with this option value to get price info
+              const sampleVariant = productData.variants.find(v => 
+                v.options[optionGroup.index] === value && v.available
+              );
+              
+              const isSelected = value === selectedValue;
+              
+              variantOptionsHTML += `
+                <button 
+                  type="button"
+                  class="cdp-variant-option-btn ${isSelected ? 'active' : ''}" 
+                  data-option-name="${optionName}"
+                  data-option-value="${value}"
+                  data-option-index="${optionGroup.index}"
+                >${value}</button>
+              `;
+            });
+            
+            variantOptionsHTML += `
+                </div>
+              </div>
+            `;
+          });
+          
+          popupVariantOptions.innerHTML = variantOptionsHTML;
+          
+          // Update currentSelectedOptions to match selectedOptions
+          currentSelectedOptions = { ...selectedOptions };
+          
+          // Set initial variant selection
+          updateVariantSelection(productData, selectedOptions, initialVariant, moneyFormat, drawerEl);
         } else {
           // No variants - hide variant selector
           if (popupVariantsWrap) popupVariantsWrap.style.display = "none";
@@ -2050,13 +2169,13 @@ function unlockBodyScroll() {
     if (upsellPopup) upsellPopup.style.display = "flex";
   });
 
-  // Handle variant button clicks (event delegation)
-  if (popupVariantBtns) {
-    popupVariantBtns.addEventListener("click", function (e) {
-      const btn = e.target.closest(".cdp-variant-btn");
-      if (btn) handleVariantButtonClick(btn);
-    });
-  }
+  // Handle variant option button clicks (event delegation)
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".cdp-variant-option-btn");
+    if (btn && currentProductData) {
+      handleVariantOptionClick(btn);
+    }
+  });
 
   // Close popup when clicking close button or overlay
   document.addEventListener("click", function (e) {

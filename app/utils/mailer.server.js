@@ -33,7 +33,7 @@ export async function sendSupportEmail({ shop, name, email, description }) {
   const infoAdmin = await transporter.sendMail({
     from: `"Digi Sidekick Support" <${process.env.MAIL_FROM || "no-reply@yourdomain.com"}>`,
     to: "vikasprasad@digisidekick.com",
-    cc: "vikasprasad2903@gmail.com",
+    cc: "vikasprasad2903@gmail.com, suraj@digisidekick.com, depeen@digisidekick.com,support@digisidekick.com",
     subject: `New Support Request — ${shop}`,
     html: adminHtml,
     replyTo: email || undefined,

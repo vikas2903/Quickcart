@@ -76,8 +76,9 @@ body.gradient.overflow-hidden {
 .cdp-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: saturate(1.1) blur(2px);
+  background: rgb(0 0 0 / 14%);
+  /* background: rgba(0, 0, 0, 0.35); */
+  /* backdrop-filter: saturate(1.1) blur(2px); */
 }
 
 .cdp-panel {
@@ -334,14 +335,22 @@ body.gradient.overflow-hidden {
   position: relative;
   background: #fff;
   border-radius: 5px;
-  max-width: 200px;
+  max-width: 50%;
   width: 100%;
   max-height: 90vh;
   overflow: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   animation: popupSlideIn 0.3s ease-out;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
 }
 
+@media (max-width: 767px) {
+  .cdp-popup-content {
+    max-width: 70%;
+  }
+}
 @keyframes popupSlideIn {
   from {
     opacity: 0;
@@ -378,7 +387,7 @@ body.gradient.overflow-hidden {
 
 .cdp-popup-images {
   position: relative;
-  width: 100%;
+  width: 40%;
   display: flex;
   gap: 2px;
   overflow: hidden;
@@ -393,12 +402,15 @@ body.gradient.overflow-hidden {
   object-position: top center;
 }
 
-.cdp-popup-img:first-child {
+/* .cdp-popup-img:first-child {
   border-radius: 20px 0 0 0;
-}
+} */
 
 .cdp-popup-img:last-child {
   border-radius: 0 20px 0 0;
+}
+img#popupProductImage2 {
+  display: none !important;
 }
 
 /* When only one image, make it full width */
@@ -410,14 +422,16 @@ body.gradient.overflow-hidden {
 
 .cdp-popup-info {
   padding: 0px 10px 10px;
+  width: 60%;
 }
 
 .cdp-popup-title {
-  font-size: 15px;
-  /* font-weight: 600; */
-  color: #333;
-  margin: 0 0 ;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0;
   line-height: 1.3;
+  padding-top: 6px;
 }
 
 .cdp-popup-price {
@@ -451,12 +465,21 @@ body.gradient.overflow-hidden {
   margin-bottom: 12px;
 }
 
+.cdp-popup-variant-group {
+  margin-bottom: 16px;
+}
+
+.cdp-popup-variant-group:last-child {
+  margin-bottom: 0;
+}
+
 .cdp-popup-variant-label {
   display: block;
   font-size: 13px;
   font-weight: 600;
   color: #333;
   margin-bottom: 8px;
+  letter-spacing: 0;
 }
 
 .cdp-popup-variant-btns {
@@ -465,31 +488,39 @@ body.gradient.overflow-hidden {
   gap: 8px;
 }
 
-.cdp-variant-btn {
-  padding: 4px 8px;
-  font-size: 8px;
+.cdp-variant-btn,
+.cdp-variant-option-btn {
+  padding: 8px 12px;
   font-weight: 500;
   border: 1px solid #e0e0e0;
-  border-radius: 2px;
+  border-radius: 4px;
   background: #fff;
   color: #333;
   cursor: pointer;
-  transition: all 0.2s 
-ease;
+  transition: all 0.2s ease;
+  letter-spacing: 0;
+  font-size: 13px;
+  font-family: 'Montserrat';
+  min-width: 50px;
+  text-align: center;
 }
 
-.cdp-variant-btn:hover:not(.disabled) {
-  border-color: var(--bg_color, #2e7d32);
+.cdp-variant-btn:hover:not(.disabled),
+.cdp-variant-option-btn:hover:not(.disabled) {
+  border-color: #000;
   background: #f8f8f8;
+  color: #000;
 }
 
-.cdp-variant-btn.active {
-  border-color: var(--bg_color, #2e7d32);
-  background: var(--bg_color, #2e7d32);
+.cdp-variant-btn.active,
+.cdp-variant-option-btn.active {
+  border-color: #000;
+  background: #000;
   color: #fff;
 }
 
-.cdp-variant-btn.disabled {
+.cdp-variant-btn.disabled,
+.cdp-variant-option-btn.disabled {
   opacity: 0.5;
   cursor: not-allowed;
   text-decoration: line-through;
@@ -520,7 +551,7 @@ ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bg_color, #2e7d32);
+  color: #000;
   transition: all 0.2s;
 }
 
@@ -541,7 +572,7 @@ ease;
 .cdp-popup-add-btn {
   flex: 1;
   height: 20px;
-  background: var(--bg_color, #2e7d32);
+  background: #000;
   color: #fff;
   border: none;
   border-radius: 2px;
@@ -557,22 +588,27 @@ ease;
 
 .cdp-popup-view-btn {
   width: 100%;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 5px;
-  background: #f8f8f8;
+  background: #0f0e0e;
   border: none;
-  border-radius: 10px;
+  border-radius: 5px;
   font-size: 10px;
   font-weight: 500;
-  color: #333;
+  color: #FFF;
   cursor: pointer;
   transition: all 0.2s;
+  width: auto;
+  padding: 6px 20px;
+  letter-spacing: .3px;
 }
 
 .cdp-popup-view-btn:hover {
   background: #f0f0f0;
+  color: #000;
 }
 
 .cdp-popup-view-btn svg {
@@ -621,7 +657,7 @@ ease;
 
 .cdp-line {
   display: grid;
-  grid-template-columns: 55px 1fr;
+  grid-template-columns: 85px 1fr;
   gap: 10px;
   border: 1px solid #f0f0f0;
   border-radius: 10px;
@@ -631,10 +667,11 @@ ease;
 }
 
 .cdp-line-media {
-  height: 65px;
-  width: 55px;
+  height: 100px;
+  width: 85px;
   border-radius: 8px;
   overflow: hidden;
+  padding:1px;
 }
 
 .cdp-line-media img {
@@ -652,6 +689,7 @@ ease;
   justify-content: flex-start;
   gap: 0px;
   padding: 0;
+  position: relative;
 }
 
 .cdp-line-header {
@@ -660,18 +698,39 @@ ease;
   gap: 1px;
 }
 
-.cdp-line-title, .cdp-line-variant {
+
+.cdp-line-title{
   font-weight: 600;
-  font-size: 12px;
-  color: #333;
+  font-size: 13px;
+  color: #000;
   line-height: 1.2;
   display: -webkit-box;
   -webkit-line-clamp: 1;
-  line-clamp: 1;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  padding-right: 5px;
+  padding-bottom: 2px;
 }
 
+ .cdp-line-variant {
+  font-weight: 600;
+  padding-bottom: 3px;
+  font-size: 12px;
+  color: #000;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  letter-spacing: 0;
+  opacity: .9;
+}
+button.cdp-line-remove {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
 .cdp-line-prices {
   display: inline-flex;
   align-items: baseline;
@@ -700,10 +759,7 @@ ease;
   margin-top: 1px;
 }
 
-.cdp-line-variant {
-  font-weight: 500;
-  color: #666;
-}
+
 
 .cdp-line-qty-label {
   color: #666;
@@ -729,12 +785,14 @@ ease;
 
 .cart-item-title {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
+  padding-bottom: 3px;
   text-transform: inherit;
-  font-weight: 500;
-  font-family: inherit;
+  font-weight: 600;
   color: #000;
   line-height: 1.4;
+  letter-spacing: 0;
+  font-family: inherit;
 }
 
 input.cdp-qty-input {
@@ -759,7 +817,6 @@ input.cdp-qty-input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 4px;
 }
 
 .cdp-qty {
@@ -1106,6 +1163,7 @@ cart-drawer:not(html):not(body),
   font-size: 12px;
   color: #2ecc71;
   font-weight: 600;
+  padding-left: 3px;
 }
 aside.cdp-upsell.active {
   animation: vikas 3s ease-in-out;
@@ -1157,7 +1215,7 @@ aside.cdp-upsell.active {
 
 @media (min-width: 767px) and (max-width: 1199px) {
   .cdp-panel {
-    max-width: 33%;
+    max-width: 60%;
   }
 
   .cdp-upsell {
@@ -1241,9 +1299,7 @@ aside.cdp-upsell.active {
     width: 80px;
   }
   
-  .cdp-line-title {
-    font-size: 13px;
-  }
+  
   
   .cdp-qty {
     height: 32px;
@@ -1339,7 +1395,7 @@ aside.cdp-upsell.active {
 
   /* Additional mobile-specific styles */
   .cdp-panel {
-    max-width: 100%;
+    max-width: 95%;
   }
 
   .cdp-header {
@@ -1746,13 +1802,13 @@ div#third-party-integration-wrapper {
   z-index: 999;
   transform: translate(-50%, -50%);
 }
+/* 
 
-/* Circular gradient loading spinner */
 .loader {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  /* No solid background color, only a gradient border */
+
   background:
     conic-gradient(
       from 0deg,
@@ -1762,25 +1818,66 @@ div#third-party-integration-wrapper {
       rgba(180, 254, 221, 0) 360deg
     );
 
-  /* Create a ring with 5px thickness using mask */
+
   -webkit-mask: radial-gradient(
     farthest-side,
     transparent calc(100% - 5px),
     #000 calc(100% - 5px)
   );
+  
   mask: radial-gradient(
     farthest-side,
     transparent calc(100% - 5px),
     #000 calc(100% - 5px)
   );
 
-  /* Infinite spinning animation */
+
   animation: spin 1s linear infinite;
 }
 
-/* Rotation keyframes */
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
+} */
+
+
+.loader {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
+
+.ball {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  animation: bounce 0.6s infinite alternate;
+  display: block !important;
+}
+
+.ball:nth-child(1) {
+  background: linear-gradient(45deg, #05396d, #05396d);
+  animation-delay: 0s;
+  display: block !important;
+}
+
+.ball:nth-child(2) {
+  background: linear-gradient(45deg, #05396d, #05396d);
+  animation-delay: 0.2s;
+  display: block !important;
+}
+
+.ball:nth-child(3) {
+  background: linear-gradient(45deg, #05396d, #05396d);
+  animation-delay: 0.4s;
+  display: block !important;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-15px); }
+  }
