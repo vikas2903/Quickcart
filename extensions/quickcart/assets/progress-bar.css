@@ -279,3 +279,16 @@ div#third-party-integration-wrapper {
     display: block;
     width: 70%;
 }
+
+div#upcart_loader {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    content: "";
+    background: #0000007d;
+    z-index: 99;
+}

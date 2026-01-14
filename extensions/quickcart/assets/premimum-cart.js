@@ -921,6 +921,9 @@
   const subtotalEl = drawer.querySelector("[data-subtotal]");
   const totalEl = drawer.querySelector("[data-total]");
   const offersRoot = drawer.querySelector("[data-offers]");
+  
+  // Store free gift product handle globally to identify free gift items
+  let freeGiftProductHandle = null;
 
 
   function lockBodyScroll() {
@@ -957,9 +960,15 @@ function unlockBodyScroll() {
 
 
   function openDrawer() {
+    // Show loader briefly when opening drawer
+    if (window.upcart_loader) window.upcart_loader(true);
+    
     drawer.classList.add(openClass);
     drawer.setAttribute("aria-hidden", "false");
-    refreshUI();
+    refreshUI().finally(() => {
+      // Hide loader after drawer opens and UI refreshes
+      if (window.upcart_loader) window.upcart_loader(false);
+    });
     lockBodyScroll();
   }
  
@@ -1064,15 +1073,25 @@ function unlockBodyScroll() {
       cache: "no-store"
     }).then((r) => r.json());
 
-  const changeQty = (key, quantity) =>
-    fetch("/cart/change.js", {
+  const changeQty = (key, quantity) => {
+    // Show loader when changing quantity
+    if (window.upcart_loader) window.upcart_loader(true);
+    
+    return fetch("/cart/change.js", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ id: key, quantity }),
       credentials: "same-origin"
-    }).then((r) => r.json());
+    }).then((r) => r.json()).finally(() => {
+      // Hide loader after quantity change completes
+      if (window.upcart_loader) window.upcart_loader(false);
+    });
+  };
 
   const addVariantFD = (variantId, quantity = 1, extra = {}) => {
+    // Show loader when adding variant
+    if (window.upcart_loader) window.upcart_loader(true);
+    
     const fd = new FormData();
     fd.append("id", String(variantId));
     fd.append("quantity", String(quantity));
@@ -1089,7 +1108,10 @@ function unlockBodyScroll() {
       body: fd,
       headers: { Accept: "application/json" },
       credentials: "same-origin"
-    }).then((r) => r.json());
+    }).then((r) => r.json()).finally(() => {
+      // Hide loader after add completes
+      if (window.upcart_loader) window.upcart_loader(false);
+    });
   };
 
   /* ============ RENDERING ============ */
@@ -1106,8 +1128,12 @@ function unlockBodyScroll() {
     }
     linesRoot.innerHTML = cart.items
       .map(
-        (item) => `
-      <article class="cdp-line" data-line-key="${item.key}">
+        (item) => {
+          // Check if this item is the free gift product
+          const isFreeGift = freeGiftProductHandle && item.handle === freeGiftProductHandle;
+          
+          return `
+      <article class="cdp-line" data-line-key="${item.key}" ${isFreeGift ? 'data-free-gift="true"' : ''}>
         <div class="cdp-line-media">
           <img src="${
             item.image ? item.image.replace(/\.(jpg|png|jpeg)/, "_180x.$1") : ""
@@ -1116,6 +1142,7 @@ function unlockBodyScroll() {
         <div class="cdp-line-info">
           <div class="cdp-line-title">
             <span class="cart-item-title">${truncate(item.product_title, 35)}</span>
+            ${isFreeGift ? '<span class="free-gift-badge" style="display: inline-block; margin-left: 8px; padding: 2px 8px; background: #e8f5e9; color: #2e7d32; border-radius: 12px; font-size: 11px; font-weight: 600;">FREE GIFT</span>' : ''}
           </div>
           <div class="cdp-line-top">
             <span class="cart-item-variant-title">
@@ -1125,34 +1152,35 @@ function unlockBodyScroll() {
                   : ""
               }
               <span class="cdp-line-prices">
-                <span class="cdp-line-final">${fmtMoney(item.final_line_price)}</span>
+                <span class="cdp-line-final">${isFreeGift ? 'FREE' : fmtMoney(item.final_line_price)}</span>
                 ${
-                  item.original_line_price > item.final_line_price
+                  item.original_line_price > item.final_line_price && !isFreeGift
                     ? `<span class="cdp-line-compare">${fmtMoney(
                         item.original_line_price
                       )}</span>`
                     : ""
                 }
               </span>  ${
-                item.discounts?.length
+                item.discounts?.length && !isFreeGift
                   ? `|<span class="discount">${item.discounts[0]?.title || ""}</span>`
                   : ""
               }
             </span>
             <div class="cdp-line-bottom">
-              <div class="cdp-qty" data-qty-wrap>
-                <button class="cdp-qty-btn" data-qty-down>-</button>
+              <div class="cdp-qty" data-qty-wrap ${isFreeGift ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>
+                <button class="cdp-qty-btn" data-qty-down ${isFreeGift ? 'disabled style="cursor: not-allowed;"' : ''}>-</button>
                 <input class="cdp-qty-input" type="number" min="0" value="${
                   item.quantity
-                }" data-qty>
-                <button class="cdp-qty-btn" data-qty-up>+</button>
+                }" data-qty ${isFreeGift ? 'readonly disabled style="cursor: not-allowed;"' : ''}>
+                <button class="cdp-qty-btn" data-qty-up ${isFreeGift ? 'disabled style="cursor: not-allowed;"' : ''}>+</button>
               </div>
-              <button class="cdp-line-remove" data-remove="${item.key}" aria-label="Remove">&#x2715;</button>
+              <button class="cdp-line-remove" data-remove="${item.key}" aria-label="Remove" ${isFreeGift ? 'disabled style="opacity: 0.5; cursor: not-allowed; pointer-events: none;"' : ''}>&#x2715;</button>
             </div>
           </div>
         </div>
       </article>
-    `
+    `;
+        }
       )
       .join("");
   };
@@ -1231,6 +1259,9 @@ function unlockBodyScroll() {
       const free_gift_eligible = !!data?.data?.enabled;
       const free_product_handle = data?.data?.selectedProduct?.handle || null;
 
+      // Store free gift handle globally for use in rendering and event handlers
+      freeGiftProductHandle = free_gift_eligible && free_product_handle ? free_product_handle : null;
+
       if (!free_gift_eligible || !free_product_handle || !free_price_threshold) {
         return;
       }
@@ -1256,47 +1287,72 @@ function unlockBodyScroll() {
           const msg = document.createElement("div");
           msg.className = "free-gift-message-removed";
           msg.id = "free-gift-message";
-          msg.innerHTML =
-            '<span class="cdp-offer-text">Free gift removed from your cart! 🎁</span>';
+          msg.innerHTML='';
+          // msg.innerHTML =
+          //   '<span class="cdp-offer-text">Free gift removed from your cart! 🎁</span>';
           linesContainer.insertAdjacentElement("beforebegin", msg);
         }
         document.querySelector(".free-gift-message-added")?.remove();
+        
+        // Refresh UI to show updated cart without free gift
+        await refreshUI();
         return;
       }
 
       // ABOVE threshold → ensure gift is present, quantity = 1
-      if (cart_total_price >= free_price_threshold && !free_gift_in_cart) {
-        const free_product_id = await getVariantIdByHandle(free_product_handle);
-        if (!free_product_id) return;
-
-        const addResponse = await fetch("/cart/add.js", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json"
-          },
-          body: JSON.stringify({ id: free_product_id, quantity: 1 })
-        }).then((res) => res.json());
-
-        console.log("✅ Free gift added to cart!", addResponse);
-
-        const linesContainer = document.querySelector(".cdp-lines");
-        if (linesContainer) {
-          const msg = document.createElement("div");
-          msg.className = "free-gift-message-added";
-          msg.id = "free-gift-message";
-          msg.innerHTML =
-            '<span class="cdp-offer-text">Free gift added to your cart! 🎁</span>';
-          linesContainer.insertAdjacentElement("beforebegin", msg);
+      if (cart_total_price >= free_price_threshold) {
+        // If free gift is already in cart but quantity is not 1, fix it
+        if (free_gift_in_cart && free_gift_item.quantity !== 1) {
+          await fetch("/cart/change.js", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
+            body: JSON.stringify({ id: free_gift_item.key, quantity: 1 })
+          });
+          await refreshUI();
+          return;
         }
-        document.querySelector(".free-gift-message-removed")?.remove();
-        triggerPartyPopper();
+        
+        // If free gift is not in cart, add it
+        if (!free_gift_in_cart) {
+          const free_product_id = await getVariantIdByHandle(free_product_handle);
+          if (!free_product_id) return;
 
-        document.dispatchEvent(
-          new CustomEvent("cart:updated", { detail: addResponse })
-        );
-        if (typeof window.updateCartDrawer === "function") {
-          window.updateCartDrawer();
+          const addResponse = await fetch("/cart/add.js", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
+            body: JSON.stringify({ id: free_product_id, quantity: 1 })
+          }).then((res) => res.json());
+
+          console.log("✅ Free gift added to cart!", addResponse);
+
+          // Refresh UI to show the newly added free gift product
+          await refreshUI();
+
+          const linesContainer = document.querySelector(".cdp-lines");
+          if (linesContainer) {
+            const msg = document.createElement("div");
+            msg.className = "free-gift-message-added";
+            msg.id = "free-gift-message";
+            msg.innerHTML='';
+            // msg.innerHTML =
+            //   '<span class="cdp-offer-text">Free gift added to your cart! 🎁</span>';
+            linesContainer.insertAdjacentElement("beforebegin", msg);
+          }
+          document.querySelector(".free-gift-message-removed")?.remove();
+          triggerPartyPopper();
+
+          document.dispatchEvent(
+            new CustomEvent("cart:updated", { detail: addResponse })
+          );
+          if (typeof window.updateCartDrawer === "function") {
+            window.updateCartDrawer();
+          }
         }
       }
     } catch (error) {
@@ -1327,13 +1383,20 @@ function unlockBodyScroll() {
   }
 
   /* ============ MAIN REFRESH ============ */
-  const refreshUI = () =>
-    fetchCart().then(async (cart) => {
+  const refreshUI = () => {
+    // Show loader when refreshing cart
+    if (window.upcart_loader) window.upcart_loader(true);
+    
+    return fetchCart().then(async (cart) => {
       renderLines(cart);
       renderTotals(cart);
       handleCartDiscountRow(cart);
       await handleFreeGift(cart);
+    }).finally(() => {
+      // Hide loader after refresh completes
+      if (window.upcart_loader) window.upcart_loader(false);
     });
+  };
 
   // initial totals (no need to render lines)
   fetchCart().then((cart) => renderTotals(cart));
@@ -1349,6 +1412,14 @@ function unlockBodyScroll() {
       const key = line?.getAttribute("data-line-key");
       const input = line?.querySelector("[data-qty]");
       if (!key || !input) return;
+      
+      // Prevent quantity changes for free gift items
+      if (line?.hasAttribute("data-free-gift")) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      
       const curr = parseInt(input.value || "1", 10);
       const next = Math.max(0, curr + (down ? -1 : 1));
       changeQty(key, next).then(refreshUI);
@@ -1357,6 +1428,14 @@ function unlockBodyScroll() {
     }
 
     if (rem) {
+      const line = rem.closest(".cdp-line");
+      // Prevent removal of free gift items
+      if (line?.hasAttribute("data-free-gift")) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      
       const key = rem.getAttribute("data-remove");
       changeQty(key, 0).then(refreshUI);
       e.preventDefault();
@@ -1367,6 +1446,16 @@ function unlockBodyScroll() {
     const qtyInput = e.target.closest("[data-qty]");
     if (!qtyInput) return;
     const line = e.target.closest(".cdp-line");
+    
+    // Prevent quantity changes for free gift items
+    if (line?.hasAttribute("data-free-gift")) {
+      // Reset quantity to 1 if user tries to change it
+      qtyInput.value = 1;
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    
     const key = line?.getAttribute("data-line-key");
     const v = Math.max(0, parseInt(qtyInput.value || "0", 10));
     if (!key) return;
@@ -1539,6 +1628,9 @@ function unlockBodyScroll() {
         return false;
       }
 
+      // Show loader when adding to cart from form
+      if (window.upcart_loader) window.upcart_loader(true);
+
       fetch(form.action || "/cart/add.js", {
         method: "POST",
         headers: { Accept: "application/json" },
@@ -1566,6 +1658,8 @@ function unlockBodyScroll() {
           }
         })
         .finally(() => {
+          // Hide loader after add to cart completes
+          if (window.upcart_loader) window.upcart_loader(false);
           if (btn) {
             btn.disabled = false;
             btn.classList.remove("is-loading");
@@ -2011,6 +2105,9 @@ function unlockBodyScroll() {
       this.disabled = true;
       this.textContent = "Adding...";
 
+      // Show loader when adding to cart from popup
+      if (window.upcart_loader) window.upcart_loader(true);
+
       try {
         const res = await fetch("/cart/add.js", {
           method: "POST",
@@ -2028,6 +2125,8 @@ function unlockBodyScroll() {
       } catch (err) {
         console.error("Error adding to cart:", err);
       } finally {
+        // Hide loader after popup add to cart completes
+        if (window.upcart_loader) window.upcart_loader(false);
         this.disabled = false;
         this.textContent = "Add";
       }

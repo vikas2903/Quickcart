@@ -4,6 +4,24 @@
 (function () {
   "use strict";
 
+
+  function upcart_loader(show = true) {
+    const loader = document.getElementById('upcart_loader');
+    if (!loader) {
+      console.warn('upcart_loader: element not found');
+      return;
+    }
+  
+    loader.style.display = show ? 'block' : 'none';
+  }
+  
+  // Make loader function globally accessible
+  window.upcart_loader = upcart_loader;
+  
+  // Initialize loader as hidden
+  upcart_loader(false);
+
+
   // Store settings globally for access
   window.QuickCartSettings = window.QuickCartSettings || {};
 
@@ -165,12 +183,16 @@
           "--border_radius",
           settings.cartDrawer.border_radius + "px",
         );
+        document.querySelector(".cdp-checkout").style.borderRadius =
+        settings.cartDrawer.border_radius + "px";
+
       }
       if (settings.cartDrawer.button_color) {
-        document.querySelector(".cdp-checkout").style.backgroundColor =
+          document.querySelector(".cdp-checkout").style.backgroundColor =
+            settings.cartDrawer.button_color;
+          document.querySelector(".combined-offer-badge").style.backgroundColor =
           settings.cartDrawer.button_color;
-        document.querySelector(".combined-offer-badge").style.backgroundColor =
-          settings.cartDrawer.button_color;
+
       }
       if (settings.cartDrawer.button_text_color) {
         root.style.setProperty(
@@ -187,7 +209,7 @@
         );
       }
     }
-
+ 
     // Apply announcement bar settings
     if (settings.announcementBar) {
       const announcementBarElement =
@@ -312,38 +334,53 @@
     // Apply third-party integration
     if (settings.thirdPartyIntegration) {
       const existingCheckout = document.querySelector(".cdp-checkout");
-      const thirdPartyWrapper = document.querySelector("#third-party-integration-wrapper");
+      const footerRight = document.querySelector(".cdp-footer-right");
       
+      if(settings.thirdPartyIntegration.enabled == false){
+        {
+          const thirdPartyHtml = document.querySelector("#third-party-integration-wrapper");
+          if (thirdPartyHtml) {
+            thirdPartyHtml.style.display = "none";
+          }
+        }
+      }else{
+        document.querySelector(".cdp-checkout").style.display = "block";
+      }
+
       if (settings.thirdPartyIntegration.enabled) {
-        // Third-party integration is ENABLED
-        // Hide the regular checkout button
+        // Hide or remove existing checkout button
         if (existingCheckout) {
           existingCheckout.style.display = "none";
+        }else{
+          const thirdPartyHtml = document.querySelector("#third-party-integration-wrapper");
+          if (thirdPartyHtml) {
+            thirdPartyHtml.style.display = "none";
+          }
         }
         
-        // Show the third-party wrapper (it contains the HTML from metafield)
-        if (thirdPartyWrapper) {
-          thirdPartyWrapper.style.display = "";
-        }
-        
-        // Remove any dynamically created third-party button to avoid duplicates
+        // Remove any existing third-party button to avoid duplicates
         const existingThirdPartyBtn = document.querySelector(".cdp-third-party-checkout");
         if (existingThirdPartyBtn) {
           existingThirdPartyBtn.remove();
         }
+        
+        // Create button wrapper and insert htmlContent inside
+        if (settings.thirdPartyIntegration.htmlContent && footerRight) {
+          // const thirdPartyButton = document.createElement("a");
+          // thirdPartyButton.href = "#";
+          // thirdPartyButton.className = "cdp-checkout cdp-third-party-checkout";
+          // thirdPartyButton.setAttribute("data-checkout", "");
+          // thirdPartyButton.setAttribute("aria-label", "Proceed to checkout");
+          // thirdPartyButton.innerHTML = settings.thirdPartyIntegration.htmlContent;
+          // footerRight.appendChild(thirdPartyButton);
+        } 
       } else {
-        // Third-party integration is DISABLED
-        // Show the regular checkout button
+        // Show existing checkout button if third party is disabled
         if (existingCheckout) {
           existingCheckout.style.display = "";
         }
         
-        // Hide the third-party wrapper
-        if (thirdPartyWrapper) {
-          thirdPartyWrapper.style.display = "none";
-        }
-        
-        // Remove any dynamically created third-party button if it exists
+        // Remove third-party button if it exists
         const existingThirdPartyBtn = document.querySelector(".cdp-third-party-checkout");
         if (existingThirdPartyBtn) {
           existingThirdPartyBtn.remove();

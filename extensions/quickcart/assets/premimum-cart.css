@@ -779,7 +779,6 @@ input.cdp-qty-input {
   background: transparent;
   cursor: pointer;
   font-size: 14px;
-  color: var(--bg_color, #2e7d32);
   font-weight: 500;
   transition: background 0.2s;
 }
@@ -893,7 +892,7 @@ input.cdp-qty-input {
 
 .cdp-footer {
   flex-shrink: 0;
-  z-index: 100;
+  z-index: 1;
   position: relative;
   display: flex;
   align-items: center;
@@ -924,7 +923,6 @@ span.cdp-total-val {
   align-items: center;
   color: #fff;
   padding: 15px 16px;
-
   text-decoration: none;
   font-weight: 500;
   display: block;
@@ -1572,7 +1570,6 @@ body.no-scroll{overflow: unset !important;}
   border-top-left-radius: 10px;
   text-align: center;
   font-size: 12px;
-  background-color: var(--bg_color);
   color: #fff;
   opacity: 1;
   transition: all .4s ease;
@@ -1735,4 +1732,55 @@ html.prevent-scroll, html.prevent-scroll body{overflow: scroll;}
 div#third-party-integration-wrapper {
   display: block;
   width: 70%;
+}
+
+
+
+.loader-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 999;
+  transform: translate(-50%, -50%);
+}
+
+/* Circular gradient loading spinner */
+.loader {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  /* No solid background color, only a gradient border */
+  background:
+    conic-gradient(
+      from 0deg,
+      #000000 0deg,
+      #000203 270deg,
+      rgba(180, 254, 221, 0) 320deg,
+      rgba(180, 254, 221, 0) 360deg
+    );
+
+  /* Create a ring with 5px thickness using mask */
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 5px),
+    #000 calc(100% - 5px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 5px),
+    #000 calc(100% - 5px)
+  );
+
+  /* Infinite spinning animation */
+  animation: spin 1s linear infinite;
+}
+
+/* Rotation keyframes */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

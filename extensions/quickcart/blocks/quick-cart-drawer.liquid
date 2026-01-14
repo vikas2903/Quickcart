@@ -87,8 +87,15 @@
   data-shop="{{ shop.permanent_domain }}"
   data-app-url="https://quickcart-vf8k.onrender.com"
 >
+
+
+
+
   <div class="cdp-overlay" data-close></div>
   <aside class="cdp-upsell">
+
+
+
         <div class="cdp-upsell-head">
           <span>UpSell</span>
           <span class="upsell-mob-close-icon" style="display:none;">✕</span>
@@ -201,8 +208,16 @@
 
   <div class="cdp-panel color-{{ settings.cart_color_scheme | default: 'background-1' }}">
 
+<div id="upcart_loader">
+<div class="loader-wrapper">
+   <div class="loader" style="display:block"></div>
+  </div>
+</div>
 
 <div class="quick-cart-header-section">
+
+  
+
     <!-- Header (fixed) -->
     <header class="cdp-header" >
       <div class="cdp-h-left">

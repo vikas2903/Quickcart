@@ -1440,15 +1440,17 @@ function Settings() {
                   color: "#ffffff",
                   fontWeight: "bold",
                   display: "block",
-                  fullWidth: true,
+              
+                  width: "100%",
                 }}
                 primary
                 onClick={handleSave}
                 loading={isSaving}
                 disabled={isSaving}
-                tone="neutral"
+                tone="submit"
                 type="submit"
                 width="full"
+                variant="primary"
               >
                 {isSaving ? "Saving..." : "Save Settings"}
               </Button>
