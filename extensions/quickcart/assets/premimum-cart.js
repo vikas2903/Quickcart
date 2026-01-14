@@ -1682,7 +1682,8 @@ function unlockBodyScroll() {
       ".header__icon--cart",                   // Dawn theme and variants
       ".m-cart-icon-bubble",                   // Mobile cart icon
       ".navlink--cart",                        // Navigation cart link
-      "a[aria-label='Cart']",                  // Accessible cart link
+      "a[aria-label='Cart']",   
+      ".header-actions__cart-icon",               // Accessible cart link
       "a[aria-label='cart']",                   // Lowercase variant
       ".header-actions__cart-icon",            // Header actions cart
       "a[href*='/cart']",                      // Any link to cart page

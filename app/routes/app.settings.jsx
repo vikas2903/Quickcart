@@ -793,7 +793,7 @@ function Settings() {
                 style={{ marginRight: "5px" }}
               >
                 {" "}
-                Select Collection Upsell{" "}
+                Select Upsell Collection {" "}
               </Button>
               <Button
                 primary
