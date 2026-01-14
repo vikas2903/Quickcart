@@ -439,16 +439,18 @@ img#popupProductImage2 {
   align-items: baseline;
   gap: 8px;
   margin-bottom: 4px;
+  padding-top: 6px;
+  font-weight: 600;
 }
 
 .cdp-popup-final {
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   color: #000;
 }
 
 .cdp-popup-compare {
-  font-size: 11px;
+  font-size: 18px;
   color: #888;
   text-decoration: line-through;
 }
@@ -466,7 +468,7 @@ img#popupProductImage2 {
 }
 
 .cdp-popup-variant-group {
-  margin-bottom: 16px;
+  margin-bottom: 6px;
 }
 
 .cdp-popup-variant-group:last-child {
@@ -490,7 +492,7 @@ img#popupProductImage2 {
 
 .cdp-variant-btn,
 .cdp-variant-option-btn {
-  padding: 8px 12px;
+  padding: 5px 6px;
   font-weight: 500;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
@@ -499,7 +501,7 @@ img#popupProductImage2 {
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: 0;
-  font-size: 13px;
+  font-size: 12px;
   font-family: 'Montserrat';
   min-width: 50px;
   text-align: center;
@@ -571,13 +573,13 @@ img#popupProductImage2 {
 
 .cdp-popup-add-btn {
   flex: 1;
-  height: 20px;
   background: #000;
   color: #fff;
   border: none;
   border-radius: 2px;
-  font-size: 12px;
-  /* font-weight: 600; */
+  font-size: 14px;
+  padding: 6px 10px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -1705,9 +1707,21 @@ span.summary-heading-text {
 @media (max-width: 767px) {
   /* Popup responsive */
   .cdp-popup-content {
-    max-width: 70vw;
+    max-width: 90vw;
     margin: 0 auto;
   }
+  .cdp-popup-compare, .cdp-popup-final {
+    font-size: 15px;
+  }
+  .cdp-popup-img {
+    flex: 1;
+    width: 50%;
+    height: max-content;
+    object-fit: contain;
+    object-position: top center;
+}
+.cdp-popup-images, .cdp-popup-info{width: 100% !important;}
+.cdp-popup-content{flex-direction: column !important;}
 }
 
 
@@ -1852,8 +1866,8 @@ div#third-party-integration-wrapper {
 }
 
 .ball {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 15px;
   border-radius: 50%;
   animation: bounce 0.6s infinite alternate;
   display: block !important;

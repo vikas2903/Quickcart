@@ -1756,6 +1756,53 @@ function unlockBodyScroll() {
   let currentProductData = null;
   let currentSelectedOptions = {}; // Track selected options for current product
 
+  // Function to format price with HTML support and trailing zero removal
+  function formatPriceWithHTML(price, moneyFormat, drawerEl) {
+    let formattedPrice = "";
+    
+    if (window.Shopify && typeof Shopify.formatMoney === "function") {
+      formattedPrice = Shopify.formatMoney(price, moneyFormat);
+      
+      // Check if the result contains HTML tags
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = formattedPrice;
+      const hasHTML = tempDiv.children.length > 0;
+      
+      if (hasHTML) {
+        // If HTML, remove trailing zeros from text content but keep HTML structure
+        const walker = document.createTreeWalker(
+          tempDiv,
+          NodeFilter.SHOW_TEXT,
+          null
+        );
+        let node;
+        while (node = walker.nextNode()) {
+          node.textContent = node.textContent.replace(/\.00$/, "").replace(/\.0$/, "");
+        }
+        formattedPrice = tempDiv.innerHTML;
+      } else {
+        // If plain text, remove trailing zeros
+        formattedPrice = formattedPrice.replace(/\.00$/, "").replace(/\.0$/, "");
+      }
+    } else {
+      // Fallback: format like Liquid would
+      const priceAmount = price / 100;
+      formattedPrice = priceAmount.toLocaleString("en-IN", { 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 0 
+      });
+      const currency = drawerEl?.getAttribute("data-currency") || "INR";
+      if (currency === "INR") {
+        formattedPrice = "₹" + formattedPrice;
+      }
+    }
+    
+    // Replace Rs. with ₹ symbol
+    formattedPrice = formattedPrice.replace(/Rs\.?/g, "₹");
+    
+    return formattedPrice;
+  }
+
   // Function to find variant based on selected options
   function findVariantByOptions(productData, selectedOptions) {
     return productData.variants.find(variant => {
@@ -1814,58 +1861,22 @@ function unlockBodyScroll() {
       });
     });
     
-    // Format prices
-    let formattedPrice = "";
+    // Format prices with HTML support
+    const formattedPrice = formatPriceWithHTML(selectedVariant.price, moneyFormat, drawerEl);
     let formattedComparePrice = "";
     
-    if (window.Shopify && typeof Shopify.formatMoney === "function") {
-      formattedPrice = Shopify.formatMoney(selectedVariant.price, moneyFormat);
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = formattedPrice;
-      formattedPrice = tempDiv.textContent || tempDiv.innerText || formattedPrice;
-      formattedPrice = formattedPrice.replace(/\.00$/, "").replace(/\.0$/, "");
-      
-      if (selectedVariant.compare_at_price && selectedVariant.compare_at_price > selectedVariant.price) {
-        formattedComparePrice = Shopify.formatMoney(selectedVariant.compare_at_price, moneyFormat);
-        const tempDiv2 = document.createElement("div");
-        tempDiv2.innerHTML = formattedComparePrice;
-        formattedComparePrice = tempDiv2.textContent || tempDiv2.innerText || formattedComparePrice;
-        formattedComparePrice = formattedComparePrice.replace(/\.00$/, "").replace(/\.0$/, "");
-      }
-    } else {
-      const priceAmount = selectedVariant.price / 100;
-      formattedPrice = priceAmount.toLocaleString("en-IN", { 
-        minimumFractionDigits: 0, 
-        maximumFractionDigits: 0 
-      });
-      const currency = drawerEl?.getAttribute("data-currency") || "INR";
-      if (currency === "INR") {
-        formattedPrice = "₹" + formattedPrice;
-      }
-      
-      if (selectedVariant.compare_at_price && selectedVariant.compare_at_price > selectedVariant.price) {
-        const compareAmount = selectedVariant.compare_at_price / 100;
-        formattedComparePrice = compareAmount.toLocaleString("en-IN", { 
-          minimumFractionDigits: 0, 
-          maximumFractionDigits: 0 
-        });
-        if (currency === "INR") {
-          formattedComparePrice = "₹" + formattedComparePrice;
-        }
-      }
+    if (selectedVariant.compare_at_price && selectedVariant.compare_at_price > selectedVariant.price) {
+      formattedComparePrice = formatPriceWithHTML(selectedVariant.compare_at_price, moneyFormat, drawerEl);
     }
     
-    formattedPrice = formattedPrice.replace(/Rs\.?/g, "₹");
-    formattedComparePrice = formattedComparePrice.replace(/Rs\.?/g, "₹");
-    
-    // Update price display
+    // Update price display using innerHTML to support HTML
     if (popupProductPrice) {
-      popupProductPrice.textContent = formattedPrice;
+      popupProductPrice.innerHTML = formattedPrice;
     }
     
     if (popupProductCompare) {
       if (formattedComparePrice && formattedComparePrice !== "") {
-        popupProductCompare.textContent = formattedComparePrice;
+        popupProductCompare.innerHTML = formattedComparePrice;
         popupProductCompare.style.display = "inline";
       } else {
         popupProductCompare.style.display = "none";
@@ -1956,9 +1967,10 @@ function unlockBodyScroll() {
     if (popupProductImage2) popupProductImage2.src = productImage; // Initially same image
     if (popupProductTitle) popupProductTitle.textContent = productTitle;
     // Use Liquid-formatted price directly (from data-product-price attribute)
-    if (popupProductPrice) popupProductPrice.textContent = productPrice || "";
+    // Product prices from Liquid might contain HTML, so use innerHTML
+    if (popupProductPrice) popupProductPrice.innerHTML = productPrice || "";
     if (popupProductCompare) {
-      popupProductCompare.textContent = productComparePrice || "";
+      popupProductCompare.innerHTML = productComparePrice || "";
       popupProductCompare.style.display = productComparePrice ? "inline" : "none";
     }
     if (popupQtyInput) popupQtyInput.value = 1;
@@ -2003,58 +2015,14 @@ function unlockBodyScroll() {
             const moneyFormat = drawerEl?.getAttribute("data-money-format") || "${{amount}}";
             
             if (popupProductPrice) {
-              let formattedPrice = "";
-              if (window.Shopify && typeof Shopify.formatMoney === "function") {
-                // Use Shopify.formatMoney with shop.money_format (same as Liquid)
-                formattedPrice = Shopify.formatMoney(initialVariant.price, moneyFormat);
-                // Extract text content if HTML is present (remove HTML tags)
-                const tempDiv = document.createElement("div");
-                tempDiv.innerHTML = formattedPrice;
-                formattedPrice = tempDiv.textContent || tempDiv.innerText || formattedPrice;
-                // Remove trailing zeros to match money_without_trailing_zeros
-                formattedPrice = formattedPrice.replace(/\.00$/, "").replace(/\.0$/, "");
-              } else {
-                // Fallback: format like Liquid's money_without_trailing_zeros
-                const priceAmount = initialVariant.price / 100;
-                formattedPrice = priceAmount.toLocaleString("en-IN", { 
-                  minimumFractionDigits: 0, 
-                  maximumFractionDigits: 0 
-                });
-                const currency = drawerEl?.getAttribute("data-currency") || "INR";
-                if (currency === "INR") {
-                  formattedPrice = "₹" + formattedPrice;
-                }
-              }
-              formattedPrice = formattedPrice.replace(/Rs\.?/g, "₹");
-              popupProductPrice.textContent = formattedPrice;
+              const formattedPrice = formatPriceWithHTML(initialVariant.price, moneyFormat, drawerEl);
+              popupProductPrice.innerHTML = formattedPrice;
             }
             
             if (popupProductCompare) {
               if (initialVariant.compare_at_price && initialVariant.compare_at_price > initialVariant.price) {
-                let formattedComparePrice = "";
-                if (window.Shopify && typeof Shopify.formatMoney === "function") {
-                  // Use Shopify.formatMoney with shop.money_format (same as Liquid)
-                  formattedComparePrice = Shopify.formatMoney(initialVariant.compare_at_price, moneyFormat);
-                  // Extract text content if HTML is present (remove HTML tags)
-                  const tempDiv2 = document.createElement("div");
-                  tempDiv2.innerHTML = formattedComparePrice;
-                  formattedComparePrice = tempDiv2.textContent || tempDiv2.innerText || formattedComparePrice;
-                  // Remove trailing zeros to match money_without_trailing_zeros
-                  formattedComparePrice = formattedComparePrice.replace(/\.00$/, "").replace(/\.0$/, "");
-                } else {
-                  // Fallback: format like Liquid's money_without_trailing_zeros
-                  const compareAmount = initialVariant.compare_at_price / 100;
-                  formattedComparePrice = compareAmount.toLocaleString("en-IN", { 
-                    minimumFractionDigits: 0, 
-                    maximumFractionDigits: 0 
-                  });
-                  const currency = drawerEl?.getAttribute("data-currency") || "INR";
-                  if (currency === "INR") {
-                    formattedComparePrice = "₹" + formattedComparePrice;
-                  }
-                }
-                formattedComparePrice = formattedComparePrice.replace(/Rs\.?/g, "₹");
-                popupProductCompare.textContent = formattedComparePrice;
+                const formattedComparePrice = formatPriceWithHTML(initialVariant.compare_at_price, moneyFormat, drawerEl);
+                popupProductCompare.innerHTML = formattedComparePrice;
                 popupProductCompare.style.display = "inline";
               } else {
                 popupProductCompare.style.display = "none";
