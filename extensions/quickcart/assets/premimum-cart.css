@@ -731,7 +731,7 @@ img#popupProductImage2 {
 button.cdp-line-remove {
   position: absolute;
   right: 0;
-  top: 0;
+  top: 14px;
 }
 .cdp-line-prices {
   display: inline-flex;
@@ -818,7 +818,7 @@ input.cdp-qty-input {
 .cdp-line-bottom {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .cdp-qty {
@@ -859,12 +859,12 @@ input.cdp-qty-input {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e0e0e0;
+  border: none;
   border-radius: 6px;
   width: 28px;
   height: 28px;
   cursor: pointer;
-  background: #fff;
+  background: transparent;
   color: #666;
   transition: all 0.2s;
 }
@@ -1238,6 +1238,10 @@ aside.cdp-upsell.active {
 
 @media (max-width: 920px) {
 
+  .cdp-line-variant{
+    font-size: 11px;
+  }
+
  #third-party-integration{
    flex: 0 0 65%;
    position: relative;
@@ -1297,19 +1301,19 @@ aside.cdp-upsell.active {
   }
   
   .cdp-line-media {
-    height: 90px;
+    height: 100px;
     width: 80px;
   }
   
   
   
   .cdp-qty {
-    height: 32px;
+    height: 22px;
   }
   
   .cdp-qty-btn {
-    width: 32px;
-    height: 32px;
+    width: 22px;
+    height: 22px;
     font-size: 16px;
   }
   
@@ -1869,24 +1873,24 @@ div#third-party-integration-wrapper {
   width: 14px;
   height: 15px;
   border-radius: 50%;
-  animation: bounce 0.6s infinite alternate;
+  animation: bounce 0.3s infinite alternate;
   display: block !important;
 }
 
 .ball:nth-child(1) {
-  background: linear-gradient(45deg, #05396d, #05396d);
+  background: linear-gradient(45deg, #6bb2f9, #05396d);
   animation-delay: 0s;
   display: block !important;
 }
-
+ 
 .ball:nth-child(2) {
-  background: linear-gradient(45deg, #05396d, #05396d);
+  background: linear-gradient(45deg, #6bb2f9, #05396d);
   animation-delay: 0.2s;
   display: block !important;
 }
 
 .ball:nth-child(3) {
-  background: linear-gradient(45deg, #05396d, #05396d);
+  background: linear-gradient(45deg, #6bb2f9, #05396d);
   animation-delay: 0.4s;
   display: block !important;
 }

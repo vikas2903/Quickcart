@@ -1162,7 +1162,7 @@ function unlockBodyScroll() {
                 }
               </span>  ${
                 item.discounts?.length && !isFreeGift
-                  ? `|<span class="discount">${item.discounts[0]?.title || ""}</span>`
+                  ? `<span class="discount"> ${item.discounts[0]?.title || ""}</span>`
                   : ""
               }
             </span>

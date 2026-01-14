@@ -289,7 +289,7 @@ div#upcart_loader {
     right: 0;
     left: 0;
     content: "";
-    background: #ffffff;
-    opacity: 0.65;
+    background: #ffffffc7;
+   
     z-index: 99;
 }
