@@ -536,7 +536,9 @@ export default function Dashboard() {
     todayCount = 0, 
     todayAmount = 0 
   } = data;
-  const storeShort = (shop || "").replace(".myshopify.com", "");
+
+
+
 
   const [dismiss, setDismiss] = useState(true);
   const [dismiss1, setDismiss1] = useState(true);
@@ -606,7 +608,7 @@ export default function Dashboard() {
              
 
             {dismiss1 && <Banner
-              tone="warning"
+              tone="info"
               title="You need to integrate the app into your Shopify theme"
               onDismiss={() => {setDismiss1(false)}}
               action={{
@@ -734,7 +736,7 @@ export default function Dashboard() {
           </Layout.Section>
 
          
-          <Layout.Section>
+          {/* <Layout.Section>
              <h4 className="i-gs-section-title">More Apps</h4>
             <Grid>
               <Grid.Cell columnSpan={{xs:6, s:6, lg:6, xl:6, md:6}}>
@@ -748,9 +750,11 @@ export default function Dashboard() {
 
               </Grid.Cell>
             </Grid>
-          </Layout.Section>
+          </Layout.Section> */}
         </Layout>
       </BlockStack>
+
+   
     </Page>
   );
 }

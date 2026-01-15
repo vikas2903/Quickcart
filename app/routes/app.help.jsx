@@ -91,7 +91,20 @@ export default function HelpSupportMini() {
       <TitleBar title="Help & Support" />
       <Layout>
         <Layout.Section>
+
+
+      
+
+
           <div style={{ width: "70%", margin: "0 auto" }}>
+<div className="help-support-banner" style={{ marginBottom: "20px" }}>
+  <Banner tone="info">
+    <p>If you have any questions or encounter errors while using this app, email <a href="mailto:support@digisidekick.com">support@digisidekick.com</a>.</p>
+  </Banner>
+</div>
+
+
+
             {fetcher.data?.ok === false && (
               <Box marginBlockEnd="300">
                 <Banner tone="critical" title="Failed to send email">

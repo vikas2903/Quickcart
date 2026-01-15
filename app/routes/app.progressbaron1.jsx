@@ -218,6 +218,24 @@ function BuyXGetYSection({ shop }) {
 
       {/* RIGHT: preview */}
       <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
+        <div className="" style={{ marginBottom: "20px" }}>
+          <Banner
+            tone="info"
+            title="Create Discount"
+            action={{
+              content: "Create discount",
+              onAction: () => {
+                // Use the store's myshopify.com domain format for admin access
+                const discountUrl = `https://${shop}/admin/discounts/`;
+                window.open(discountUrl, '_blank', 'noopener,noreferrer');
+              }
+            }}
+            onDismiss={() => {}}
+          >
+            <p>Create discount in your store for the working of this Progress Bar</p>
+          </Banner>
+        </div>
+
         <LegacyCard>
           <LegacyCard.Section>
             <Tabs

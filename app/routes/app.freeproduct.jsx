@@ -18,7 +18,8 @@ const API_LOOKUP = "/app/api/products/lookup";
 
 export default function BxgyPage() {
   const { shop } = useLoaderData();
-
+  const shortShop = shop.replace(".myshopify.com", "");
+  console.log("vikasShortShop",shortShop);
   // form state
   const [enabled, setEnabled] = useState(true);
   const [buyQty, setBuyQty] = useState("2");
@@ -129,6 +130,11 @@ export default function BxgyPage() {
               {status && <Banner tone={status.type}>{status.text}</Banner>}
 
               <Checkbox label="Enable rule" checked={enabled} onChange={setEnabled} />
+              <Banner tone="info">
+                <p>
+                  <strong>Important:</strong> This rule will give free product to the customer when they buy the selected products.
+                </p>
+                </Banner>
 
               <TextField
                 label="Buy quantity (X)"

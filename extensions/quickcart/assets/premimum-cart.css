@@ -731,7 +731,7 @@ img#popupProductImage2 {
 button.cdp-line-remove {
   position: absolute;
   right: 0;
-  top: 14px;
+  top: 0px;
 }
 .cdp-line-prices {
   display: inline-flex;
@@ -1879,19 +1879,19 @@ div#third-party-integration-wrapper {
 }
 
 .ball:nth-child(1) {
-  background: linear-gradient(45deg, #6bb2f9, #05396d);
+  /* background: linear-gradient(45deg, #6bb2f9, #05396d); */
   animation-delay: 0s;
   display: block !important;
 }
  
 .ball:nth-child(2) {
-  background: linear-gradient(45deg, #6bb2f9, #05396d);
+  /* background: linear-gradient(45deg, #6bb2f9, #05396d); */
   animation-delay: 0.2s;
   display: block !important;
 }
 
 .ball:nth-child(3) {
-  background: linear-gradient(45deg, #6bb2f9, #05396d);
+  /* background: linear-gradient(45deg, #6bb2f9, #05396d); */
   animation-delay: 0.4s;
   display: block !important;
 }

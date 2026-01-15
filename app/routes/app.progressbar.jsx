@@ -28,6 +28,8 @@ export const loader = async ({ request }) => {
 
 export default function ProgressBar() {
   const { shop } = useLoaderData();
+  const storeShort = (shop || "").replace(".myshopify.com", "");
+  console.log("vikasStoreShort",storeShort);
 
   /* ---------- FORM STATE ---------- */
   const [enabled, setEnabled] = useState(true);
@@ -340,6 +342,30 @@ export default function ProgressBar() {
 
             {/* RIGHT: Preview */}
             <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
+
+
+              <div className="" style={{ marginBottom: "20px" }}>
+              <Banner
+  tone="info"
+  title="Create Discount"
+  action={{
+    content: "Create discount",
+    onAction: () => {
+      // Use the store's myshopify.com domain format for admin access
+      const discountUrl = `https://${shop}/admin/discounts/`;
+      window.open(discountUrl, '_blank', 'noopener,noreferrer');
+    }
+  }}
+>
+  <p>Create discount in your store for the working of this progress bar</p>
+</Banner>
+ 
+
+              </div>
+
+
+
+
               <LegacyCard>
                 <LegacyCard.Section>
                   <Tabs
@@ -516,7 +542,11 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
       emoji: idx === 0 ? "🥳" : "😺",
     }));
 
+ 
+
   return (
+    <>
+   
     <div style={frame}>
       <div style={{ textAlign: "center", fontSize: 14, marginBottom: 6 }}>
         {awayText}
@@ -552,5 +582,6 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
         </div>
       </div>
     </div>
+    </>
   );
 }

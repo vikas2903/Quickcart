@@ -1687,8 +1687,7 @@ function unlockBodyScroll() {
       "a[aria-label='cart']",                   // Lowercase variant
       ".header-actions__cart-icon",            // Header actions cart
       "a[href*='/cart']",                      // Any link to cart page
-      ".cart-icon",                            // Generic cart icon
-      ".header__icon",                         // Generic header icon (if it's a cart link)
+      ".cart-icon",                            // Generic cart icon                      // Generic header icon (if it's a cart link)
       ".site-nav__link[href*='cart']",         // Site nav cart link
       ".Header__Icon[href*='cart']",           // Header icon with cart href
       "[data-cart-icon]",                      // Data attribute cart icon

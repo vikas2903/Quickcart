@@ -213,6 +213,11 @@ export default function GiftProductPage() {
                     placeholder="Enter minimum order amount"
                     autoComplete="off"
                   />
+                  <Banner tone="info">
+                    <p>
+                      <strong>Important:</strong>Update the price here once the total price of the product added to the cart exceeds the set price.
+                    </p>
+                    </Banner>
 
                   <TextField
                     label="Search Product to Gift (by title)"
@@ -221,6 +226,11 @@ export default function GiftProductPage() {
                     placeholder="Type product name..."
                     autoComplete="off"
                   />
+                  <Banner tone="info">
+                    <p>
+                      <strong>Important:</strong> Select the product to gift from the list of products.
+                    </p>
+                    </Banner>
 
                   {loading && <Spinner accessibilityLabel="Loading products" size="large" />}
 
