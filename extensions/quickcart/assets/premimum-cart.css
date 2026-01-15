@@ -1876,6 +1876,7 @@ div#third-party-integration-wrapper {
   border-radius: 50%;
   animation: bounce 0.3s infinite alternate;
   display: block !important;
+  background-color: #60a2ff;
 }
 
 .ball:nth-child(1) {
