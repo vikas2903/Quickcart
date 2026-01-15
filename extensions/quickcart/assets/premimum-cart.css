@@ -1309,7 +1309,20 @@ aside.cdp-upsell.active {
   
   .cdp-qty {
     height: 22px;
+    position: absolute;
+    bottom: 6px;
+    right: 0px;
   }
+  button.cdp-line-remove {
+    position: absolute;
+    right: 0px;
+    top: 16px;
+}
+
+.cdp-line-info {
+  justify-content: center;
+
+}
   
   .cdp-qty-btn {
     width: 22px;
@@ -1876,7 +1889,7 @@ div#third-party-integration-wrapper {
   border-radius: 50%;
   animation: bounce 0.3s infinite alternate;
   display: block !important;
-  background-color: #60a2ff;
+  background-color: #006aff;
 }
 
 .ball:nth-child(1) {
