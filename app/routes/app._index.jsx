@@ -325,8 +325,9 @@ export const loader = async ({ request }) => {
   }
 
   // DB upsert
-  await connectDatabase();
   try {
+    await connectDatabase();
+    
     // Some older deployments created a unique index on `shop` instead of
     // `shopName`. To be defensive we set both fields when inserting/updating
     // so we don't accidentally create documents with a null `shop` value
@@ -341,9 +342,9 @@ export const loader = async ({ request }) => {
       { upsert: true }
     );
   } catch (e) {
-    console.error("Store upsert failed", { shopName, error: e && e.message, stack: e && e.stack });
+    console.error("Database operation failed", { shopName, error: e && e.message, stack: e && e.stack });
     // Re-throw a helpful 500 response so the host logs contain the stacktrace
-    throw new Response(JSON.stringify({ error: "Failed to upsert store", details: e && e.message }), {
+    throw new Response(JSON.stringify({ error: "Failed to connect to database or upsert store", details: e && e.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
