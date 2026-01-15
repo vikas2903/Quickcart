@@ -716,7 +716,7 @@ img#popupProductImage2 {
 }
 
  .cdp-line-variant {
-  font-weight: 600;
+  font-weight: 400;
   padding-bottom: 3px;
   font-size: 12px;
   color: #000;
@@ -1161,12 +1161,7 @@ cart-drawer:not(html):not(body),
   visibility: hidden !important;
   pointer-events: none !important;
 }
-.discount {
-  font-size: 12px;
-  color: #2ecc71;
-  font-weight: 600;
-  padding-left: 3px;
-}
+
 aside.cdp-upsell.active {
   animation: vikas 3s ease-in-out;
 }
@@ -1316,11 +1311,11 @@ aside.cdp-upsell.active {
   button.cdp-line-remove {
     position: absolute;
     right: 0px;
-    top: 16px;
+    top: 0px;
 }
 
 .cdp-line-info {
-  justify-content: center;
+  justify-content: flex-start;
 
 }
   

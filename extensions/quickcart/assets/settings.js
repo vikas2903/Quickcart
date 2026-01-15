@@ -192,9 +192,11 @@
             settings.cartDrawer.button_color;
           document.querySelector(".combined-offer-badge").style.backgroundColor =
           settings.cartDrawer.button_color;
-          
-        
 
+          document.querySelectorAll(" .ball").forEach((ball)=>{
+            ball.style.backgroundColor =
+            settings.cartDrawer.button_color;
+          })
       }
       if (settings.cartDrawer.button_text_color) {
         root.style.setProperty(

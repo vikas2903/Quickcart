@@ -248,11 +248,17 @@
     transition: width 0.3s ease;
 }
 .discount {
-    font-size: 11px;
-    color: green;
-    font-weight: 600;
-    vertical-align: middle;
-    display: inline-block;
+    color: #fff;
+    font-weight: 400;
+    font-size: 12px !important;
+    align-items: center;
+    justify-self: start;
+    display: flex;
+    background: green;
+    gap: 1px;
+    max-width: max-content;
+    padding: 2px 4px;
+    border-radius: 4px;
 }
 span.cart-item-variant-title {
     line-height: normal;
