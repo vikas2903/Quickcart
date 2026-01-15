@@ -86,8 +86,8 @@ export const loader = async ({ request }) => {
       // Try to get admin session for metafield access
       let admin;
       try {
-        const { admin: adminSession } = await authenticate.admin(request);
-        admin = adminSession;
+        const authResult = await authenticate.admin(request);
+        admin = authResult.admin;
       } catch {
         // If admin auth fails, skip metafield fetch (for extension access)
         admin = null;
@@ -436,32 +436,55 @@ export const action = async ({ request }) => {
 
       // Metafield for collection handle
       const collectionHandle = body.collection?.selectedCollection?.handle || "";
-      console.log("Collection handle to set:", collectionHandle);
+      console.log("Collection handle to set:", collectionHandle || "(empty)");
 
-      metafields.push({
-        ownerId: shopId,
-        namespace,
-        key: "upsell_collection_handle",
-        type: "single_line_text_field",
-        value: collectionHandle,
-      });
+      if (collectionHandle) {
+        metafields.push({
+          ownerId: shopId,
+          namespace,
+          key: "upsell_collection_handle",
+          type: "single_line_text_field",
+          value: collectionHandle,
+        });
+      } else {
+        // Set to empty string to clear the metafield
+        metafields.push({
+          ownerId: shopId,
+          namespace,
+          key: "upsell_collection_handle",
+          type: "single_line_text_field",
+          value: "",
+        });
+      }
 
       // Metafield for product handle
       const productHandle = body.product?.selectedProduct?.handle || "";
-      console.log("Product handle to set:", productHandle);
+      console.log("Product handle to set:", productHandle || "(empty)");
 
-      metafields.push({
-        ownerId: shopId,
-        namespace,
-        key: "gift_product_handle",
-        type: "single_line_text_field",
-        value: productHandle,
-      });
+      if (productHandle) {
+        metafields.push({
+          ownerId: shopId,
+          namespace,
+          key: "gift_product_handle",
+          type: "single_line_text_field",
+          value: productHandle,
+        });
+      } else {
+        // Set to empty string to clear the metafield
+        metafields.push({
+          ownerId: shopId,
+          namespace,
+          key: "gift_product_handle",
+          type: "single_line_text_field",
+          value: "",
+        });
+      }
 
       // Metafield for third-party checkout HTML/Liquid content
       const thirdPartyHtmlContent = body.thirdPartyIntegration?.htmlContent || "";
       console.log("Third-party HTML content to set:", thirdPartyHtmlContent ? "Content provided (length: " + thirdPartyHtmlContent.length + ")" : "Empty");
 
+      // Always include third-party HTML metafield (even if empty) to allow clearing it
       metafields.push({
         ownerId: shopId,
         namespace,
@@ -470,7 +493,7 @@ export const action = async ({ request }) => {
         value: thirdPartyHtmlContent,
       });
 
-      console.log("Metafields array to update:", metafields);
+      console.log("Metafields array to update:", JSON.stringify(metafields, null, 2));
 
       // Only run mutation if there are metafields to update
       if (metafields.length > 0) {
@@ -496,14 +519,22 @@ export const action = async ({ request }) => {
         });
 
         const updateData = await updateRes.json();
-        console.log("Metafields update response:", updateData);
+        console.log("Metafields update response:", JSON.stringify(updateData, null, 2));
 
         if (updateData.errors) {
-          console.error("GraphQL errors in metafield update:", updateData.errors);
+          console.error("GraphQL errors in metafield update:", JSON.stringify(updateData.errors, null, 2));
+          throw new Error(`GraphQL errors: ${JSON.stringify(updateData.errors)}`);
         }
 
         if (updateData.data?.metafieldsSet?.userErrors?.length > 0) {
-          console.error("User errors in metafield update:", updateData.data.metafieldsSet.userErrors);
+          const userErrors = updateData.data.metafieldsSet.userErrors;
+          console.error("User errors in metafield update:", JSON.stringify(userErrors, null, 2));
+          throw new Error(`Metafield user errors: ${JSON.stringify(userErrors)}`);
+        }
+
+        // Log success
+        if (updateData.data?.metafieldsSet?.metafields?.length > 0) {
+          console.log("✅ Metafields successfully created/updated:", updateData.data.metafieldsSet.metafields.map(m => `${m.key}: ${m.id}`).join(", "));
         }
       } else {
         console.log("No metafields to update");
