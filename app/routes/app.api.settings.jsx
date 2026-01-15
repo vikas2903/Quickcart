@@ -431,12 +431,13 @@ export const action = async ({ request }) => {
       console.log("Request body collection:", body.collection);
       console.log("Request body product:", body.product);
 
-      // Build metafields array - always use the same structure for create/update
+      // Build metafields array - only include metafields with non-empty values
+      // Shopify doesn't allow empty values in metafieldsSet mutation
       const metafields = [];
 
       // Metafield for collection handle
-      const collectionHandle = body.collection?.selectedCollection?.handle || "";
-      console.log("Collection handle to set:", collectionHandle || "(empty)");
+      const collectionHandle = (body.collection?.selectedCollection?.handle || "").trim();
+      console.log("Collection handle to set:", collectionHandle || "(empty - will skip)");
 
       if (collectionHandle) {
         metafields.push({
@@ -446,20 +447,11 @@ export const action = async ({ request }) => {
           type: "single_line_text_field",
           value: collectionHandle,
         });
-      } else {
-        // Set to empty string to clear the metafield
-        metafields.push({
-          ownerId: shopId,
-          namespace,
-          key: "upsell_collection_handle",
-          type: "single_line_text_field",
-          value: "",
-        });
       }
 
       // Metafield for product handle
-      const productHandle = body.product?.selectedProduct?.handle || "";
-      console.log("Product handle to set:", productHandle || "(empty)");
+      const productHandle = (body.product?.selectedProduct?.handle || "").trim();
+      console.log("Product handle to set:", productHandle || "(empty - will skip)");
 
       if (productHandle) {
         metafields.push({
@@ -469,29 +461,22 @@ export const action = async ({ request }) => {
           type: "single_line_text_field",
           value: productHandle,
         });
-      } else {
-        // Set to empty string to clear the metafield
-        metafields.push({
-          ownerId: shopId,
-          namespace,
-          key: "gift_product_handle",
-          type: "single_line_text_field",
-          value: "",
-        });
       }
 
       // Metafield for third-party checkout HTML/Liquid content
-      const thirdPartyHtmlContent = body.thirdPartyIntegration?.htmlContent || "";
-      console.log("Third-party HTML content to set:", thirdPartyHtmlContent ? "Content provided (length: " + thirdPartyHtmlContent.length + ")" : "Empty");
+      const thirdPartyHtmlContent = (body.thirdPartyIntegration?.htmlContent || "").trim();
+      console.log("Third-party HTML content to set:", thirdPartyHtmlContent ? "Content provided (length: " + thirdPartyHtmlContent.length + ")" : "Empty - will skip");
 
-      // Always include third-party HTML metafield (even if empty) to allow clearing it
-      metafields.push({
-        ownerId: shopId,
-        namespace,
-        key: "third_party_checkout_html",
-        type: "multi_line_text_field",
-        value: thirdPartyHtmlContent,
-      });
+      // Only include if there's actual content (Shopify doesn't allow empty values)
+      if (thirdPartyHtmlContent) {
+        metafields.push({
+          ownerId: shopId,
+          namespace,
+          key: "third_party_checkout_html",
+          type: "multi_line_text_field",
+          value: thirdPartyHtmlContent,
+        });
+      }
 
       console.log("Metafields array to update:", JSON.stringify(metafields, null, 2));
 
