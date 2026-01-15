@@ -662,7 +662,7 @@ img#popupProductImage2 {
   grid-template-columns: 85px 1fr;
   gap: 10px;
   border: 1px solid #f0f0f0;
-  border-radius: 10px;
+ 
   padding: 6px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
@@ -825,7 +825,6 @@ input.cdp-qty-input {
   display: flex;
   align-items: center;
   border: 1px solid #e0e0e0;
-  border-radius: 6px;
   overflow: hidden;
   height: 18px;
   background: #fff;
@@ -1321,7 +1320,7 @@ aside.cdp-upsell.active {
   
   .cdp-qty-btn {
     width: 22px;
-    height: 22px;
+    height: 18px;
     font-size: 16px;
   }
   

@@ -137,12 +137,12 @@
         }
         if (settings.announcementBar.text_color) {
           announcementBarElement.style.color =
-            settings.announcementBar.text_color;
+            settings.announcementBar.text_color; 
         }
-        if (settings.announcementBar.border_radius !== undefined) {
-          announcementBarElement.style.borderRadius =
-            settings.announcementBar.border_radius + "px";
-        }
+        // if (settings.announcementBar.border_radius !== undefined) {
+        //   announcementBarElement.style.borderRadius =
+        //     settings.announcementBar.border_radius + "px";
+        // } 
       }
 
       // Show/hide countdown
@@ -186,12 +186,24 @@
         document.querySelector(".cdp-checkout").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
 
+        document.querySelector(".sr-countdown").style.borderRadius =
+        settings.cartDrawer.border_radius + "px";
+
+        document.querySelector("[data-announcement-bar]").style.borderRadius =
+        settings.cartDrawer.border_radius + "px";
+        document.querySelector(".cdp-line, .cdp-qty").style.borderRadius =
+        settings.cartDrawer.border_radius + "px";
       }
       if (settings.cartDrawer.button_color) {
           document.querySelector(".cdp-checkout").style.backgroundColor =
             settings.cartDrawer.button_color;
+
           document.querySelector(".combined-offer-badge").style.backgroundColor =
           settings.cartDrawer.button_color;
+ 
+       
+
+          
 
           document.querySelectorAll(" .ball").forEach((ball)=>{
             ball.style.backgroundColor =
@@ -236,10 +248,10 @@
         announcementBarElement.style.color =
           settings.announcementBar.text_color;
       }
-      if (settings.announcementBar.border_radius !== undefined) {
-        announcementBarElement.style.borderRadius =
-          settings.announcementBar.border_radius + "px";
-      }
+      // if (settings.announcementBar.border_radius !== undefined) {
+      //   announcementBarElement.style.borderRadius =
+      //     settings.announcementBar.border_radius + "px";
+      // }
 
       if (settings.announcementBar.content) {
         // Split by comma and clean spaces

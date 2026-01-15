@@ -250,7 +250,7 @@
 .discount {
     color: #fff;
     font-weight: 400;
-    font-size: 12px !important;
+    font-size: 10px !important;
     align-items: center;
     justify-self: start;
     display: flex;
@@ -259,6 +259,9 @@
     max-width: max-content;
     padding: 2px 4px;
     border-radius: 4px;
+    font-family: sans-serif;
+    letter-spacing: 0;
+    font-weight: 100;
 }
 span.cart-item-variant-title {
     line-height: normal;
