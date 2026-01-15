@@ -539,7 +539,7 @@ export default function Dashboard() {
   } = data;
 
 
-
+  const storeShort = shop?.replace(".myshopify.com", "");
 
   const [dismiss, setDismiss] = useState(true);
   const [dismiss1, setDismiss1] = useState(true);
