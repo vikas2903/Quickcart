@@ -153,7 +153,7 @@
       if (countdownElement) {
         if (settings.countdown.countdown_text_color) {
           const countdownElement =
-            document.querySelector("[data-countdown]") ||
+            document.querySelector("[data-countdown]") || 
             document.querySelector(".sr-countdown") ||
             drawer.querySelector('[id*="countdown"]');
           if (countdownElement) {
@@ -186,25 +186,31 @@
         document.querySelector(".cdp-checkout").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
 
-        document.querySelector(".sr-countdown").style.borderRadius =
-        settings.cartDrawer.border_radius + "px";
+        // document.querySelector(".sr-countdown").style.borderRadius =
+        // settings.cartDrawer.border_radius + "px";
 
         document.querySelector("[data-announcement-bar]").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
-        document.querySelector(".cdp-line, .cdp-qty").style.borderRadius =
+
+        document.querySelector(".cdp-content").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
-      }
+
+        document.querySelectorAll(".cdp-line").forEach((item) => {
+          item.style.borderRadius =
+            settings.cartDrawer.border_radius + "px";
+        });
+
+        document.querySelectorAll(".cdp-qty").forEach((item) => {
+          item.style.borderRadius =
+            settings.cartDrawer.border_radius + "px";
+        });
+      } 
       if (settings.cartDrawer.button_color) {
           document.querySelector(".cdp-checkout").style.backgroundColor =
             settings.cartDrawer.button_color;
 
           document.querySelector(".combined-offer-badge").style.backgroundColor =
           settings.cartDrawer.button_color;
- 
-       
-
-          
-
           document.querySelectorAll(" .ball").forEach((ball)=>{
             ball.style.backgroundColor =
             settings.cartDrawer.button_color;
