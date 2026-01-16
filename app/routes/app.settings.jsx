@@ -810,7 +810,7 @@ function Settings() {
                 onClick={() => settabsbutton(4)}
               >
                 {" "}
-                Third Party Integration{" "}
+                Third Party  Chekout Integration{" "}
               </Button>
               <Button
                 primary

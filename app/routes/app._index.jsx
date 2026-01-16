@@ -581,34 +581,9 @@ export default function Dashboard() {
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
-            {dismiss && <div style={{ marginBottom: 16 }}>
-              <Box marginBlockEnd="400">
-                <Banner
-                  tone="info"
-                  title="Need help?"
-                  onDismiss={() => {setDismiss(false)}} 
-                  action={{ 
-                    content: "Support",
-                    url: withParams(`/app/help`),
-                    external: true, // opens in new tab
-                  }}
-                  secondaryAction={{
-                    content: "How to use & Customize",
-                    url: "https://cdn.shopify.com/videos/c/o/v/7bf07a776af648b1a140f0ce6608fd6d.mp4",
-                   external: true,
-                target: "_blank",
-                  }}
-                >
-                  <p> 
-                    If you have any questions or encounter errors while using this app, email{" "}
-                    <a href="mailto:support@digisidekick.com">support@digisidekick.com</a>.
-                  </p>
-                </Banner>
-              </Box>
-            </div>}
-             
-
-            {dismiss1 && <Banner
+          
+          {dismiss1 && 
+            <Banner
               tone="info"
               title="You need to integrate the app into your Shopify theme"
               onDismiss={() => {setDismiss1(false)}}
@@ -617,19 +592,18 @@ export default function Dashboard() {
                 onAction: handleThemeEditorClick,
               }}
               secondaryAction={{
-                content: "How to use & Customize",
-                url: " ",
-                external: true,
-                target: "_blank",
+                content: "Third Party Checkout Integration",
+                url: withParams("/app/settings"),
+                // external: true, 
+                // target: "_blank",
               }}
-            >
+            > 
               <p>Your settings are saved. Activate the app in Shopify's Theme Editor to make it visible on your store.</p>
-            </Banner>}
-        
+            </Banner>} 
           </Layout.Section>
- 
+     
           <Layout.Section>
-          <h4 className="i-gs-section-title">Orders Analytics</h4>
+          <h4 className="i-gs-section-title" style={{textTransform:"uppercase"}}>Orders Analytics Dashboard</h4>
             <Grid>
               <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
                 <LegacyCard sectioned> 
@@ -667,18 +641,18 @@ export default function Dashboard() {
           </Layout.Section>
 
           <Layout.Section>
-            <h4 className="i-gs-section-title">Progress bar Widgets </h4>
+            <h4 className="i-gs-section-title" style={{textTransform:"uppercase"}}>Create Discount Progress Bar  </h4>
 
             <Grid>
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
-                    src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
-                    alt="Unlock Offers"
+                    src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/price_based_disount.png?v=1768556274"
+                    alt="Unlock Offers" 
                   />
-                  <h4 className="i-gs-grid-heading"> Get  discounts  </h4>
-                  <p className="i-gs-grid-subheading">Configure milestones based on cart total or product price.</p>
+                  <h4 className="i-gs-grid-heading"> Price based Discount Progress Bar  </h4>
+                  <p className="i-gs-grid-subheading">Create a discount progress bar based on the price range of the cart total. (IMPORTANT : Create Disount as per the Price Ranges in Shopify Discounts) </p>
                   <Button fullWidth url={withParams("/app/progressbar")} variant="primary">
                     Setup Progress Bar
                   </Button>
@@ -689,40 +663,131 @@ export default function Dashboard() {
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
-                    src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
+                    src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/buy-one-get-one.png?v=1768556274"
                     alt="Buy X Get Y"
-                  />
-                  <h4 className="i-gs-grid-heading">Buy X Get Y</h4>
-                  <p className="i-gs-grid-subheading">Set Buy/Free quantities and custom messages.</p>
+                  />  
+                  <h4 className="i-gs-grid-heading">Buy X Get Y Discount Progress Bar</h4>
+                  <p className="i-gs-grid-subheading">Create a discount progress bar based on the buy and get quantities. (IMPORTANT : Create Disount as per the Buy and Get Quantities in Shopify Discounts) </p>
                   <Button fullWidth url={withParams("/app/progressbaron1")}>Setup BxGy</Button>
                 </LegacyCard>
               </Grid.Cell>
 
-      
+            
 
-             
+            </Grid>
+          </Layout.Section>
 
-                      <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+          <Layout.Section>
+            <h4 className="i-gs-section-title" style={{textTransform:"uppercase"}}>Cart Drawer Features</h4>
+
+            <Grid>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
-                    src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
+                    src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/upsell_product.png?v=1768556274"
+                    alt="Unlock Offers" 
+                  />
+                  <h4 className="i-gs-grid-heading">Setup Upsell Collection</h4>
+                  <p className="i-gs-grid-subheading">Select the collection for upsell products in the cart drawer. (IMPORTANT : Collection should be in the shopify) </p>
+                  <Button fullWidth url={withParams("/app/settings")} variant="primary">
+                   Setup Upsell Collection
+                  </Button>
+                </LegacyCard>
+              </Grid.Cell>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                <LegacyCard sectioned>
+                  <img
+                    className="i-gs-img"
+                    src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/one-product.png?v=1768556274"
+                    alt="Buy X Get Y"
+                  />   
+                  <h4 className="i-gs-grid-heading">A Most Selling Product at cart Drawer</h4>
+                  <p className="i-gs-grid-subheading">Add one product at the cart drawer. (IMPORTANT : Product should be in the shopify) </p>
+                  <Button fullWidth url={withParams("/app/settings")}>Setup One Product</Button>
+                </LegacyCard>
+              </Grid.Cell>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                <LegacyCard sectioned>
+                  <img
+                    className="i-gs-img"
+                    src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/third_party.png?v=1768556274"
+                    alt="Buy X Get Y"
+                  />  
+                  <h4 className="i-gs-grid-heading">Third Party Checkout Integration</h4>
+                  <p className="i-gs-grid-subheading">Append Third Party Checkout Integration Code in the cart drawer. (IMPORTANT : Code should be in the shopify) </p>
+                  <Button fullWidth url={withParams("/app/settings")}>Third Party Checkout Integration</Button>
+                </LegacyCard>
+              </Grid.Cell>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                <LegacyCard sectioned>
+                  <img
+                    className="i-gs-img"
+                    src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/announcement-carousel.png?v=1768556274"
+                    alt="Buy X Get Y"
+                  />  
+                  <h4 className="i-gs-grid-heading">Create Announcement Bar carousel</h4>
+                  <p className="i-gs-grid-subheading"> Create Announcement Bar carousel in the cart drawer.  Add multiple announcements slide by seprated (,) to the carousel. </p>
+                  <Button fullWidth url={withParams("/app/settings")}>Setup Announcement Bar carousel</Button>
+                </LegacyCard>
+              </Grid.Cell>
+
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                <LegacyCard sectioned>
+                  <img
+                    className="i-gs-img"
+                    src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/stopwatch.png?v=1768556274"
+                    alt="Buy X Get Y"
+                  />  
+                  <h4 className="i-gs-grid-heading">Setup Countdown Timer</h4>
+                  <p className="i-gs-grid-subheading"> Setup Countdown Timer in the cart drawer. (CountDown Timer refresh automatically After a day) </p>
+                  <Button fullWidth url={withParams("/app/settings")}>Setup Countdown Timer</Button>
+                </LegacyCard>
+              </Grid.Cell>
+            
+
+            </Grid>
+          </Layout.Section>
+
+          
+
+          
+          <Layout.Section>
+             <h4 className="i-gs-section-title">Setup Free Gift Product</h4>
+            <Grid>
+            <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                <LegacyCard sectioned>
+                  <img
+                    className="i-gs-img"
+                    src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/gift_product.png?v=1768556274"
                     alt="Gift Product"
                   />
-                  <h4 className="i-gs-grid-heading">Gift Product</h4>
-                  <p className="i-gs-grid-subheading">Gift product at price value </p>
-                  <Button fullWidth url={withParams("/app/giftproduct")}>Setup gift product</Button>
-                </LegacyCard>
+                  <h4 className="i-gs-grid-heading">Setup Free Gift Product</h4>
+                  <p className="i-gs-grid-subheading">Gift Product Automatically Added to cart  when the cart total exceeds the set price (IMPORTANT : Gift Product Price same as updated in shopify)</p>
+                  <Button variant="primary" fullWidth url={withParams("/app/giftproduct")}> Set Gift Product</Button>
+                </LegacyCard> 
+
               </Grid.Cell> 
+            </Grid>
+          </Layout.Section>
+
+          <Layout.Section>
+             <h4 className="i-gs-section-title">Integrate with theme</h4>
+            <Grid>
                <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
-                    src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-3.svg"
+                    src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/shopify.png?v=1768556844"
                     alt="Integrate with theme"
                   />
-                  <h4 className="i-gs-grid-heading">Integrate with theme</h4>
-                  <p className="i-gs-grid-subheading">Activate the app block in Theme Editor to go live.</p>
+                  <h4 className="i-gs-grid-heading">Activate Theme</h4>
+                  <p className="i-gs-grid-subheading">
+  To go live, enable the App Extension in the Store Theme Editor.
+  If the app is installed in a preview theme, enable it manually from
+  Customization → App blocks → QuickCart.
+</p>
+
                   <Button
                     fullWidth
                     onClick={handleThemeEditorClick}
@@ -736,22 +801,38 @@ export default function Dashboard() {
             </Grid>
           </Layout.Section>
 
-         
-          {/* <Layout.Section>
-             <h4 className="i-gs-section-title">More Apps</h4>
-            <Grid>
-              <Grid.Cell columnSpan={{xs:6, s:6, lg:6, xl:6, md:6}}>
+          <Layout.Section>
+            {dismiss && 
+            <div style={{ marginBottom: 16 }}>
+              <Box marginBlockEnd="400">
+                <Banner
+                  tone="info"
+                  title="Need help?"
+                  onDismiss={() => {setDismiss(false)}} 
+                  action={{ 
+                    content: "Support",
+                    url: withParams(`/app/help`),
+                    external: true, // opens in new tab
+                  }}
+                  secondaryAction={{
+                    content: "How to use & Customize",
+                    url: "https://cdn.shopify.com/videos/c/o/v/7bf07a776af648b1a140f0ce6608fd6d.mp4",
+                   external: true,
+                target: "_blank",
+                  }}
+                >
+                  <p> 
+                    If you have any questions or encounter errors while using this app, email{" "}
+                    <a href="mailto:support@digisidekick.com">support@digisidekick.com</a>.
+                  </p>
+                </Banner>
+              </Box>
+            </div>}
+             
 
-                <Link target="_blank" external={true} removeUnderline url="https://apps.shopify.com/ds-app-1?search_id=bb94724f-1aa5-4b60-9aeb-8ebc81c88ee7&surface_detail=layerup&surface_inter_position=1&surface_intra_position=1&surface_type=search">
-                <LegacyCard sectioned>
-                  
-                  <img style={{display:'block', objectFit:'contain'}}  width="100%" height="100%" src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/6c7448dc-b797-4cbf-8fe0-d4f8c51de8ac.png?v=1757319426" alt="" />
-                  </LegacyCard>  
-                </Link>
-
-              </Grid.Cell>
-            </Grid>
-          </Layout.Section> */}
+        
+          </Layout.Section>
+ 
         </Layout>
       </BlockStack>
 
