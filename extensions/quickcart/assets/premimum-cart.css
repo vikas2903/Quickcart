@@ -1911,3 +1911,10 @@ div#third-party-integration-wrapper {
   from { transform: translateY(0); }
   to { transform: translateY(-15px); }
   }
+  
+  @media (min-width: 1920px) and (max-width: 7000px) {
+    .cdp-panel {
+      max-width: 500px;
+    }
+  }
+  
