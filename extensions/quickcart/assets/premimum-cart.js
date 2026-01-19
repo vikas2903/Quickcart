@@ -1240,9 +1240,11 @@ function unlockBodyScroll() {
       const cart_total_price = (cart?.total_price || 0) / 100;
       const cart_currency = cart?.currency || "USD";
 
-      const shop_url = drawer.getAttribute("shop-url");
-      if (!shop_url) return;
-      const remove_protocol = shop_url.replace(/^https?:\/\//, "");
+      // Use data-shop (permanent domain) instead of shop-url (custom domain) for API calls
+      // data-shop contains the .myshopify.com domain which matches what's stored in database
+      const shop_domain = drawer.getAttribute("data-shop") || drawer.getAttribute("shop-url");
+      if (!shop_domain) return;
+      const remove_protocol = shop_domain.replace(/^https?:\/\//, "");
 
       const freegift_api_url = `https://quickcart-vf8k.onrender.com/app/api/giftproduct?shop=${remove_protocol}`;
       const response = await fetch(freegift_api_url, {
@@ -1252,8 +1254,8 @@ function unlockBodyScroll() {
           "X-Shopify-Shop-Domain": remove_protocol,
           Accept: "application/json"
         }
-      });
-
+      }); 
+ 
       const data = await response.json();
       const free_price_threshold = Number(data?.data?.price || 0); // assume major units (e.g. 999)
       const free_gift_eligible = !!data?.data?.enabled;

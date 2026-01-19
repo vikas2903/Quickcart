@@ -802,7 +802,7 @@ function Settings() {
                 style={{ marginRight: "5px" }}
               >
                 {" "}
-                Select Free Gift Product{" "}
+                Select One Recommended Product{" "}
               </Button>
               <Button
                 primary

@@ -77,62 +77,78 @@ export default function GiftProductPage() {
   const { shop } = useLoaderData();
   const fetcher = useFetcher();
 
-  const [enabled, setEnabled] = useState(true);
+  const [enabled, setEnabled] = useState(false);
   const [price, setPrice] = useState("");
   const [search, setSearch] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [loadingSavedData, setLoadingSavedData] = useState(true);
 
   const [savedata, setsavedata] = useState({
-    enabled: '',
-    price:'',
-    product_title:''
+    enabled: false,
+    price: '',
+    product_title: ''
   })
-
-  console.log("savedata", savedata  )
 
   const apiurl = `/app/api/giftproduct`;
 
-   const saveddata_progressbar  = async () =>{
-  
-      const retrive_saved_data = await  fetch(`https://quickcart-vf8k.onrender.com/app/api/giftproduct`,
-    {
-      method:"GET",
-      headers:{
-        "Content-Type": "application/json",
-        "X-Shopify-Shop-Domain": shop,
-        Accept: "application/json",
-      },
-    })
-      const getapidata = await retrive_saved_data.json();
-      const getted_data = getapidata?.data
-      console.log("getted_data", getted_data);
-      return getted_data;
-    
+  // Load saved data on component mount
+  useEffect(() => {
+    async function loadSavedData() {
+      try {
+        setLoadingSavedData(true);
+        const response = await fetch(`/app/api/giftproduct`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Shop-Domain": shop,
+            Accept: "application/json",
+          },
+        });
+        
+        const result = await response.json();
+        const savedData = result?.data;
+        
+        if (savedData) {
+          // Initialize form fields with saved data
+          setEnabled(savedData.enabled || false);
+          setPrice(savedData.price ? String(savedData.price) : "");
+          
+          if (savedData.selectedProduct) {
+            setSelectedProduct({
+              id: savedData.selectedProduct.id,
+              title: savedData.selectedProduct.title,
+              handle: savedData.selectedProduct.handle,
+              price: savedData.selectedProduct.price,
+            });
+          }
+          
+          // Update savedata for display
+          setsavedata({
+            enabled: savedData.enabled || false,
+            price: savedData.price || '',
+            product_title: savedData.selectedProduct?.title || ''
+          });
+        }
+      } catch (error) {
+        console.error("Error loading saved data:", error);
+      } finally {
+        setLoadingSavedData(false);
+      }
     }
+    
+    loadSavedData();
+  }, [shop]);
 
   // 🧠 Debounced search trigger
   useEffect(() => {
-
-    async function  fetchFUnction () {
-      let data = await   saveddata_progressbar()
-      let p1 = data?.enabled;
-      let p2 = data?.price;
-      let p3= data?.selectedProduct?.title
-      setsavedata({p1,p2,p3})
-
-    }
-    fetchFUnction();
-    saveddata_progressbar()
     const timeout = setTimeout(() => {
       if (search.trim()) {
         fetcher.submit({ query: search }, { method: "post" });
       }
     }, 600);
     return () => clearTimeout(timeout);
-
-  
-  }, [search, submitted]);
+  }, [search]);
 
   const products = fetcher.data?.products || [];
   const loading = fetcher.state === "submitting";
@@ -169,7 +185,7 @@ export default function GiftProductPage() {
       try{
         const res = await fetch(apiurl, {
             method: "POST",
-            header:{"Content-Type":"application/json"},
+            headers:{"Content-Type":"application/json"},
             body:JSON.stringify(payload),
         });
         const out = await res.json();
@@ -177,14 +193,33 @@ export default function GiftProductPage() {
             throw new Error(out?.error || 'Failed to save Gift Product settings');
         }
         console.log("Saved:", out.data);
+        
+        // Reload saved data after successful save
+        const reloadResponse = await fetch(`/app/api/giftproduct`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Shop-Domain": shop,
+            Accept: "application/json",
+          },
+        });
+        const reloadResult = await reloadResponse.json();
+        const reloadedData = reloadResult?.data;
+        
+        if (reloadedData) {
+          setsavedata({
+            enabled: reloadedData.enabled || false,
+            price: reloadedData.price || '',
+            product_title: reloadedData.selectedProduct?.title || ''
+          });
+        }
+        
+        toast.success(`🎁 Gift Product Changes Saved`);
 
     }catch(error){
         console.log("Error to send data to backend", error.message);
+        toast.error(`Failed to save: ${error.message}`);
     }
-
-    // TODO: You can now POST this payload to your API endpoint
-    // fetch("/app/api/free-product", { method: "POST", body: JSON.stringify(payload) });
-    toast.success(`🎁 Gift Product Changes Saved`);
   };
 
   return (
@@ -326,18 +361,18 @@ export default function GiftProductPage() {
                   </tr>
                   <tr>
                     <th align="left">Enabled</th>
-                    <td>{savedata.p1 ? "✅ Yes" : "❌ No"}</td>
+                    <td>{savedata.enabled ? "✅ Yes" : "❌ No"}</td>
                   </tr>
                   
-                  {savedata.p1? <>
+                  {savedata.enabled ? <>
                   
                      <tr>
                     <th align="left">Set Price </th>
-                    <td>{savedata?.p2}</td>
+                    <td>{savedata?.price}</td>
                   </tr>
                    <tr>
                     <th align="left">Product Title </th>
-                     <td>{savedata?.p3}</td>
+                     <td>{savedata?.product_title}</td>
                   </tr>
                   </> : '' }
                 
