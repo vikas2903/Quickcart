@@ -1141,7 +1141,7 @@ function unlockBodyScroll() {
         </div>
         <div class="cdp-line-info">
           <div class="cdp-line-title">
-            <span class="cart-item-title">${truncate(item.product_title, 35)}</span>
+            <a href="/products/${item.handle || ''}" class="cart-item-title" style="text-decoration: none; color: inherit; cursor: pointer; display: inline-block;">${truncate(item.product_title, 35)}</a>
             ${isFreeGift ? '<span class="free-gift-badge" style="display: inline-block; margin-left: 8px; padding: 2px 8px; background: #e8f5e9; color: #2e7d32; border-radius: 12px; font-size: 11px; font-weight: 600;">FREE GIFT</span>' : ''}
           </div>
           <div class="cdp-line-top">

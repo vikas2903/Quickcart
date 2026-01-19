@@ -262,7 +262,7 @@
               </div>
               <div class="cdp-line-info">
                 <div class="cdp-line-header">
-                  <div class="cdp-line-title">{{ item.product.title | escape | truncate: 28 }}</div>
+                  <a href="{{ item.product.url }}" class="cdp-line-title" style="text-decoration: none; color: inherit; cursor: pointer;">{{ item.product.title | escape | truncate: 28 }}</a>
                   <div class="cdp-line-prices">
                     <span class="cdp-line-final">{{ item.final_line_price | money_without_trailing_zeros }}</span>
                     {% if item.original_line_price > item.final_line_price %}

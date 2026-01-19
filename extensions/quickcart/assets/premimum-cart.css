@@ -795,6 +795,24 @@ button.cdp-line-remove {
   line-height: 1.4;
   letter-spacing: 0;
   font-family: inherit;
+  transition: color 0.2s ease;
+}
+
+.cart-item-title:hover {
+  color: #0066cc;
+  text-decoration: underline;
+}
+
+.cdp-line-title a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.cdp-line-title a:hover {
+  color: #0066cc;
+  text-decoration: underline;
 }
 
 input.cdp-qty-input {

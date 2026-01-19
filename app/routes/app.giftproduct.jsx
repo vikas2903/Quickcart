@@ -261,6 +261,12 @@ export default function GiftProductPage() {
                     placeholder="Type product name..."
                     autoComplete="off"
                   />
+
+                   <Banner tone="info">
+                    <p>
+                      <strong>Important:</strong>  Also make sure the price of this product is set to 0 from the Shopify dashboard the product will be added as a free gift, so you need to manually set the price of this product from Shopify to 0.
+                    </p>
+                    </Banner>
                   <Banner tone="info">
                     <p>
                       <strong>Important:</strong> Select the product to gift from the list of products.
