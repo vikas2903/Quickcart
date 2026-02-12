@@ -55,7 +55,7 @@ const CartDrawerSchema = new mongoose.Schema({
   body_color: { type: String, default: '#f0e5e7' }, // Updated default to match frontend
   text_color: { type: String, default: '#000' }, // Updated default to match frontend
   border_radius: { type: Number, default: 10 }, // Updated default to match frontend
-  button_color: { type: String, default: '#f0e5e7' },
+  button_color: { type: String, default: '#000000' },
   button_text_color: { type: String, default: '#000' },
   button_border_radius: { type: Number, default: 10 }
 }, { _id: false })

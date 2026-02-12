@@ -887,7 +887,7 @@ export default function Dashboard() {
                 >
                   <p> 
                     If you have any questions or encounter errors while using this app, email{" "}
-                    <a href="mailto:support@digisidekick.com">support@digisidekick.com</a>.
+                    <a href="mailto:support@digisidekick.com">support@digisidekick.com</a> or <a href="mailto:vikasprasad@digisidekick.com">vikasprasad@digisidekick.com</a>.
                   </p>
                 </Banner>
               </Box>

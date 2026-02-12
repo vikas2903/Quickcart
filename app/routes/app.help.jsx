@@ -99,7 +99,7 @@ export default function HelpSupportMini() {
           <div style={{ width: "70%", margin: "0 auto" }}>
 <div className="help-support-banner" style={{ marginBottom: "20px" }}>
   <Banner tone="info">
-    <p>If you have any questions or encounter errors while using this app, email <a href="mailto:support@digisidekick.com">support@digisidekick.com</a>.</p>
+    <p>If you have any questions or encounter errors while using this app, email <a href="mailto:support@digisidekick.com">support@digisidekick.com</a> or <a href="mailto:vikasprasad@digisidekick.com">vikasprasad@digisidekick.com</a></p>
   </Banner>
 </div>
 

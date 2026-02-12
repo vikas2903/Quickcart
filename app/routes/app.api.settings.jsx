@@ -142,7 +142,7 @@ export const loader = async ({ request }) => {
               body_color: "#f0e5e7",
               text_color: "#000",
               border_radius: 10,
-              button_color: "#f0e5e7",
+              button_color: "#000000",
               button_text_color: "#000",
               button_border_radius: 10
 
