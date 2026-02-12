@@ -184,12 +184,12 @@
 
 // app/routes/app._index.jsx
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useNavigation } from "@remix-run/react";
 import "./assests/style.css";
-import { Page, Layout, BlockStack, Banner, Grid, LegacyCard, Button, Box, Link } from "@shopify/polaris";
+import { Page, Layout, BlockStack, Banner, Grid, LegacyCard, Button, Box, Link, Select, InlineStack, Text } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import connectDatabase from "../lib/dbconnect.js";
 import { Store } from "../models/storemodal.js";
 import 'antd/dist/reset.css'
@@ -421,61 +421,32 @@ export const loader = async ({ request }) => {
   let themes = [];
   let mainThemeId = null;
 
-  // Try role=main first
+  // Fetch ALL themes (published + preview) for the theme selector
   try {
-    const res = await fetch(`${api}/themes.json?role=main`, { method: "GET", headers });
-    
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    const resAll = await fetch(`${api}/themes.json`, { method: "GET", headers });
+    if (!resAll.ok) {
+      throw new Error(`HTTP ${resAll.status}: ${resAll.statusText}`);
     }
-    
-    const data = await res.json();
-    console.log("🎯 Main theme API response:", data);
-    
-    const arr = Array.isArray(data?.themes) ? data.themes : [];
-    if (arr.length) {
-      themes = arr;
-      mainThemeId = arr[0]?.id ?? null;
-      console.log("✅ Found main theme ID:", mainThemeId);
-    } else {
-      console.warn("⚠️ No themes found in main role response");
-    }
+    const dataAll = await resAll.json();
+    const arrAll = Array.isArray(dataAll?.themes) ? dataAll.themes : [];
+    themes = arrAll;
+    const main = arrAll.find((t) => t.role === "main") ||
+                 arrAll.find((t) => t.role === "live") ||
+                 arrAll[0];
+    mainThemeId = main?.id ?? null;
   } catch (e) {
-    console.warn("❌ Themes (role=main) fetch failed:", e.message);
+    console.warn("❌ Themes fetch failed:", e.message);
   }
 
-  // Fallback: fetch all themes and pick main/live/first
-  if (!mainThemeId) {
-    try {
-      console.log("🔄 Fallback: Fetching all themes...");
-      const resAll = await fetch(`${api}/themes.json`, { method: "GET", headers });
-      
-      if (!resAll.ok) {
-        throw new Error(`HTTP ${resAll.status}: ${resAll.statusText}`);
-      }
-      
-      const dataAll = await resAll.json();
-      console.log("🎯 All themes API response:", dataAll);
-      
-      const arrAll = Array.isArray(dataAll?.themes) ? dataAll.themes : [];
-      themes = arrAll;
-      
-      const main = arrAll.find((t) => t.role === "main") || 
-                   arrAll.find((t) => t.role === "live") || 
-                   arrAll[0];
-      mainThemeId = main?.id ?? null;
-      
-      if (mainThemeId) {
-        console.log("✅ Found fallback theme ID:", mainThemeId, "with role:", main?.role);
-      } else {
-        console.warn("⚠️ No suitable theme found in fallback");
-      }
-    } catch (e) {
-      console.warn("❌ Themes (all) fetch failed:", e.message);
-    }
-  }
- 
-  // Always return consistent shapes
+  // Normalize themes for UI: { id, name, role, roleLabel }
+  const roleLabels = { main: "Published", live: "Published", unpublished: "Preview" };
+  const themesForSelect = themes.map((t) => ({
+    id: t.id,
+    name: t.name || `Theme ${t.id}`,
+    role: t.role || "unpublished",
+    roleLabel: roleLabels[t.role] || "Preview",
+  }));
+
   const themeIds = themes.map((t) => t.id).filter(Boolean);
 
   // Graphql query for get curecny code 
@@ -508,11 +479,12 @@ export const loader = async ({ request }) => {
 
 
   // Combine order data with theme data
-  return json({ 
-    host, 
-    shop, 
-    mainThemeId, 
+  return json({
+    host,
+    shop,
+    mainThemeId,
     themeIds,
+    themes: themesForSelect,
     totalOrders,
     totalAmount,
     todayCount,
@@ -527,22 +499,47 @@ export const loader = async ({ request }) => {
 
 export default function Dashboard() {
   const data = useLoaderData();
-  const { 
-    host, 
-    shop, 
-    mainThemeId, 
-    currency, currencySymbol,
-    totalOrders = 0, 
-    totalAmount = 0, 
-    todayCount = 0, 
-    todayAmount = 0 
+  const navigation = useNavigation();
+  const {
+    host,
+    shop,
+    mainThemeId,
+    themes: themesList = [],
+    currency,
+    currencySymbol,
+    totalOrders = 0,
+    totalAmount = 0,
+    todayCount = 0,
+    todayAmount = 0,
   } = data;
-
 
   const storeShort = shop?.replace(".myshopify.com", "");
 
   const [dismiss, setDismiss] = useState(true);
   const [dismiss1, setDismiss1] = useState(true);
+  const [selectedThemeId, setSelectedThemeId] = useState(mainThemeId?.toString() ?? "");
+
+  // Keep selected theme in sync when loader data changes (e.g. after nav)
+  const effectiveThemeId = selectedThemeId || mainThemeId?.toString() || (themesList[0]?.id?.toString() ?? "");
+
+  // Sync theme selection when loader data arrives (e.g. after switching from another page)
+  useEffect(() => {
+    const mainId = mainThemeId?.toString();
+    const firstId = themesList[0]?.id?.toString();
+    if (mainId && !selectedThemeId) setSelectedThemeId(mainId);
+    else if (firstId && !selectedThemeId) setSelectedThemeId(firstId);
+  }, [mainThemeId, themesList, selectedThemeId]);
+
+  const isPageLoading = navigation.state === "loading";
+  const themeButtonsDisabled = !storeShort || (!effectiveThemeId && !mainThemeId);
+
+  const themeOptions = [
+    { label: "Select a theme to enable the app", value: "" },
+    ...themesList.map((t) => ({
+      label: `${t.name} (${t.roleLabel})`,
+      value: String(t.id),
+    })),
+  ];
 
   // helper to append host/shop to internal links
   const withParams = (path) => {
@@ -552,26 +549,39 @@ export default function Dashboard() {
     return `${path}${path.includes("?") ? "&" : "?"}${params.toString()}`;
   };
 
-  // Helper to build theme editor URL
-  const getThemeEditorUrl = () => {
-    if (!mainThemeId || !storeShort) {
-      return null;
-    }
-    return `https://admin.shopify.com/store/${storeShort}/themes/${mainThemeId}/editor?context=apps`;
+  // Helper to build theme editor URL for a given theme id
+  const getThemeEditorUrl = (themeId) => {
+    const id = themeId || effectiveThemeId;
+    if (!id || !storeShort) return null;
+    return `https://admin.shopify.com/store/${storeShort}/themes/${id}/editor?context=apps`;
   };
 
-  // Handle theme editor button click
-  const handleThemeEditorClick = () => {
-    const url = getThemeEditorUrl();
+  // Open theme editor for the selected theme (from dropdown)
+  const handleOpenSelectedTheme = () => {
+    const url = getThemeEditorUrl(effectiveThemeId);
     if (url) {
       window.open(url, "_blank");
     } else {
       const shouldReload = window.confirm(
         "Theme ID not found. Click OK to reload the page and try again."
       );
-      if (shouldReload) {
-        window.location.reload();
-      }
+      if (shouldReload) window.location.reload();
+    }
+  };
+
+  // Open theme editor for the live/published theme only
+  const handleOpenLiveTheme = () => {
+    const liveId = mainThemeId?.toString();
+    const url = liveId && storeShort
+      ? `https://admin.shopify.com/store/${storeShort}/themes/${liveId}/editor?context=apps`
+      : null;
+    if (url) {
+      window.open(url, "_blank");
+    } else {
+      const shouldReload = window.confirm(
+        "Live theme not found. Click OK to reload the page and try again."
+      );
+      if (shouldReload) window.location.reload();
     }
   };
 
@@ -580,26 +590,57 @@ export default function Dashboard() {
       <TitleBar title="Dashboard" />
       <BlockStack gap="500">
         <Layout>
+          {isPageLoading && (
+            <Layout.Section>
+              <Banner tone="info" title="Loading dashboard">
+                Please wait for the page to finish loading. Theme buttons will work once the dashboard has loaded.
+              </Banner>
+            </Layout.Section>
+          )}
+          {!isPageLoading && themeButtonsDisabled && dismiss1 && (
+            <Layout.Section>
+              <Banner tone="attention" title="Theme buttons need a refresh">
+                If the theme buttons above don&apos;t work, refresh the page to load theme data (e.g. switch away and back to Dashboard, or reload the app).
+              </Banner>
+            </Layout.Section>
+          )}
           <Layout.Section>
-          
-          {dismiss1 && 
+          {dismiss1 && (
             <Banner
-              tone="info"
-              title="You need to integrate the app into your Shopify theme"
-              onDismiss={() => {setDismiss1(false)}}
-              action={{
-                content: "Activate extension in theme",
-                onAction: handleThemeEditorClick,
-              }}
+              tone="warning"
+              title="Enable the app from your store"
+              onDismiss={() => setDismiss1(false)}
               secondaryAction={{
                 content: "Third Party Checkout Integration",
                 url: withParams("/app/settings"),
-                // external: true, 
-                // target: "_blank",
               }}
-            > 
-              <p>Your settings are saved. Activate the app in Shopify's Theme Editor to make it visible on your store.</p>
-            </Banner>} 
+            >
+              <BlockStack gap="300">
+                <Text as="p" fontWeight="medium">
+                  The app will not appear for customers until you enable it in your store. Go to Theme Editor → Customize → App blocks → QuickCart and turn the block on.
+                </Text>
+                {themesList.length > 0 && (
+                  <InlineStack gap="300" blockAlign="center" wrap>
+                    <div style={{ minWidth: 280 }}>
+                      <Select
+                        label="Choose theme (Published or Preview)"
+                        labelInline
+                        options={themeOptions}
+                        value={effectiveThemeId}
+                        onChange={setSelectedThemeId}
+                      />
+                    </div>
+                    <Button variant="primary" onClick={handleOpenSelectedTheme} disabled={!effectiveThemeId || !storeShort}>
+                      Open selected theme in Theme Editor
+                    </Button>
+                    <Button onClick={handleOpenLiveTheme} disabled={!mainThemeId || !storeShort}>
+                      Enable on live theme
+                    </Button>
+                  </InlineStack>
+                )}
+              </BlockStack>
+            </Banner>
+          )}
           </Layout.Section>
      
           <Layout.Section>
@@ -772,9 +813,16 @@ export default function Dashboard() {
           </Layout.Section>
 
           <Layout.Section>
-             <h4 className="i-gs-section-title">Integrate with theme</h4>
+            <h4 className="i-gs-section-title">Integrate with theme</h4>
+            <Box paddingBlockEnd="300">
+              <Banner tone="attention" title="You must enable the app from your store">
+                <p>
+                  Customers will not see the cart drawer until you enable QuickCart in your store Theme Editor: <strong>Customize → App blocks → QuickCart</strong>. Select a theme below and click &quot;Open in Theme Editor&quot; to enable it.
+                </p>
+              </Banner>
+            </Box>
             <Grid>
-               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
@@ -783,19 +831,35 @@ export default function Dashboard() {
                   />
                   <h4 className="i-gs-grid-heading">Activate Theme</h4>
                   <p className="i-gs-grid-subheading">
-  To go live, enable the App Extension in the Store Theme Editor.
-  If the app is installed in a preview theme, enable it manually from
-  Customization → App blocks → QuickCart.
-</p>
-
-                  <Button
-                    fullWidth
-                    onClick={handleThemeEditorClick}
-                    variant="primary"
-                    disabled={!mainThemeId || !storeShort}
-                  >
-                    Activate Theme
-                  </Button>
+                    To go live, enable the App Extension in the Store Theme Editor. Select a theme (Published or Preview), open the Theme Editor, then turn on the QuickCart app block.
+                  </p>
+                  {themesList.length > 0 && (
+                    <Box paddingBlockEnd="300">
+                      <Select
+                        label="Theme"
+                        options={themeOptions.filter((o) => o.value !== "")}
+                        value={effectiveThemeId}
+                        onChange={setSelectedThemeId}
+                      />
+                    </Box>
+                  )}
+                  <BlockStack gap="200">
+                    <Button
+                      fullWidth
+                      onClick={handleOpenSelectedTheme}
+                      variant="primary"
+                      disabled={!effectiveThemeId || !storeShort}
+                    >
+                      Open selected theme in Theme Editor
+                    </Button>
+                    <Button
+                      fullWidth
+                      onClick={handleOpenLiveTheme}
+                      disabled={!mainThemeId || !storeShort}
+                    >
+                      Enable on live theme
+                    </Button>
+                  </BlockStack>
                 </LegacyCard>
               </Grid.Cell>
             </Grid>

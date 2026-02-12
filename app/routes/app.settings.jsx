@@ -340,9 +340,9 @@ function Settings() {
     useState(false);
   const [thirdPartyHtmlContent, setThirdPartyHtmlContent] = useState("");
 
-  const [buttonColor, setButtonColor] = useState("#f0e5e7");
+  const [buttonColor, setButtonColor] = useState("#000000");
   const [buttonTextColor, setButtonTextColor] = useState("#000");
-  const [buttonBorderRadius, setButtonBorderRadius] = useState(10);
+  const [buttonBorderRadius, setButtonBorderRadius] = useState(10); 
 
   const [announcementBarTextColor, setAnnouncementBarTextColor] =
     useState("#000");
