@@ -123,7 +123,6 @@ export const loader = async ({ request }) => {
       ...settings,
       cartDrawer: {
         ...settings.cartDrawer,
-        show_cart_button: settings.cartDrawer?.show_cart_button ?? false
       },
       thirdPartyIntegration: {
         ...settings.thirdPartyIntegration,
@@ -148,8 +147,7 @@ export const loader = async ({ request }) => {
               border_radius: 10,
               button_color: "#000000",
               button_text_color: "#000",
-              button_border_radius: 10,
-              show_cart_button: false
+              button_border_radius: 10
             },
             // Announcement Bar settings
             announcementBar: {
@@ -304,10 +302,6 @@ export const action = async ({ request }) => {
   let body;
   try {
     body = await request.json();
-    console.log("Settings API: Received body:", JSON.stringify(body, null, 2));
-    console.log("Settings API: show_cart_button value:", body.show_cart_button);
-    console.log("Settings API: body.show_cart_button type:", typeof body.show_cart_button);
-    console.log("Settings API: body.show_cart_button !== undefined:", body.show_cart_button !== undefined);
   } catch {
     return json(
       { ok: false, error: "Invalid JSON body" },
@@ -329,16 +323,8 @@ export const action = async ({ request }) => {
       border_radius: body.border_radius ?? body.cartDrawer?.border_radius ?? existing?.cartDrawer?.border_radius ?? 10,
       button_color: body.button_color ?? body.cartDrawer?.button_color ?? existing?.cartDrawer?.button_color ?? "#f0e5e7",
       button_text_color: body.button_text_color ?? body.cartDrawer?.button_text_color ?? existing?.cartDrawer?.button_text_color ?? "#000",
-      button_border_radius: body.button_border_radius ?? body.cartDrawer?.button_border_radius ?? existing?.cartDrawer?.button_border_radius ?? 10,
-      show_cart_button: (body.show_cart_button !== undefined && body.show_cart_button !== null) 
-        ? Boolean(body.show_cart_button) 
-        : ((body.cartDrawer?.show_cart_button !== undefined && body.cartDrawer?.show_cart_button !== null) 
-          ? Boolean(body.cartDrawer.show_cart_button) 
-          : (existing?.cartDrawer?.show_cart_button ?? false))
+      button_border_radius: body.button_border_radius ?? body.cartDrawer?.button_border_radius ?? existing?.cartDrawer?.button_border_radius ?? 10
     };
-    
-    console.log("Settings API: cartDrawerData to save:", JSON.stringify(cartDrawerData, null, 2));
-    console.log("Settings API: show_cart_button final value:", cartDrawerData.show_cart_button);
 
     // Update or create settings document
     const saved = await Settings.findOneAndUpdate(
@@ -390,11 +376,6 @@ export const action = async ({ request }) => {
       }
     ).lean(); // Return plain JavaScript object
 
-    console.log("Settings API: Database save successful");
-    console.log("Settings API: Update data sent:", JSON.stringify(updateData, null, 2));
-    console.log("Settings API: Saved document:", JSON.stringify(saved, null, 2));
-    console.log("Settings API: cartDrawer.show_cart_button:", saved?.cartDrawer?.show_cart_button);
-    console.log("Settings API: show_cart_button in updateData:", updateData["cartDrawer.show_cart_button"]);
     console.log("Database save successful, proceeding to metafield update...");
 
     // Step 6: Update shop metafields

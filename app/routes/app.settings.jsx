@@ -343,7 +343,6 @@ function Settings() {
   const [buttonColor, setButtonColor] = useState("#000000");
   const [buttonTextColor, setButtonTextColor] = useState("#000");
   const [buttonBorderRadius, setButtonBorderRadius] = useState(10);
-  const [showCartButton, setShowCartButton] = useState(false); 
 
   const [announcementBarTextColor, setAnnouncementBarTextColor] =
     useState("#000");
@@ -498,9 +497,6 @@ function Settings() {
           setButtonBorderRadius(
             cartDrawer.button_border_radius || data.button_border_radius || 10,
           );
-          setShowCartButton(
-            cartDrawer.show_cart_button ?? data.show_cart_button ?? false,
-          );
 
           // Announcement Bar settings
           const announcementBar = data.announcementBar || {};
@@ -643,7 +639,6 @@ function Settings() {
       button_color: buttonColor,
       button_text_color: buttonTextColor,
       button_border_radius: buttonBorderRadius,
-      show_cart_button: showCartButton,
 
       // Announcement Bar settings - send as nested object
       announcementBar: {
@@ -719,27 +714,6 @@ function Settings() {
       // Step 4: Parse response and handle result
       const json = await res.json();
       
-      // Also save cart button setting to cartdrawer API for dynamic updates
-      if (json?.ok) {
-        try {
-          const cartDrawerRes = await fetch("/app/api/cartdrawer", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Shopify-Shop-Domain": shop,
-              Accept: "application/json",
-            },
-            body: JSON.stringify({
-              show_cart_button: showCartButton,
-            }),
-          });
-          if (cartDrawerRes.ok) {
-            console.log("Cart drawer settings synced");
-          }
-        } catch (err) {
-          console.warn("Failed to sync cart drawer settings:", err);
-        }
-      }
       if (json?.ok) {
         toast.success("Settings saved successfully!");
         console.log("Settings saved to database:", json.data);
@@ -1071,24 +1045,6 @@ function Settings() {
                           min={0}
                           max={50}
                         />
-                      </div>
-                    </div>
-                  </LegacyCard>
-
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Show Cart Button</div>
-                      {
-                        <InfoBanner text="Show or hide the View Cart button in the cart drawer" />
-                      }
-                      <div className="color-picker-container">
-                        <Checkbox
-                          checked={showCartButton}
-                          onChange={(e) => setShowCartButton(e.target.checked)}
-                        >
-                          {" "}
-                          Enable View Cart Button
-                        </Checkbox>
                       </div>
                     </div>
                   </LegacyCard>

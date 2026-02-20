@@ -39,9 +39,6 @@ const CartDrawerSettingsSchema = new mongoose.Schema(
     
     // Quickview Button Settings
     enable_quickview_button: { type: Boolean, default: false },
-    
-    // Cart Button Settings
-    show_cart_button: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

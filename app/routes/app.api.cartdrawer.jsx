@@ -61,7 +61,6 @@ export const loader = async ({ request }) => {
             checkout_integration_code: "",
             custom_css_code: "",
             enable_quickview_button: false,
-            show_cart_button: false,
           },
         },
         { headers: cors(request) }
@@ -112,7 +111,6 @@ export const action = async ({ request }) => {
     if (body.checkout_integration_code !== undefined) settingsData.checkout_integration_code = body.checkout_integration_code;
     if (body.custom_css_code !== undefined) settingsData.custom_css_code = body.custom_css_code;
     if (body.enable_quickview_button !== undefined) settingsData.enable_quickview_button = body.enable_quickview_button;
-    if (body.show_cart_button !== undefined) settingsData.show_cart_button = body.show_cart_button;
 
     console.log("CartDrawer API: Saving settings for shop:", shop);
     console.log("CartDrawer API: Settings data to save:", JSON.stringify(settingsData, null, 2));

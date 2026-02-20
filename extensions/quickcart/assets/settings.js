@@ -230,14 +230,6 @@
           settings.cartDrawer.button_border_radius + "px",
         );
       }
-      
-      // Apply cart button visibility
-      if (settings.cartDrawer.show_cart_button !== undefined) {
-        const viewCartButton = drawer.querySelector("[data-view-cart-button]");
-        if (viewCartButton) {
-          viewCartButton.style.display = settings.cartDrawer.show_cart_button ? "block" : "none";
-        }
-      }
     }
  
     // Apply announcement bar settings
@@ -473,19 +465,6 @@
             quickviewButtons.forEach((btn) => {
               btn.style.display = cartDrawerSettings.enable_quickview_button ? "" : "none";
             });
-          }
-          
-          // Apply cart button visibility
-          if (cartDrawerSettings.show_cart_button !== undefined) {
-            const viewCartButton = drawer.querySelector("[data-view-cart-button]");
-            if (viewCartButton) {
-              viewCartButton.style.display = cartDrawerSettings.show_cart_button ? "block" : "none";
-              console.log("Cart button visibility updated:", cartDrawerSettings.show_cart_button ? "visible" : "hidden");
-            } else {
-              console.warn("Cart button element [data-view-cart-button] not found in drawer");
-            }
-          } else {
-            console.log("show_cart_button setting not found in cart drawer settings");
           }
         }
 
