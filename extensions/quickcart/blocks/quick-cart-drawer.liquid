@@ -188,7 +188,10 @@
                 <article class="cdp-u-card" data-upsell-card>
                   <div class="cdp-u-media">
                     <img loading="lazy" src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" width="300" height="300">
-                    <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Add</button>
+                    <div class="cdp-u-buttons">
+                      <button class="cdp-u-quickview-btn" data-quickview-button data-product-url="{{ p.url }}" data-product-handle="{{ p.handle }}" style="display: none;" aria-label="Quick view {{ p.title | escape }}">👁️</button>
+                      <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Add</button>
+                    </div>
                   </div>
                   <div class="cdp-u-info">
                     <div class="cdp-u-title">{{ p.title | escape | truncate: 22 }}</div>
@@ -272,9 +275,47 @@
                 </div>
                 <div class="cdp-line-meta">
                   {% if item.variant.title and item.variant.title != 'Default Title' %}
-                    <span class="cdp-line-variant">{{ item.variant.title | escape }}</span> - 
+                    <span class="cdp-line-variant">{{ item.variant.title | escape }}</span>
+                    {% if item.properties.size > 0 %}
+                      <div class="cdp-line-properties">
+                        {% for property in item.properties %}
+                          {% unless property.first == blank or property.first contains '_' %}
+                            <div class="cdp-line-property">
+                              <span class="cdp-property-name">{{ property.first }}:</span>
+                              <span class="cdp-property-value">
+                                {% if property.last contains '/uploads/' %}
+                                  <a href="{{ property.last }}" target="_blank">{{ property.last | split: '/' | last }}</a>
+                                {% else %}
+                                  {{ property.last }}
+                                {% endif %}
+                              </span>
+                            </div>
+                          {% endunless %}
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                    <span class="cdp-line-qty-label"> - Quantity {{ item.quantity }}</span>
+                  {% else %}
+                    <span class="cdp-line-qty-label">Quantity {{ item.quantity }}</span>
+                    {% if item.properties.size > 0 %}
+                      <div class="cdp-line-properties">
+                        {% for property in item.properties %}
+                          {% unless property.first == blank or property.first contains '_' %}
+                            <div class="cdp-line-property">
+                              <span class="cdp-property-name">{{ property.first }}:</span>
+                              <span class="cdp-property-value">
+                                {% if property.last contains '/uploads/' %}
+                                  <a href="{{ property.last }}" target="_blank">{{ property.last | split: '/' | last }}</a>
+                                {% else %}
+                                  {{ property.last }}
+                                {% endif %}
+                              </span>
+                            </div>
+                          {% endunless %}
+                        {% endfor %}
+                      </div>
+                    {% endif %}
                   {% endif %}
-                  <span class="cdp-line-qty-label">Quantity {{ item.quantity }}</span>
                 </div>
                 {% if item.line_level_discount_allocations.size > 0 %}
                   {% for discount in item.line_level_discount_allocations %}
@@ -335,11 +376,22 @@
                   {% assign upsell_collection = shop.metafields.custom.upsell_collection_handle %}
 
               {% assign usell = collections[ upsell_collection ] %}
-              {% for p in usell.products limit: 12 %}
+              {% for p in usell.products limit: 20 %}
+                {% assign product_in_cart = false %}
+                {% for item in cart.items %}
+                  {% if item.product_id == p.id %}
+                    {% assign product_in_cart = true %}
+                    {% break %}
+                  {% endif %}
+                {% endfor %}
+                {% unless product_in_cart %}
                 <article class="cdp-u-card" data-upsell-card>
                   <div class="cdp-u-media">
                     <img loading="lazy" src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" width="300" height="300">
-                    <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Add</button>
+                    <div class="cdp-u-buttons">
+                      <button class="cdp-u-quickview-btn" data-quickview-button data-product-url="{{ p.url }}" data-product-handle="{{ p.handle }}" style="display: none;" aria-label="Quick view {{ p.title | escape }}">👁️</button>
+                      <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Add</button>
+                    </div>
                   </div>
                   <div class="cdp-u-info">
                     <div class="cdp-u-title">{{ p.title | escape | truncate: 22 }}</div>
@@ -349,6 +401,7 @@
                     </div>
                   </div>
                 </article>
+                {% endunless %}
               {% endfor %}
             {% else %}
               <div class="cdp-u-empty">Add an upsell collection Go to Upcart App Dashboard 
@@ -390,12 +443,13 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
                 </div>
-                <p>
+                
+                <p class="bill-subtotal-row">
                   Subtotal
                   <span class="sr-sub-total" data-subtotal>{{ cart.total_price | money_without_trailing_zeros }}</span>
                 </p>
-                <p class="discount-applied-at-cartdrawer">Discount applied
-                   <span class="discounted-value">-10</span>
+                <p class="discount-applied-at-cartdrawer" id="discount-applied-row" style="display: none;">Discount applied
+                   <span class="discounted-value" data-discounted-value></span>
                 </p>
 
                 <p class="" id="sr-cart-shipping-charges-container">
@@ -407,8 +461,10 @@
   </div>
   <canvas id="partyCanvas" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 9999; width: 100%; height: 100%;"></canvas>
 
-    <!-- Bottom checkout bar (fixed) -->
+
     <footer class="cdp-footer">
+
+
      
       <!-- Left: Subtotal + coupon (compact) -->
       <div style="display:none;" class="cdp-footer-left">
@@ -490,9 +546,27 @@
   </a>
 
 
+
+
      
     </footer>
 
+
+    <div class="view-cart" data-view-cart-button style="display: none;">
+    <a href="/cart" style="
+   background: #6b0c0c;
+    display: block;
+    text-align: center;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.3;
+    padding: 6px;
+">
+    View Cart
+    </a>
+   
+  </div>
 
   </div>
 

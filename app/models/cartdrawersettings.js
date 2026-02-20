@@ -36,6 +36,12 @@ const CartDrawerSettingsSchema = new mongoose.Schema(
     
     // Custom CSS
     custom_css_code: { type: String, default: "" },
+    
+    // Quickview Button Settings
+    enable_quickview_button: { type: Boolean, default: false },
+    
+    // Cart Button Settings
+    show_cart_button: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

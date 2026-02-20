@@ -96,6 +96,9 @@ export default function CartDrawerSettings() {
   // Custom CSS
   const [customCssCode, setCustomCssCode] = useState("");
 
+  // Quickview Button
+  const [enableQuickviewButton, setEnableQuickviewButton] = useState(false);
+
   // Load settings on mount
   useEffect(() => {
     if (!shop) return;
@@ -130,6 +133,7 @@ export default function CartDrawerSettings() {
           setShowCheckoutField(data.show_checkout_field ?? false);
           setCheckoutIntegrationCode(data.checkout_integration_code || "");
           setCustomCssCode(data.custom_css_code || "");
+          setEnableQuickviewButton(data.enable_quickview_button ?? false);
         }
       } catch (e) {
         console.error("Failed to load cart drawer settings:", e);
@@ -170,6 +174,7 @@ export default function CartDrawerSettings() {
           show_checkout_field: showCheckoutField,
           checkout_integration_code: checkoutIntegrationCode,
           custom_css_code: customCssCode,
+          enable_quickview_button: enableQuickviewButton,
         }),
       });
       const json = await res.json();
@@ -314,6 +319,12 @@ export default function CartDrawerSettings() {
                       min={1}
                       max={100}
                       suffix="px"
+                    />
+                    <Checkbox
+                      label="Enable Quickview Button"
+                      checked={enableQuickviewButton}
+                      onChange={setEnableQuickviewButton}
+                      helpText="Show quickview button on upsell product cards"
                     />
                   </BlockStack>
                 )}

@@ -230,6 +230,14 @@
           settings.cartDrawer.button_border_radius + "px",
         );
       }
+      
+      // Apply cart button visibility
+      if (settings.cartDrawer.show_cart_button !== undefined) {
+        const viewCartButton = drawer.querySelector("[data-view-cart-button]");
+        if (viewCartButton) {
+          viewCartButton.style.display = settings.cartDrawer.show_cart_button ? "block" : "none";
+        }
+      }
     }
  
     // Apply announcement bar settings
@@ -410,12 +418,83 @@
       }
     }
 
+    // Apply quickview button visibility (from cart drawer settings)
+    if (settings.enable_quickview_button !== undefined) {
+      const quickviewButtons = drawer.querySelectorAll("[data-quickview-button]");
+      quickviewButtons.forEach((btn) => {
+        btn.style.display = settings.enable_quickview_button ? "" : "none";
+      });
+    }
+
     // Dispatch event to notify other scripts that settings have been applied
     window.dispatchEvent(
       new CustomEvent("quickcart-settings-loaded", {
         detail: settings,
       }),
     );
+  }
+
+  // Fetch cart drawer settings separately (for quickview button, etc.)
+  async function fetchCartDrawerSettings() {
+    const shop = getShopDomain();
+    if (!shop) {
+      console.warn("Cart Drawer Settings: Could not determine shop domain");
+      return;
+    }
+
+    try {
+      const drawer = document.getElementById("CartDrawerPremium");
+      const appUrl =
+        drawer?.getAttribute("data-app-url") ||
+        "https://quickcart-vf8k.onrender.com";
+      const apiUrl = `${appUrl}/app/api/cartdrawer`;
+
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "X-Shopify-Shop-Domain": shop,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data.ok && data.data) {
+        const cartDrawerSettings = data.data;
+        const drawer = document.getElementById("CartDrawerPremium");
+        
+        if (drawer) {
+          // Apply quickview button visibility
+          if (cartDrawerSettings.enable_quickview_button !== undefined) {
+            const quickviewButtons = drawer.querySelectorAll("[data-quickview-button]");
+            quickviewButtons.forEach((btn) => {
+              btn.style.display = cartDrawerSettings.enable_quickview_button ? "" : "none";
+            });
+          }
+          
+          // Apply cart button visibility
+          if (cartDrawerSettings.show_cart_button !== undefined) {
+            const viewCartButton = drawer.querySelector("[data-view-cart-button]");
+            if (viewCartButton) {
+              viewCartButton.style.display = cartDrawerSettings.show_cart_button ? "block" : "none";
+              console.log("Cart button visibility updated:", cartDrawerSettings.show_cart_button ? "visible" : "hidden");
+            } else {
+              console.warn("Cart button element [data-view-cart-button] not found in drawer");
+            }
+          } else {
+            console.log("show_cart_button setting not found in cart drawer settings");
+          }
+        }
+
+        // Store cart drawer settings globally
+        window.QuickCartSettings.cartDrawer = cartDrawerSettings;
+      }
+    } catch (error) {
+      console.error("Cart Drawer Settings: Failed to load settings", error);
+    }
   }
 
   // Fetch settings from API
@@ -489,10 +568,36 @@
   // Load settings when DOM is ready
   function init() {
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", fetchSettingsData);
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchSettingsData();
+        fetchCartDrawerSettings();
+      });
     } else {
       fetchSettingsData();
+      fetchCartDrawerSettings();
     }
+    
+    // Refresh cart drawer settings when drawer opens for dynamic updates
+    const drawer = document.getElementById("CartDrawerPremium");
+    if (drawer) {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === "attributes" && mutation.attributeName === "aria-hidden") {
+            const isOpen = drawer.getAttribute("aria-hidden") === "false";
+            if (isOpen) {
+              // Refresh cart drawer settings when drawer opens
+              fetchCartDrawerSettings();
+            }
+          }
+        });
+      });
+      observer.observe(drawer, { attributes: true, attributeFilter: ["aria-hidden"] });
+    }
+    
+    // Also listen for custom cart drawer open events
+    document.addEventListener("cartDrawerOpen", () => {
+      fetchCartDrawerSettings();
+    });
   }
 
   init();

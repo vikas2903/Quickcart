@@ -153,3 +153,9 @@ span.curecnySymbol {
 .column-title +div{
     margin-bottom: 10px;
 }
+
+.view-cart {
+  position: absolute;
+  top: -29px;
+  right: 12px;
+}

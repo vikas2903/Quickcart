@@ -57,7 +57,8 @@ const CartDrawerSchema = new mongoose.Schema({
   border_radius: { type: Number, default: 10 }, // Updated default to match frontend
   button_color: { type: String, default: '#000000' },
   button_text_color: { type: String, default: '#000' },
-  button_border_radius: { type: Number, default: 10 }
+  button_border_radius: { type: Number, default: 10 },
+  show_cart_button: { type: Boolean, default: false } // Show/hide View Cart button in drawer
 }, { _id: false })
 
 /**

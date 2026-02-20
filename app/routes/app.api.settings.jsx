@@ -121,6 +121,10 @@ export const loader = async ({ request }) => {
     // Merge third-party HTML from metafield into settings
     const finalSettings = settings ? {
       ...settings,
+      cartDrawer: {
+        ...settings.cartDrawer,
+        show_cart_button: settings.cartDrawer?.show_cart_button ?? false
+      },
       thirdPartyIntegration: {
         ...settings.thirdPartyIntegration,
         htmlContent: thirdPartyHtmlContent || settings.thirdPartyIntegration?.htmlContent || ""
@@ -144,8 +148,8 @@ export const loader = async ({ request }) => {
               border_radius: 10,
               button_color: "#000000",
               button_text_color: "#000",
-              button_border_radius: 10
-
+              button_border_radius: 10,
+              show_cart_button: false
             },
             // Announcement Bar settings
             announcementBar: {
@@ -300,6 +304,10 @@ export const action = async ({ request }) => {
   let body;
   try {
     body = await request.json();
+    console.log("Settings API: Received body:", JSON.stringify(body, null, 2));
+    console.log("Settings API: show_cart_button value:", body.show_cart_button);
+    console.log("Settings API: body.show_cart_button type:", typeof body.show_cart_button);
+    console.log("Settings API: body.show_cart_button !== undefined:", body.show_cart_button !== undefined);
   } catch {
     return json(
       { ok: false, error: "Invalid JSON body" },
@@ -311,63 +319,63 @@ export const action = async ({ request }) => {
   await connectDatabase();
 
   try {
-    // Step 5: Update or create settings document
-    // findOneAndUpdate with upsert: true will:
-    //   - Update existing document if found
-    //   - Create new document if not found
+    // Step 5: Fetch existing document first to merge properly
+    const existing = await Settings.findOne({ shop }).lean();
+    
+    // Build cartDrawer object with proper merging
+    const cartDrawerData = {
+      body_color: body.body_color ?? body.cartDrawer?.body_color ?? existing?.cartDrawer?.body_color ?? "#f0e5e7",
+      text_color: body.text_color ?? body.cartDrawer?.text_color ?? existing?.cartDrawer?.text_color ?? "#000",
+      border_radius: body.border_radius ?? body.cartDrawer?.border_radius ?? existing?.cartDrawer?.border_radius ?? 10,
+      button_color: body.button_color ?? body.cartDrawer?.button_color ?? existing?.cartDrawer?.button_color ?? "#f0e5e7",
+      button_text_color: body.button_text_color ?? body.cartDrawer?.button_text_color ?? existing?.cartDrawer?.button_text_color ?? "#000",
+      button_border_radius: body.button_border_radius ?? body.cartDrawer?.button_border_radius ?? existing?.cartDrawer?.button_border_radius ?? 10,
+      show_cart_button: (body.show_cart_button !== undefined && body.show_cart_button !== null) 
+        ? Boolean(body.show_cart_button) 
+        : ((body.cartDrawer?.show_cart_button !== undefined && body.cartDrawer?.show_cart_button !== null) 
+          ? Boolean(body.cartDrawer.show_cart_button) 
+          : (existing?.cartDrawer?.show_cart_button ?? false))
+    };
+    
+    console.log("Settings API: cartDrawerData to save:", JSON.stringify(cartDrawerData, null, 2));
+    console.log("Settings API: show_cart_button final value:", cartDrawerData.show_cart_button);
+
+    // Update or create settings document
     const saved = await Settings.findOneAndUpdate(
       { shop }, // Query: Find document by shop domain
       {
-        // Update operation: Set all settings fields
         $set: {
-          // Countdown settings - can be sent as flat structure or nested
+          // Countdown settings
           countdown: {
-            show_countdown: body.show_countdown ?? body.countdown?.show_countdown ?? false,
-            count_down_bg: body.count_down_bg ?? body.countdown?.count_down_bg ?? "#5B9BD5",
-            countdown_text_color: body.countdown_text_color ?? body.countdown?.countdown_text_color ?? "#ffffff",
-            countdown_chip_bg: body.countdown_chip_bg ?? body.countdown?.countdown_chip_bg ?? "#ffffff",
-            countdown_chip_text: body.countdown_chip_text ?? body.countdown?.countdown_chip_text ?? "#2c3e50",
-            countdown_border_radius: body.countdown_border_radius ?? body.countdown?.countdown_border_radius ?? 50
+            show_countdown: body.show_countdown ?? body.countdown?.show_countdown ?? existing?.countdown?.show_countdown ?? false,
+            count_down_bg: body.count_down_bg ?? body.countdown?.count_down_bg ?? existing?.countdown?.count_down_bg ?? "#5B9BD5",
+            countdown_text_color: body.countdown_text_color ?? body.countdown?.countdown_text_color ?? existing?.countdown?.countdown_text_color ?? "#ffffff",
+            countdown_chip_bg: body.countdown_chip_bg ?? body.countdown?.countdown_chip_bg ?? existing?.countdown?.countdown_chip_bg ?? "#ffffff",
+            countdown_chip_text: body.countdown_chip_text ?? body.countdown?.countdown_chip_text ?? existing?.countdown?.countdown_chip_text ?? "#2c3e50",
+            countdown_border_radius: body.countdown_border_radius ?? body.countdown?.countdown_border_radius ?? existing?.countdown?.countdown_border_radius ?? 50
           },
-          // Cart Drawer settings
-          cartDrawer: {
-            body_color: body.body_color ?? body.cartDrawer?.body_color ?? "#f0e5e7",
-            text_color: body.text_color ?? body.cartDrawer?.text_color ?? "#000",
-            border_radius: body.border_radius ?? body.cartDrawer?.border_radius ?? 10,
-            button_color: body.button_color ?? body.cartDrawer?.button_color ?? "#f0e5e7",
-            button_text_color: body.button_text_color ?? body.cartDrawer?.button_text_color ?? "#000",
-            button_border_radius: body.button_border_radius ?? body.cartDrawer?.button_border_radius ?? 10
-
-
-          },
+          // Cart Drawer settings - full object replacement to ensure all fields are saved
+          cartDrawer: cartDrawerData,
           // Announcement Bar settings
           announcementBar: {
-            enabled: body.announcementBar?.enabled ?? false,
-            content: body.announcementBar?.content ?? "Free shipping order above 999, Get 10% Off order above 1999",
-            background_color: body.announcementBar?.background_color ?? "#f0e5e7",
-            text_color: body.announcementBar?.text_color ?? "#000",
+            enabled: body.announcementBar?.enabled ?? existing?.announcementBar?.enabled ?? false,
+            content: body.announcementBar?.content ?? existing?.announcementBar?.content ?? "Free shipping order above 999, Get 10% Off order above 1999",
+            background_color: body.announcementBar?.background_color ?? existing?.announcementBar?.background_color ?? "#f0e5e7",
+            text_color: body.announcementBar?.text_color ?? existing?.announcementBar?.text_color ?? "#000",
           },
           // Collection settings
-          collection: body.collection || {
+          collection: body.collection || existing?.collection || {
             enabled: false,
-            selectedCollection: {
-              title: "",
-              handle: ""
-            }
+            selectedCollection: { title: "", handle: "" }
           },
           // Product settings
-          product: body.product || {
+          product: body.product || existing?.product || {
             enabled: false,
-            selectedProduct: {
-              handle: "",
-              title: "",
-              id: ""
-            }
+            selectedProduct: { handle: "", title: "", id: "" }
           },
           // Third-party Integration settings
-          // Note: htmlContent is stored in metafield, not database
           thirdPartyIntegration: {
-            enabled: body.thirdPartyIntegration?.enabled ?? false,
+            enabled: body.thirdPartyIntegration?.enabled ?? existing?.thirdPartyIntegration?.enabled ?? false,
             htmlContent: "" // Will be stored in metafield separately
           }
         },
@@ -382,6 +390,11 @@ export const action = async ({ request }) => {
       }
     ).lean(); // Return plain JavaScript object
 
+    console.log("Settings API: Database save successful");
+    console.log("Settings API: Update data sent:", JSON.stringify(updateData, null, 2));
+    console.log("Settings API: Saved document:", JSON.stringify(saved, null, 2));
+    console.log("Settings API: cartDrawer.show_cart_button:", saved?.cartDrawer?.show_cart_button);
+    console.log("Settings API: show_cart_button in updateData:", updateData["cartDrawer.show_cart_button"]);
     console.log("Database save successful, proceeding to metafield update...");
 
     // Step 6: Update shop metafields

@@ -1250,6 +1250,13 @@ function unlockBodyScroll() {
     return str.length > n ? str.slice(0, n) + "…" : str;
   }
 
+  function escapeHtml(text) {
+    if (text == null) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   const renderLines = (cart) => {
     if (!linesRoot) return;
     if (!cart.items || cart.items.length === 0) {
@@ -1278,8 +1285,41 @@ function unlockBodyScroll() {
             <span class="cart-item-variant-title">
               ${
                 item.variant_title && item.variant_title !== "Default Title"
-                  ? `<span class="cdp-line-variant">${item.variant_title} </span>`
+                  ? `<span class="cdp-line-variant">${item.variant_title}</span>`
                   : ""
+              }
+              ${
+                item.properties && (Array.isArray(item.properties) ? item.properties.length > 0 : Object.keys(item.properties).length > 0)
+                  ? (() => {
+                      const props = [];
+                      let propertiesToProcess = [];
+                      
+                      // Handle both array and object formats
+                      if (Array.isArray(item.properties)) {
+                        // Array format: [{ name: "Key", value: "Value" }, ...]
+                        propertiesToProcess = item.properties.map(p => [p.name || p.first || '', p.value || p.last || '']);
+                      } else {
+                        // Object format: { "Key": "Value", ... }
+                        propertiesToProcess = Object.entries(item.properties);
+                      }
+                      
+                      for (const [key, value] of propertiesToProcess) {
+                        // Skip hidden properties (starting with _) and empty values
+                        if (key && !key.startsWith('_') && value !== null && value !== undefined && value !== '') {
+                          const isFile = typeof value === 'string' && value.includes('/uploads/');
+                          props.push(`
+                            <div class="cdp-line-property">
+                              <span class="cdp-property-name">${escapeHtml(key)}:</span>
+                              <span class="cdp-property-value">
+                                ${isFile ? `<a href="${escapeHtml(value)}" target="_blank">${escapeHtml(value.split('/').pop())}</a>` : escapeHtml(String(value))}
+                              </span>
+                            </div>
+                          `);
+                        }
+                      }
+                      return props.length > 0 ? `<div class="cdp-line-properties">${props.join('')}</div>` : '';
+                    })()
+                  : ''
               }
               <span class="cdp-line-prices">
                 <span class="cdp-line-final">${isFreeGift ? 'FREE' : fmtMoney(item.final_line_price)}</span>
@@ -1292,7 +1332,7 @@ function unlockBodyScroll() {
                 }
               </span>  ${
                 item.discounts?.length && !isFreeGift
-                  ? `<span class="discount"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="xb-fill-current"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.32921 2.18655C8.80696 1.04894 7.19044 1.04894 6.66819 2.18655C6.34869 2.88251 5.54682 3.21466 4.82877 2.94846C3.65507 2.51334 2.51203 3.65639 2.94715 4.83009C3.21335 5.54813 2.8812 6.35 2.18524 6.6695C1.04763 7.19175 1.04763 8.80827 2.18524 9.33052C2.8812 9.65002 3.21335 10.4519 2.94715 11.1699C2.51203 12.3436 3.65507 13.4867 4.82877 13.0516C5.54682 12.7854 6.34869 13.1175 6.66819 13.8135C7.19044 14.9511 8.80696 14.9511 9.32921 13.8135C9.64871 13.1175 10.4506 12.7854 11.1686 13.0516C12.3423 13.4867 13.4854 12.3436 13.0502 11.1699C12.784 10.4519 13.1162 9.65002 13.8122 9.33052C14.9498 8.80827 14.9498 7.19175 13.8122 6.6695C13.1162 6.35 12.784 5.54813 13.0502 4.83009C13.4854 3.65639 12.3423 2.51334 11.1686 2.94846C10.4506 3.21466 9.64871 2.88251 9.32921 2.18655ZM7.12753 6.47547C7.12753 6.9566 6.7375 7.34663 6.25636 7.34663C5.77523 7.34663 5.3852 6.9566 5.3852 6.47547C5.3852 5.99433 5.77523 5.6043 6.25636 5.6043C6.7375 5.6043 7.12753 5.99433 7.12753 6.47547ZM10.203 6.93747L6.71837 10.4221C6.46321 10.6773 6.04952 10.6773 5.79436 10.4221C5.5392 10.167 5.5392 9.75329 5.79436 9.49813L9.27903 6.01346C9.53419 5.7583 9.94788 5.7583 10.203 6.01346C10.4582 6.26862 10.4582 6.68231 10.203 6.93747ZM10.6122 9.96014C10.6122 10.4413 10.2222 10.8313 9.74103 10.8313C9.2599 10.8313 8.86987 10.4413 8.86987 9.96014C8.86987 9.479 9.2599 9.08897 9.74103 9.08897C10.2222 9.08897 10.6122 9.479 10.6122 9.96014Z" fill="white"></path></svg> ${item.discounts[0]?.title || ""}</span>`
+                  ? `<span class="discount"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="xb-fill-current"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.32921 2.18655C8.80696 1.04894 7.19044 1.04894 6.66819 2.18655C6.34869 2.88251 5.54682 3.21466 4.82877 2.94846C3.65507 2.51334 2.51203 3.65639 2.94715 4.83009C3.21335 5.54813 2.8812 6.35 2.18524 6.6695C1.04763 7.19175 1.04763 8.80827 2.18524 9.33052C2.8812 9.65002 3.21335 10.4519 2.94715 11.1699C2.51203 12.3436 3.65507 13.4867 4.82877 13.0516C5.54682 12.7854 6.34869 13.1175 6.66819 13.8135C7.19044 14.9511 8.80696 14.9511 9.32921 13.8135C9.64871 13.1175 10.4506 12.7854 11.1686 13.0516C12.3423 13.4867 13.4854 12.3436 13.0502 11.1699C12.784 10.4519 13.1162 9.65002 13.8122 9.33052C14.9498 8.80827 14.9498 7.19175 13.8122 6.6695C13.1162 6.35 12.784 5.54813 13.0502 4.83009C13.4854 3.65639 12.3423 2.51334 11.1686 2.94846C10.4506 3.21466 9.64871 2.88251 9.32921 2.18655ZM7.12753 6.47547C7.12753 6.9566 6.7375 7.34663 6.25636 7.34663C5.77523 7.34663 5.3852 6.9566 5.3852 6.47547C5.3852 5.99433 5.77523 5.6043 6.25636 5.6043C6.7375 5.6043 7.12753 5.99433 7.12753 6.47547ZM10.203 6.93747L6.71837 10.4221C6.46321 10.6773 6.04952 10.6773 5.79436 10.4221C5.5392 10.167 5.5392 9.75329 5.79436 9.49813L9.27903 6.01346C9.53419 5.7583 9.94788 5.7583 10.203 6.01346C10.4582 6.26862 10.4582 6.68231 10.203 6.93747ZM10.6122 9.96014C10.6122 10.4413 10.2222 10.8313 9.74103 10.8313C9.2599 10.8313 8.86987 10.4413 8.86987 9.96014C8.86987 9.479 9.2599 9.08897 9.74103 9.08897C10.2222 9.08897 10.6122 9.479 10.6122 9.96014Z" fill="white"></path></svg> ${item.discounts[0]?.title || ""}</span>`
                   : ""
               }
             </span>
@@ -1333,8 +1373,14 @@ function unlockBodyScroll() {
         ? cart.total_price
         : subtotalCents;
 
-    if (subtotalEl) subtotalEl.textContent = fmtMoney(subtotalCents);
+    if (subtotalEl) subtotalEl.textContent = fmtMoney(totalCents);
     if (totalEl) totalEl.textContent = fmtMoney(totalCents);
+
+    // Bill summary: simple subtotal display (no comparison)
+    const billSubtotalEl = drawer.querySelector(".bill-subtotal-row [data-subtotal]");
+    if (billSubtotalEl) {
+      billSubtotalEl.textContent = fmtMoney(totalCents);
+    }
 
     if (offersRoot) {
       if (cart.total_discount && cart.total_discount > 0) {
@@ -1530,8 +1576,11 @@ function unlockBodyScroll() {
     });
   };
 
-  // initial totals (no need to render lines)
-  fetchCart().then((cart) => renderTotals(cart));
+  // initial totals and hide upsell cards for products already in cart
+  fetchCart().then((cart) => {
+    renderTotals(cart);
+    hideUpsellCardsInCart(cart);
+  });
 
   /* ============ LINE CONTROLS ============ */
   drawer.addEventListener("click", function (e) {
@@ -1863,6 +1912,18 @@ function unlockBodyScroll() {
   /* ============ ESCAPE KEY ============ */
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") closeDrawer();
+  });
+
+  /* ============ QUICKVIEW BUTTON HANDLER ============ */
+  drawer.addEventListener("click", function (e) {
+    const quickviewBtn = e.target.closest("[data-quickview-button]");
+    if (quickviewBtn) {
+      e.preventDefault();
+      const productUrl = quickviewBtn.getAttribute("data-product-url");
+      if (productUrl) {
+        window.location.href = productUrl;
+      }
+    }
   });
 
   /* ============ MOBILE UPSELL TOGGLE ============ */
@@ -2370,5 +2431,9 @@ function unlockBodyScroll() {
 })();
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Optional DOM hooks
-});
+  document.addEventListener("click", function (e) {
+    if (e.target.closest(".view-cart")) {
+      window.location.href = "/cart";
+    }
+  });
+}); 

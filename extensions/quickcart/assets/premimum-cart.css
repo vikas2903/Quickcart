@@ -3,7 +3,7 @@
 html.prevent-scroll, body {
   overflow: scroll !important;
 }
-html,body{overflow: scroll !important;}
+/* html,body{overflow: scroll !important;} */
 
 #CartDrawerPremium {
   font-family: "Montserrat", sans-serif;
@@ -234,10 +234,34 @@ body.gradient.overflow-hidden {
 }
 
 
-.cdp-u-add-btn {
+.cdp-u-buttons {
   position: absolute;
   bottom: 10px;
   right: 10px;
+  display: flex;
+  gap: 6px;
+  opacity: 1;
+  z-index: 2;
+}
+
+.cdp-u-quickview-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.cdp-u-quickview-btn:hover {
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.cdp-u-add-btn {
   background: #fff;
   border: none;
   border-radius: 8px;
@@ -717,16 +741,14 @@ img#popupProductImage2 {
 
  .cdp-line-variant {
   font-weight: 400;
-  padding-bottom: 3px;
+  padding-bottom: 0;
   font-size: 12px;
   color: #000;
   line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  display: block;
   letter-spacing: 0;
   opacity: .9;
+  margin-bottom: 4px;
 }
 button.cdp-line-remove {
   position: absolute;
@@ -761,7 +783,47 @@ button.cdp-line-remove {
   margin-top: 1px;
 }
 
+.cdp-line-properties {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
 
+.cdp-line-property {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cdp-property-name {
+  font-weight: 500;
+  color: #555;
+}
+
+.cdp-property-value {
+  color: #666;
+  word-break: break-word;
+}
+
+.cdp-line-meta .cdp-line-properties {
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+.cdp-property-value a {
+  color: #1565d8;
+  text-decoration: underline;
+}
+
+.cdp-property-value a:hover {
+  color: #0d47a1;
+  text-decoration: none;
+}
 
 .cdp-line-qty-label {
   color: #666;
@@ -988,11 +1050,43 @@ input.cdp-qty-input {
     vertical-align: middle;
     display: flex;
     gap: 3px;
+    cursor: pointer;
+}
+
+.cdp-total-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.cdp-total-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cdp-total-original {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 span.cdp-total-val {
+  font-weight: 700;
+  font-size: 16px;
+  color: #000;
+  display: inline-block;
+}
+
+.cdp-total-savings {
+  font-size: 11px;
+  color: #2e7d32;
   font-weight: 600;
-  display: block;
+  margin-top: 2px;
+  display: none;
 }
 
 .cdp-checkout {
@@ -1669,13 +1763,13 @@ body.no-scroll{overflow: unset !important;}
 .mini-cart-order-summary {
   background: #ffffff;
   height: max-content;
-  padding: 0px 10px;
+  padding: 0px 10px 6px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
 
 .mini-cart-order-summary .summary-heading {
-  padding: 10px 0 6px;
+  padding: 6px 0 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1687,10 +1781,201 @@ span.summary-heading-text {
 .mini-cart-order-summary p {
   display: flex;
   justify-content: space-between;
-  margin: .5em 0 !important;
+  margin: 8px 0 !important;
   font-size: 12px !important;
   line-height: 12px;
   font-family: "Open Sans", sans-serif !important;
+}
+
+/* Receipt Breakdown Styles */
+.receipt-breakdown {
+  padding: 4px 0;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  font-family: "Open Sans", sans-serif;
+}
+
+.receipt-row:not(.receipt-grand-total) {
+  border-bottom: none;
+}
+
+.receipt-row.hidden {
+  display: none;
+}
+
+.receipt-item-count {
+  color: #666;
+  font-weight: 400;
+  font-size: 11px;
+}
+
+.receipt-row-hint {
+  color: #888;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.receipt-value {
+  font-weight: 500;
+  color: #333;
+  text-align: right;
+}
+
+.receipt-discount {
+  color: #333;
+}
+
+.receipt-discount-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.receipt-discount-info {
+  display: inline-flex;
+  align-items: center;
+  color: #666;
+  font-size: 11px;
+}
+
+.receipt-discount-code {
+  font-weight: 500;
+  color: #333;
+}
+
+.receipt-discount-value {
+  color: #2e7d32;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.receipt-discount-applied {
+  color: #333;
+}
+
+.receipt-discount-applied-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.receipt-discount-code-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  gap: 3px;
+}
+
+.receipt-discount-code-badge svg {
+  flex-shrink: 0;
+  color: #2e7d32;
+}
+
+.receipt-discount-applied-value {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.receipt-grand-total {
+  font-weight: 700;
+  font-size: 14px;
+  padding-top: 10px;
+  margin-top: 6px;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: none;
+}
+
+.receipt-grand-total-value {
+  font-weight: 700;
+  font-size: 16px;
+  color: #000;
+}
+
+.receipt-total-savings {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2e7d32;
+  background: #f1f8f4;
+  border-radius: 6px;
+  gap: 4px;
+}
+
+.receipt-total-savings svg {
+  flex-shrink: 0;
+  color: #2e7d32;
+}
+
+.receipt-total-savings span {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.receipt-price-change {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.receipt-price-change.hidden {
+  display: none !important;
+}
+
+.receipt-price-change-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.receipt-price-change-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.receipt-price-original {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 12px;
+}
+
+.receipt-price-arrow {
+  color: #666;
+  font-weight: 600;
+}
+
+.receipt-price-final {
+  color: #2e7d32;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.receipt-price-saved {
+  color: #2e7d32;
+  font-weight: 600;
+  font-size: 11px;
 }
 
 /* mob_upsell now visible on all screen sizes */
@@ -1735,6 +2020,21 @@ span.summary-heading-text {
 
 .discounted-value {
     color: green;
+}
+
+/* Subtotal when discount applied: actual → after discount */
+.bill-subtotal-values .sr-sub-total-actual {
+  text-decoration: line-through;
+  color: #666;
+  margin-right: 4px;
+}
+.bill-subtotal-values .bill-subtotal-sep {
+  margin: 0 4px;
+  color: #888;
+  font-size: 0.9em;
+}
+.bill-subtotal-values .sr-sub-total-after {
+  font-weight: 600;
 }
 
 @media (max-width: 767px) {
