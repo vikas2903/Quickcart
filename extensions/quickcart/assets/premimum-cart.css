@@ -889,6 +889,8 @@ input.cdp-qty-input {
   font-weight: 600;
   font-size: 12px;
   background: transparent;
+  text-align: center;
+  padding: 0;
 }
 
 .cdp-open .cdp-overlay {
@@ -908,9 +910,18 @@ input.cdp-qty-input {
   overflow: hidden;
   height: 18px;
   background: #fff;
-  max-width: 85.6px;
-  width: 100%;
+  max-width: 86.6px;
+  margin: auto;
 }
+
+button.cdp-qty-btn[data-qty-down] {
+  border-right: 1px solid #eee;
+}
+
+button.cdp-qty-btn[data-qty-up] {
+  border-left: 1px solid #eee;
+}
+
 
 .cdp-qty-btn {
   width: 28px;
@@ -1439,6 +1450,10 @@ aside.cdp-upsell.active {
     display: flex;
     align-items: center;
     justify-content: center;
+    max-width: 22px;
+    color: #000;
+    padding: 0;
+    border-radius: 0;
   }
   
   .cdp-line-remove {
