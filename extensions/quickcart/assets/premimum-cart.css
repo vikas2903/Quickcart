@@ -924,7 +924,8 @@ input.cdp-qty-input {
   height: 18px;
   background: #fff;
   max-width: 86.6px;
-  margin: auto;
+  margin-left: auto;
+  justify-content: flex-end;
 }
 
 button.cdp-qty-btn[data-qty-down] {
@@ -945,6 +946,8 @@ button.cdp-qty-btn[data-qty-up] {
   font-size: 14px;
   font-weight: 500;
   transition: background 0.2s;
+  padding: 0;
+  color: #000 !important;
 }
 
 .cdp-qty-btn:hover {
