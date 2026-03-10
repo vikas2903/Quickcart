@@ -908,6 +908,8 @@ input.cdp-qty-input {
   overflow: hidden;
   height: 18px;
   background: #fff;
+  max-width: 85.6px;
+  width: 100%;
 }
 
 .cdp-qty-btn {

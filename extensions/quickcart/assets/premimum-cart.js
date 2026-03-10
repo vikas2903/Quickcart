@@ -3,7 +3,7 @@
 //     window.upcartInitialized = true;
 
 //     console.log("Upcart: Progressbar + Upsell products initialize...");
-    
+
 
 
 //       function triggerPartyPopper() {
@@ -114,7 +114,7 @@
 //     }, 4000);
 //   }
 
-  
+
 //     // convert price to currency
 //     function convertToCurrency(price, currencyCode) {
 //     return new Intl.NumberFormat('en-IN', {
@@ -376,7 +376,7 @@
 //   //         console.log("Error fetching product by handle:", error.message);
 //   //         return null;
 //   //       }
-        
+
 //   //     }
 
 //   //      getVarientsIdByHandle(free_product_handle);
@@ -528,7 +528,7 @@
 //       } else {
 //         document.querySelector('.discount-applied-at-cartdrawer').style.display = 'none';
 //       }
-      
+
 //     });
 
 //     fetchCart().then((cart) => renderTotals(cart));
@@ -692,7 +692,7 @@
 //     document.querySelector('.upsell-mob-close-icon')?.addEventListener("click", function(){
 //       document.querySelector('.cdp-upsell')?.classList.remove("active");
 //     });
-  
+
 //   console.log("Upcart: Progressbar + Upsell Products Initialized");
 //   console.log("vikas:november changes 19-11-2025 | 10:35")
 
@@ -711,43 +711,43 @@
   function loadCDNScript(url, callback) {
     const script = document.createElement('script');
     script.src = url;
-    script.async = true; 
+    script.async = true;
     if (callback) {
-        script.onload = callback;
+      script.onload = callback;
     }
 
-    document.body.appendChild(script); 
-}
-
-loadCDNScript('https://cdn.jsdelivr.net/npm/@hiseb/confetti@2.1.0/dist/confetti.min.js', function() {
-    console.log('confetti loaded successfully!');
-});
-
-
-
-function triggerPartyPopper() {
-
-  function fireConfettiFromDrawerBottom(drawerSelector) {
-    const drawer = document.querySelector(drawerSelector);
-    if (!drawer || typeof confetti !== "function") return;
-  
-    const rect = drawer.getBoundingClientRect();
-  
-    confetti({
-      position: {
-        x: rect.right - 250,   // center of drawer
-        y: rect.bottom - 150               // bottom edge of drawer
-      },
-      count: 200,
-      size: 1, 
-      velocity: 260,   // strong upward blast
-      fade: false
-    });
+    document.body.appendChild(script);
   }
-  setTimeout(() => {
-    fireConfettiFromDrawerBottom('#CartDrawerPremium');
-  }, 1000);
-}
+
+  loadCDNScript('https://cdn.jsdelivr.net/npm/@hiseb/confetti@2.1.0/dist/confetti.min.js', function () {
+    console.log('confetti loaded successfully!');
+  });
+
+
+
+  function triggerPartyPopper() {
+
+    function fireConfettiFromDrawerBottom(drawerSelector) {
+      const drawer = document.querySelector(drawerSelector);
+      if (!drawer || typeof confetti !== "function") return;
+
+      const rect = drawer.getBoundingClientRect();
+
+      confetti({
+        position: {
+          x: rect.right - 250,   // center of drawer
+          y: rect.bottom - 150               // bottom edge of drawer
+        },
+        count: 200,
+        size: 1,
+        velocity: 260,   // strong upward blast
+        fade: false
+      });
+    }
+    setTimeout(() => {
+      fireConfettiFromDrawerBottom('#CartDrawerPremium');
+    }, 1000);
+  }
 
   /* ============ PARTY POPPER ============ */
   // function triggerPartyPopper() {
@@ -872,7 +872,7 @@ function triggerPartyPopper() {
 
   //   // Get drawer's bounding rectangle relative to viewport
   //   const drawerRect = drawer.getBoundingClientRect();
-    
+
   //   // Calculate origin point relative to viewport (not drawer)
   //   // Center of drawer horizontally, 60% down the drawer vertically
   //   const originX = (drawerRect.left + drawerRect.width / 2) / window.innerWidth;
@@ -893,20 +893,20 @@ function triggerPartyPopper() {
   //     confettiOverlay.style.zIndex = '9999';
   //     confettiOverlay.style.overflow = 'hidden';
   //     confettiOverlay.style.borderRadius = 'inherit';
-      
+
   //     // Ensure drawer has relative positioning
   //     const drawerPosition = getComputedStyle(drawer).position;
   //     if (drawerPosition === 'static' || drawerPosition === '') {
   //       drawer.style.position = 'relative';
   //     }
-      
+
   //     drawer.appendChild(confettiOverlay);
   //   }
 
   //   // Trigger confetti with origin calculated from drawer position
   //   try {
   //     const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#FFD93D'];
-      
+
   //     // Multiple bursts for better celebration effect
   //     for (let i = 0; i < 3; i++) {
   //       setTimeout(() => {
@@ -995,7 +995,7 @@ function triggerPartyPopper() {
   function ensureDrawerAtBodyLevel() {
     const drawer = document.getElementById("CartDrawerPremium");
     if (!drawer) return false;
-    
+
     // Check if drawer is not a direct child of body (could be inside main, section, footer, etc.)
     if (drawer.parentElement !== document.body) {
       const parent = drawer.parentElement;
@@ -1022,11 +1022,11 @@ function triggerPartyPopper() {
   setTimeout(ensureDrawerAtBodyLevel, 1000);
 
   // Use MutationObserver to watch for drawer being moved or added to wrong parent
-  const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
+  const observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
       if (mutation.type === 'childList') {
         // Check if drawer was added to a node
-        mutation.addedNodes.forEach(function(node) {
+        mutation.addedNodes.forEach(function (node) {
           if (node.nodeType === 1 && (node.id === 'CartDrawerPremium' || node.querySelector && node.querySelector('#CartDrawerPremium'))) {
             setTimeout(ensureDrawerAtBodyLevel, 50);
           }
@@ -1049,50 +1049,50 @@ function triggerPartyPopper() {
   const linesRoot = drawer.querySelector("[data-lines]");
   const cartCountEl = drawer.querySelector("[data-cart-count]");
   const subtotalEl = drawer.querySelector("[data-subtotal]");
-  const totalEl = drawer.querySelector("[data-total]");
+  const totalEls = drawer.querySelectorAll("[data-total]");
   const offersRoot = drawer.querySelector("[data-offers]");
-  
+
   // Store free gift product handle globally to identify free gift items
   let freeGiftProductHandle = null;
 
 
   function lockBodyScroll() {
-  // Prevent double-adding the lock
-  if (document.body.classList.contains("drawer-open")) return;
+    // Prevent double-adding the lock
+    if (document.body.classList.contains("drawer-open")) return;
 
-  const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
 
-  document.body.classList.add("drawer-open");
-  document.documentElement.style.overflow = "hidden";
-  document.body.style.overflow = "hidden";
+    document.body.classList.add("drawer-open");
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
 
-  // prevent layout shift caused by hidden scrollbar
-  if (scrollBarWidth > 0) {
-    document.documentElement.style.paddingRight = scrollBarWidth + "px";
-    document.body.style.paddingRight = scrollBarWidth + "px";
+    // prevent layout shift caused by hidden scrollbar
+    if (scrollBarWidth > 0) {
+      document.documentElement.style.paddingRight = scrollBarWidth + "px";
+      document.body.style.paddingRight = scrollBarWidth + "px";
+    }
+
   }
 
-}
+  function unlockBodyScroll() {
+    document.body.classList.remove("drawer-open");
 
-function unlockBodyScroll() {
-  document.body.classList.remove("drawer-open");
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
 
-  document.documentElement.style.overflow = "";
-  document.body.style.overflow = "";
+    // reset padding
+    document.documentElement.style.paddingRight = "";
+    document.body.style.paddingRight = "";
 
-  // reset padding
-  document.documentElement.style.paddingRight = "";
-  document.body.style.paddingRight = "";
 
-  
-}
+  }
 
 
 
   function openDrawer() {
     // Show loader briefly when opening drawer
     if (window.upcart_loader) window.upcart_loader(true);
-    
+
     drawer.classList.add(openClass);
     drawer.setAttribute("aria-hidden", "false");
     refreshUI().finally(() => {
@@ -1101,7 +1101,7 @@ function unlockBodyScroll() {
     });
     lockBodyScroll();
   }
- 
+
   function closeDrawer() {
     drawer.classList.remove(openClass);
     drawer.setAttribute("aria-hidden", "true");
@@ -1206,7 +1206,7 @@ function unlockBodyScroll() {
   const changeQty = (key, quantity) => {
     // Show loader when changing quantity
     if (window.upcart_loader) window.upcart_loader(true);
-    
+
     return fetch("/cart/change.js", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -1221,7 +1221,7 @@ function unlockBodyScroll() {
   const addVariantFD = (variantId, quantity = 1, extra = {}) => {
     // Show loader when adding variant
     if (window.upcart_loader) window.upcart_loader(true);
-    
+
     const fd = new FormData();
     fd.append("id", String(variantId));
     fd.append("quantity", String(quantity));
@@ -1268,13 +1268,12 @@ function unlockBodyScroll() {
         (item) => {
           // Check if this item is the free gift product
           const isFreeGift = freeGiftProductHandle && item.handle === freeGiftProductHandle;
-          
+
           return `
       <article class="cdp-line" data-line-key="${item.key}" ${isFreeGift ? 'data-free-gift="true"' : ''}>
         <div class="cdp-line-media">
-          <img src="${
-            item.image ? item.image.replace(/\.(jpg|png|jpeg)/, "_180x.$1") : ""
-          }" alt="${item.product_title}" width="90" height="90" loading="lazy">
+          <img src="${item.image ? item.image.replace(/\.(jpg|png|jpeg)/, "_180x.$1") : ""
+            }" alt="${item.product_title}" width="90" height="90" loading="lazy">
         </div>
         <div class="cdp-line-info">
           <div class="cdp-line-title">
@@ -1283,31 +1282,29 @@ function unlockBodyScroll() {
           </div>
           <div class="cdp-line-top">
             <span class="cart-item-variant-title">
-              ${
-                item.variant_title && item.variant_title !== "Default Title"
-                  ? `<span class="cdp-line-variant">${item.variant_title}</span>`
-                  : ""
-              }
-              ${
-                item.properties && (Array.isArray(item.properties) ? item.properties.length > 0 : Object.keys(item.properties).length > 0)
-                  ? (() => {
-                      const props = [];
-                      let propertiesToProcess = [];
-                      
-                      // Handle both array and object formats
-                      if (Array.isArray(item.properties)) {
-                        // Array format: [{ name: "Key", value: "Value" }, ...]
-                        propertiesToProcess = item.properties.map(p => [p.name || p.first || '', p.value || p.last || '']);
-                      } else {
-                        // Object format: { "Key": "Value", ... }
-                        propertiesToProcess = Object.entries(item.properties);
-                      }
-                      
-                      for (const [key, value] of propertiesToProcess) {
-                        // Skip hidden properties (starting with _) and empty values
-                        if (key && !key.startsWith('_') && value !== null && value !== undefined && value !== '') {
-                          const isFile = typeof value === 'string' && value.includes('/uploads/');
-                          props.push(`
+              ${item.variant_title && item.variant_title !== "Default Title"
+              ? `<span class="cdp-line-variant">${item.variant_title}</span>`
+              : ""
+            }
+              ${item.properties && (Array.isArray(item.properties) ? item.properties.length > 0 : Object.keys(item.properties).length > 0)
+              ? (() => {
+                const props = [];
+                let propertiesToProcess = [];
+
+                // Handle both array and object formats
+                if (Array.isArray(item.properties)) {
+                  // Array format: [{ name: "Key", value: "Value" }, ...]
+                  propertiesToProcess = item.properties.map(p => [p.name || p.first || '', p.value || p.last || '']);
+                } else {
+                  // Object format: { "Key": "Value", ... }
+                  propertiesToProcess = Object.entries(item.properties);
+                }
+
+                for (const [key, value] of propertiesToProcess) {
+                  // Skip hidden properties (starting with _) and empty values
+                  if (key && !key.startsWith('_') && value !== null && value !== undefined && value !== '') {
+                    const isFile = typeof value === 'string' && value.includes('/uploads/');
+                    props.push(`
                             <div class="cdp-line-property">
                               <span class="cdp-property-name">${escapeHtml(key)}:</span>
                               <span class="cdp-property-value">
@@ -1315,33 +1312,30 @@ function unlockBodyScroll() {
                               </span>
                             </div>
                           `);
-                        }
-                      }
-                      return props.length > 0 ? `<div class="cdp-line-properties">${props.join('')}</div>` : '';
-                    })()
-                  : ''
-              }
+                  }
+                }
+                return props.length > 0 ? `<div class="cdp-line-properties">${props.join('')}</div>` : '';
+              })()
+              : ''
+            }
               <span class="cdp-line-prices">
                 <span class="cdp-line-final">${isFreeGift ? 'FREE' : fmtMoney(item.final_line_price)}</span>
-                ${
-                  item.original_line_price > item.final_line_price && !isFreeGift
-                    ? `<span class="cdp-line-compare">${fmtMoney(
-                        item.original_line_price
-                      )}</span>`
-                    : ""
-                }
-              </span>  ${
-                item.discounts?.length && !isFreeGift
-                  ? `<span class="discount"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="xb-fill-current"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.32921 2.18655C8.80696 1.04894 7.19044 1.04894 6.66819 2.18655C6.34869 2.88251 5.54682 3.21466 4.82877 2.94846C3.65507 2.51334 2.51203 3.65639 2.94715 4.83009C3.21335 5.54813 2.8812 6.35 2.18524 6.6695C1.04763 7.19175 1.04763 8.80827 2.18524 9.33052C2.8812 9.65002 3.21335 10.4519 2.94715 11.1699C2.51203 12.3436 3.65507 13.4867 4.82877 13.0516C5.54682 12.7854 6.34869 13.1175 6.66819 13.8135C7.19044 14.9511 8.80696 14.9511 9.32921 13.8135C9.64871 13.1175 10.4506 12.7854 11.1686 13.0516C12.3423 13.4867 13.4854 12.3436 13.0502 11.1699C12.784 10.4519 13.1162 9.65002 13.8122 9.33052C14.9498 8.80827 14.9498 7.19175 13.8122 6.6695C13.1162 6.35 12.784 5.54813 13.0502 4.83009C13.4854 3.65639 12.3423 2.51334 11.1686 2.94846C10.4506 3.21466 9.64871 2.88251 9.32921 2.18655ZM7.12753 6.47547C7.12753 6.9566 6.7375 7.34663 6.25636 7.34663C5.77523 7.34663 5.3852 6.9566 5.3852 6.47547C5.3852 5.99433 5.77523 5.6043 6.25636 5.6043C6.7375 5.6043 7.12753 5.99433 7.12753 6.47547ZM10.203 6.93747L6.71837 10.4221C6.46321 10.6773 6.04952 10.6773 5.79436 10.4221C5.5392 10.167 5.5392 9.75329 5.79436 9.49813L9.27903 6.01346C9.53419 5.7583 9.94788 5.7583 10.203 6.01346C10.4582 6.26862 10.4582 6.68231 10.203 6.93747ZM10.6122 9.96014C10.6122 10.4413 10.2222 10.8313 9.74103 10.8313C9.2599 10.8313 8.86987 10.4413 8.86987 9.96014C8.86987 9.479 9.2599 9.08897 9.74103 9.08897C10.2222 9.08897 10.6122 9.479 10.6122 9.96014Z" fill="white"></path></svg> ${item.discounts[0]?.title || ""}</span>`
-                  : ""
-              }
+                ${item.original_line_price > item.final_line_price && !isFreeGift
+              ? `<span class="cdp-line-compare">${fmtMoney(
+                item.original_line_price
+              )}</span>`
+              : ""
+            }
+              </span>  ${item.discounts?.length && !isFreeGift
+              ? `<span class="discount" style="display:inline-flex; align-items:center; gap:4px; padding:2px 6px; border-radius:4px; font-size:12px; font-weight:600; background:#197935; color:#fff;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="xb-fill-current"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.32921 2.18655C8.80696 1.04894 7.19044 1.04894 6.66819 2.18655C6.34869 2.88251 5.54682 3.21466 4.82877 2.94846C3.65507 2.51334 2.51203 3.65639 2.94715 4.83009C3.21335 5.54813 2.8812 6.35 2.18524 6.6695C1.04763 7.19175 1.04763 8.80827 2.18524 9.33052C2.8812 9.65002 3.21335 10.4519 2.94715 11.1699C2.51203 12.3436 3.65507 13.4867 4.82877 13.0516C5.54682 12.7854 6.34869 13.1175 6.66819 13.8135C7.19044 14.9511 8.80696 14.9511 9.32921 13.8135C9.64871 13.1175 10.4506 12.7854 11.1686 13.0516C12.3423 13.4867 13.4854 12.3436 13.0502 11.1699C12.784 10.4519 13.1162 9.65002 13.8122 9.33052C14.9498 8.80827 14.9498 7.19175 13.8122 6.6695C13.1162 6.35 12.784 5.54813 13.0502 4.83009C13.4854 3.65639 12.3423 2.51334 11.1686 2.94846C10.4506 3.21466 9.64871 2.88251 9.32921 2.18655ZM7.12753 6.47547C7.12753 6.9566 6.7375 7.34663 6.25636 7.34663C5.77523 7.34663 5.3852 6.9566 5.3852 6.47547C5.3852 5.99433 5.77523 5.6043 6.25636 5.6043C6.7375 5.6043 7.12753 5.99433 7.12753 6.47547ZM10.203 6.93747L6.71837 10.4221C6.46321 10.6773 6.04952 10.6773 5.79436 10.4221C5.5392 10.167 5.5392 9.75329 5.79436 9.49813L9.27903 6.01346C9.53419 5.7583 9.94788 5.7583 10.203 6.01346C10.4582 6.26862 10.4582 6.68231 10.203 6.93747ZM10.6122 9.96014C10.6122 10.4413 10.2222 10.8313 9.74103 10.8313C9.2599 10.8313 8.86987 10.4413 8.86987 9.96014C8.86987 9.479 9.2599 9.08897 9.74103 9.08897C10.2222 9.08897 10.6122 9.479 10.6122 9.96014Z" fill="white"></path></svg> ${item.discounts[0]?.title || ""}</span>`
+              : ""
+            }
             </span>
             <div class="cdp-line-bottom">
               <div class="cdp-qty" data-qty-wrap ${isFreeGift ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>
                 <button class="cdp-qty-btn" data-qty-down ${isFreeGift ? 'disabled style="cursor: not-allowed;"' : ''}>-</button>
-                <input class="cdp-qty-input" type="number" min="0" value="${
-                  item.quantity
-                }" data-qty ${isFreeGift ? 'readonly disabled style="cursor: not-allowed;"' : ''}>
+                <input class="cdp-qty-input" type="number" min="0" value="${item.quantity
+            }" data-qty ${isFreeGift ? 'readonly disabled style="cursor: not-allowed;"' : ''}>
                 <button class="cdp-qty-btn" data-qty-up ${isFreeGift ? 'disabled style="cursor: not-allowed;"' : ''}>+</button>
               </div>
               <button class="cdp-line-remove" data-remove="${item.key}" aria-label="Remove" ${isFreeGift ? 'disabled style="opacity: 0.5; cursor: not-allowed; pointer-events: none;"' : ''}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
@@ -1364,22 +1358,33 @@ function unlockBodyScroll() {
         : 0;
 
     const itemsSum = sumLines(cart.items);
+
+    // original_total_price is subtotal before discounts
     const subtotalCents =
-      isFinite(cart.items_subtotal_price) && cart.items_subtotal_price > 0
-        ? cart.items_subtotal_price
-        : itemsSum;
+      isFinite(cart.original_total_price) && cart.original_total_price > 0
+        ? cart.original_total_price
+        : (isFinite(cart.items_subtotal_price) && cart.items_subtotal_price > 0 ? cart.items_subtotal_price : itemsSum);
+
     const totalCents =
       isFinite(cart.total_price) && cart.total_price > 0
         ? cart.total_price
         : subtotalCents;
 
-    if (subtotalEl) subtotalEl.textContent = fmtMoney(totalCents);
-    if (totalEl) totalEl.textContent = fmtMoney(totalCents);
+    if (subtotalEl) subtotalEl.textContent = fmtMoney(subtotalCents);
+    if (totalEls.length) {
+      totalEls.forEach(el => el.textContent = fmtMoney(totalCents));
+    }
 
-    // Bill summary: simple subtotal display (no comparison)
+    // Bill summary: subtotal display 
     const billSubtotalEl = drawer.querySelector(".bill-subtotal-row [data-subtotal]");
     if (billSubtotalEl) {
-      billSubtotalEl.textContent = fmtMoney(totalCents);
+      billSubtotalEl.textContent = fmtMoney(subtotalCents);
+    }
+
+    // Bill summary: grand total 
+    const billGrandTotalEl = drawer.querySelector(".bill-grandtotal-row [data-total]");
+    if (billGrandTotalEl) {
+      billGrandTotalEl.textContent = fmtMoney(totalCents);
     }
 
     if (offersRoot) {
@@ -1430,8 +1435,8 @@ function unlockBodyScroll() {
           "X-Shopify-Shop-Domain": remove_protocol,
           Accept: "application/json"
         }
-      }); 
- 
+      });
+
       const data = await response.json();
       const free_price_threshold = Number(data?.data?.price || 0); // assume major units (e.g. 999)
       const free_gift_eligible = !!data?.data?.enabled;
@@ -1465,13 +1470,13 @@ function unlockBodyScroll() {
           const msg = document.createElement("div");
           msg.className = "free-gift-message-removed";
           msg.id = "free-gift-message";
-          msg.innerHTML='';
+          msg.innerHTML = '';
           // msg.innerHTML =
           //   '<span class="cdp-offer-text">Free gift removed from your cart! 🎁</span>';
           linesContainer.insertAdjacentElement("beforebegin", msg);
         }
         document.querySelector(".free-gift-message-added")?.remove();
-        
+
         // Refresh UI to show updated cart without free gift
         await refreshUI();
         return;
@@ -1492,7 +1497,7 @@ function unlockBodyScroll() {
           await refreshUI();
           return;
         }
-        
+
         // If free gift is not in cart, add it
         if (!free_gift_in_cart) {
           const free_product_id = await getVariantIdByHandle(free_product_handle);
@@ -1517,7 +1522,7 @@ function unlockBodyScroll() {
             const msg = document.createElement("div");
             msg.className = "free-gift-message-added";
             msg.id = "free-gift-message";
-            msg.innerHTML='';
+            msg.innerHTML = '';
             // msg.innerHTML =
             //   '<span class="cdp-offer-text">Free gift added to your cart! 🎁</span>';
             linesContainer.insertAdjacentElement("beforebegin", msg);
@@ -1547,9 +1552,13 @@ function unlockBodyScroll() {
       const target = document.querySelector(".discount-applied-at-cartdrawer");
       if (!target) return;
 
-      if (title && total_discount > 0) {
+      if (total_discount > 0) {
         const formatted = convertToCurrency(total_discount, currency);
-        target.innerHTML = `Discount applied: ${title}
+        let text = "Discount applied";
+        if (title) {
+          text += ` (${title})`;
+        }
+        target.innerHTML = `${text}
           <span class="discounted-value">-${formatted}</span>`;
         target.style.display = "flex";
       } else {
@@ -1564,7 +1573,7 @@ function unlockBodyScroll() {
   const refreshUI = () => {
     // Show loader when refreshing cart
     if (window.upcart_loader) window.upcart_loader(true);
-    
+
     return fetchCart().then(async (cart) => {
       renderLines(cart);
       renderTotals(cart);
@@ -1593,14 +1602,14 @@ function unlockBodyScroll() {
       const key = line?.getAttribute("data-line-key");
       const input = line?.querySelector("[data-qty]");
       if (!key || !input) return;
-      
+
       // Prevent quantity changes for free gift items
       if (line?.hasAttribute("data-free-gift")) {
         e.preventDefault();
         e.stopPropagation();
         return;
       }
-      
+
       const curr = parseInt(input.value || "1", 10);
       const next = Math.max(0, curr + (down ? -1 : 1));
       changeQty(key, next).then(refreshUI);
@@ -1616,7 +1625,7 @@ function unlockBodyScroll() {
         e.stopPropagation();
         return;
       }
-      
+
       const key = rem.getAttribute("data-remove");
       changeQty(key, 0).then(refreshUI);
       e.preventDefault();
@@ -1627,7 +1636,7 @@ function unlockBodyScroll() {
     const qtyInput = e.target.closest("[data-qty]");
     if (!qtyInput) return;
     const line = e.target.closest(".cdp-line");
-    
+
     // Prevent quantity changes for free gift items
     if (line?.hasAttribute("data-free-gift")) {
       // Reset quantity to 1 if user tries to change it
@@ -1636,7 +1645,7 @@ function unlockBodyScroll() {
       e.stopPropagation();
       return;
     }
-    
+
     const key = line?.getAttribute("data-line-key");
     const v = Math.max(0, parseInt(qtyInput.value || "0", 10));
     if (!key) return;
@@ -1753,11 +1762,11 @@ function unlockBodyScroll() {
 
   /* ============ ADD-TO-CART INTERCEPT (DEBOUNCED) ============ */
   let atcBusy = false;
-  
+
   // Ensure we only attach the handler once to prevent duplicates
   if (!window.__upcartSubmitHandlerAttached) {
     window.__upcartSubmitHandlerAttached = true;
-    
+
     document.addEventListener("submit", function (e) {
       const form = e.target.closest('form[action*="/cart/add"], form[action="/cart/add"]');
       if (!form) return;
@@ -1791,12 +1800,12 @@ function unlockBodyScroll() {
 
       // Create FormData and ensure quantity is set correctly (not duplicated)
       const fd = new FormData(form);
-      
+
       // Remove any existing quantity entries to avoid duplication
       fd.delete('quantity');
       // Set the correct quantity
       fd.set('quantity', String(quantity));
-      
+
       // Ensure variant ID is present
       const variantId = fd.get('id') || form.querySelector('input[name="id"]')?.value;
       if (!variantId) {
@@ -1852,7 +1861,7 @@ function unlockBodyScroll() {
             atcBusy = false;
           }, 800);
         });
-      
+
       return false;
     }, true); // Use capture phase to intercept early
   }
@@ -1865,7 +1874,7 @@ function unlockBodyScroll() {
       ".header__icon--cart",                   // Dawn theme and variants
       ".m-cart-icon-bubble",                   // Mobile cart icon
       ".navlink--cart",                        // Navigation cart link
-      "a[aria-label='Cart']",   
+      "a[aria-label='Cart']",
       ".header-actions__cart-icon",               // Accessible cart link
       "a[aria-label='cart']",                   // Lowercase variant
       ".header-actions__cart-icon",            // Header actions cart
@@ -1884,9 +1893,9 @@ function unlockBodyScroll() {
       ".cart-bubble",                          // Cart bubble
       ".cart-drawer-toggle"                    // Cart drawer toggle
     ].join(", ");
-    
+
     const icon = e.target.closest(cartIconSelectors);
-    
+
     // Additional check: if clicked element or parent has cart-related href
     if (!icon) {
       const link = e.target.closest("a");
@@ -1901,7 +1910,7 @@ function unlockBodyScroll() {
       }
       return;
     }
-    
+
     if (window.CartDrawerPremium && typeof window.CartDrawerPremium.open === "function") {
       e.preventDefault();
       e.stopPropagation();
@@ -1954,15 +1963,15 @@ function unlockBodyScroll() {
   // Function to format price with HTML support and trailing zero removal
   function formatPriceWithHTML(price, moneyFormat, drawerEl) {
     let formattedPrice = "";
-    
+
     if (window.Shopify && typeof Shopify.formatMoney === "function") {
       formattedPrice = Shopify.formatMoney(price, moneyFormat);
-      
+
       // Check if the result contains HTML tags
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = formattedPrice;
       const hasHTML = tempDiv.children.length > 0;
-      
+
       if (hasHTML) {
         // If HTML, remove trailing zeros from text content but keep HTML structure
         const walker = document.createTreeWalker(
@@ -1982,19 +1991,19 @@ function unlockBodyScroll() {
     } else {
       // Fallback: format like Liquid would
       const priceAmount = price / 100;
-      formattedPrice = priceAmount.toLocaleString("en-IN", { 
-        minimumFractionDigits: 0, 
-        maximumFractionDigits: 0 
+      formattedPrice = priceAmount.toLocaleString("en-IN", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
       });
       const currency = drawerEl?.getAttribute("data-currency") || "INR";
       if (currency === "INR") {
         formattedPrice = "₹" + formattedPrice;
       }
     }
-    
+
     // Replace Rs. with ₹ symbol
     formattedPrice = formattedPrice.replace(/Rs\.?/g, "₹");
-    
+
     return formattedPrice;
   }
 
@@ -2010,13 +2019,13 @@ function unlockBodyScroll() {
   // Function to update variant selection and UI
   function updateVariantSelection(productData, selectedOptions, targetVariant, moneyFormat, drawerEl) {
     if (!productData || !selectedOptions) return;
-    
+
     // Find the matching variant
     let selectedVariant = targetVariant;
     if (!selectedVariant) {
       selectedVariant = findVariantByOptions(productData, selectedOptions);
     }
-    
+
     if (!selectedVariant) {
       // Try to find first available variant with selected options
       selectedVariant = productData.variants.find(v => {
@@ -2026,7 +2035,7 @@ function unlockBodyScroll() {
         });
       });
     }
-    
+
     // If still no variant found, try to find any available variant that matches most options
     if (!selectedVariant) {
       selectedVariant = productData.variants.find(v => v.available) || productData.variants[0];
@@ -2039,9 +2048,9 @@ function unlockBodyScroll() {
         });
       }
     }
-    
+
     if (!selectedVariant) return;
-    
+
     // Update active buttons for each option
     Object.keys(selectedOptions).forEach(optionName => {
       const selectedValue = selectedOptions[optionName];
@@ -2055,20 +2064,20 @@ function unlockBodyScroll() {
         }
       });
     });
-    
+
     // Format prices with HTML support
     const formattedPrice = formatPriceWithHTML(selectedVariant.price, moneyFormat, drawerEl);
     let formattedComparePrice = "";
-    
+
     if (selectedVariant.compare_at_price && selectedVariant.compare_at_price > selectedVariant.price) {
       formattedComparePrice = formatPriceWithHTML(selectedVariant.compare_at_price, moneyFormat, drawerEl);
     }
-    
+
     // Update price display using innerHTML to support HTML
     if (popupProductPrice) {
       popupProductPrice.innerHTML = formattedPrice;
     }
-    
+
     if (popupProductCompare) {
       if (formattedComparePrice && formattedComparePrice !== "") {
         popupProductCompare.innerHTML = formattedComparePrice;
@@ -2077,17 +2086,17 @@ function unlockBodyScroll() {
         popupProductCompare.style.display = "none";
       }
     }
-    
+
     // Update variant ID for add button
     if (popupAddBtn) {
       popupAddBtn.dataset.variantId = selectedVariant.id;
     }
-    
+
     // Update image if variant has different image
     if (popupProductImage && selectedVariant.featured_image) {
       popupProductImage.src = selectedVariant.featured_image.src || productData.featured_image;
     }
-    
+
     // Store current selected options
     currentSelectedOptions = { ...selectedOptions };
   }
@@ -2123,19 +2132,19 @@ function unlockBodyScroll() {
   // Handle variant option button click
   function handleVariantOptionClick(btn) {
     if (!btn || !currentProductData) return;
-    
+
     const optionName = btn.dataset.optionName;
     const optionValue = btn.dataset.optionValue;
-    
+
     if (!optionName || !optionValue) return;
-    
+
     // Update selected option
     currentSelectedOptions[optionName] = optionValue;
-    
+
     // Get money format
     const drawerEl = document.getElementById("CartDrawerPremium");
     const moneyFormat = drawerEl?.getAttribute("data-money-format") || "${{amount}}";
-    
+
     // Update variant selection
     updateVariantSelection(currentProductData, currentSelectedOptions, null, moneyFormat, drawerEl);
   }
@@ -2194,8 +2203,8 @@ function unlockBodyScroll() {
 
         // Find the initial variant (use variantId from button, or first available)
         const initialVariantId = variantId ? parseInt(variantId) : null;
-        const initialVariant = productData.variants.find(v => 
-          (initialVariantId && v.id === initialVariantId) || 
+        const initialVariant = productData.variants.find(v =>
+          (initialVariantId && v.id === initialVariantId) ||
           (!initialVariantId && v.available)
         ) || productData.variants.find(v => v.available) || productData.variants[0];
 
@@ -2208,12 +2217,12 @@ function unlockBodyScroll() {
             // Variant changed, format price using Liquid's {{ price | money_without_trailing_zeros }} format
             const drawerEl = document.getElementById("CartDrawerPremium");
             const moneyFormat = drawerEl?.getAttribute("data-money-format") || "${{amount}}";
-            
+
             if (popupProductPrice) {
               const formattedPrice = formatPriceWithHTML(initialVariant.price, moneyFormat, drawerEl);
               popupProductPrice.innerHTML = formattedPrice;
             }
-            
+
             if (popupProductCompare) {
               if (initialVariant.compare_at_price && initialVariant.compare_at_price > initialVariant.price) {
                 const formattedComparePrice = formatPriceWithHTML(initialVariant.compare_at_price, moneyFormat, drawerEl);
@@ -2238,11 +2247,11 @@ function unlockBodyScroll() {
           // Using Shopify.formatMoney with shop.money_format (same as Liquid's {{ price | money_without_trailing_zeros }})
           const drawerEl = document.getElementById("CartDrawerPremium");
           const moneyFormat = drawerEl?.getAttribute("data-money-format") || "${{amount}}";
-          
+
           // Group variants by option
           const optionGroups = {};
           const selectedOptions = {}; // Track selected option for each option name
-          
+
           // Initialize selected options with first available variant
           if (initialVariant && initialVariant.options) {
             productData.options.forEach((option, index) => {
@@ -2251,7 +2260,7 @@ function unlockBodyScroll() {
               }
             });
           }
-          
+
           // Group variants by option values
           productData.options.forEach((option, optionIndex) => {
             const optionName = option.name;
@@ -2259,35 +2268,35 @@ function unlockBodyScroll() {
               .filter(v => v.available)
               .map(v => v.options[optionIndex])
             )];
-            
+
             optionGroups[optionName] = {
               name: optionName,
               values: uniqueValues,
               index: optionIndex
             };
           });
-          
+
           // Generate HTML for each option group
           let variantOptionsHTML = '';
-          
+
           Object.keys(optionGroups).forEach(optionName => {
             const optionGroup = optionGroups[optionName];
             const selectedValue = selectedOptions[optionName] || optionGroup.values[0];
-            
+
             variantOptionsHTML += `
               <div class="cdp-popup-variant-group" data-option-name="${optionName}" data-option-index="${optionGroup.index}">
                 <label class="cdp-popup-variant-label">${optionName}:</label>
                 <div class="cdp-popup-variant-btns">
             `;
-            
+
             optionGroup.values.forEach(value => {
               // Find a variant with this option value to get price info
-              const sampleVariant = productData.variants.find(v => 
+              const sampleVariant = productData.variants.find(v =>
                 v.options[optionGroup.index] === value && v.available
               );
-              
+
               const isSelected = value === selectedValue;
-              
+
               variantOptionsHTML += `
                 <button 
                   type="button"
@@ -2298,18 +2307,18 @@ function unlockBodyScroll() {
                 >${value}</button>
               `;
             });
-            
+
             variantOptionsHTML += `
                 </div>
               </div>
             `;
           });
-          
+
           popupVariantOptions.innerHTML = variantOptionsHTML;
-          
+
           // Update currentSelectedOptions to match selectedOptions
           currentSelectedOptions = { ...selectedOptions };
-          
+
           // Set initial variant selection
           updateVariantSelection(productData, selectedOptions, initialVariant, moneyFormat, drawerEl);
         } else {
