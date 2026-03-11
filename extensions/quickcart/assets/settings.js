@@ -178,16 +178,17 @@
       if (settings.cartDrawer.text_color) {
         root.style.setProperty("--text_color", settings.cartDrawer.text_color);
       }
+
+   
       if (settings.cartDrawer.border_radius !== undefined) {
         root.style.setProperty(
           "--border_radius",
           settings.cartDrawer.border_radius + "px",
         );
         document.querySelector(".cdp-checkout").style.borderRadius =
-        settings.cartDrawer.border_radius + "px";
+        settings.cartDrawer.button_border_radius + "px";
 
-        // document.querySelector(".sr-countdown").style.borderRadius =
-        // settings.cartDrawer.border_radius + "px";
+        document.querySelector('.cdp-line').style.borderRadius = settings.cartDrawer.border_radius + "px"; 
 
         document.querySelector("[data-announcement-bar]").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
@@ -205,9 +206,16 @@
             settings.cartDrawer.border_radius + "px";
         });
       } 
+
+
+
+
+
       if (settings.cartDrawer.button_color) {
           document.querySelector(".cdp-checkout").style.backgroundColor =
             settings.cartDrawer.button_color;
+
+            document.querySelector('.cdp-checkout').style.color = settings.cartDrawer.button_text_color;
 
           document.querySelector(".combined-offer-badge").style.backgroundColor =
           settings.cartDrawer.button_color;
@@ -417,6 +425,31 @@
         btn.style.display = settings.enable_quickview_button ? "" : "none";
       });
     }
+
+    // Apply upsell_collection settings ()
+
+ 
+    if(settings.collection !== undefined){
+
+
+      // let emptyContent = `<div class="cdp-u-empty">Add an upsell collection Go to Upcart App Dashboard 
+      //          at left side app navigation show styling & display settings ->  Select Upsell Collection 
+      // </div>`;
+
+      // let upsell_next_insert =  document.querySelector('.mob_upsell');
+
+
+
+      if(settings.collection.enabled == true){
+        document.querySelector('.mob_upsell').style.display = ' ';
+        
+      }else{
+        document.querySelector('.mob_upsell').style.display = 'none';
+        // upsell_next_insert.insertAdjacentHTML('afterend', emptyContent);
+      } 
+    }
+
+
 
     // Dispatch event to notify other scripts that settings have been applied
     window.dispatchEvent(

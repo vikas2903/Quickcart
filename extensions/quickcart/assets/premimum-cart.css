@@ -319,10 +319,13 @@ body.gradient.overflow-hidden {
 }
 
 .cdp-u-empty {
-  padding: 20px;
-  font-size: 0.9rem;
-  opacity: 0.7;
+  padding: 10px 12px;
+  font-size: 14px;
+  opacity: 1;
   text-align: center;
+  color: #000;
+  line-height: 1.6;
+  font-family: inherit;
 }
 
 /* ===== UPSELL POPUP MODAL ===== */
@@ -1789,9 +1792,16 @@ body.no-scroll{overflow: unset !important;}
   border-top-left-radius: 10px;
   text-align: center;
   font-size: 12px;
-  color: #fff !important;
   opacity: 1;
   transition: all .4s ease;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+label[for="gw-check-global"] {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
 }
 
 .mini-cart-order-summary {
@@ -1800,6 +1810,8 @@ body.no-scroll{overflow: unset !important;}
   padding: 0px 10px 6px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  font-weight: 500;
+  font-family: inherit;
 }
 
 .mini-cart-order-summary .summary-heading {

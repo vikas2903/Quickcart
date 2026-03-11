@@ -162,9 +162,13 @@ function BuyXGetYSection({ shop }) {
         offer:offer
       })
 
+    setEnabled(enabled);
+    setBuyQty(offer?.buyQty);
+    setGetQty(offer?.getQty);
+
     }
     getdata();
-    },)
+    },[enabled,buyQty,getQty, shop])
   // ---------- RENDER ----------
   return (
     <Grid>
