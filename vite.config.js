@@ -64,10 +64,17 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+
+   // ✅ ADD THIS
+   ssr: {
+    noExternal: ["styled-components"],
+  },
+
+
   build: {
     assetsInlineLimit: 0,
   },
   optimizeDeps: {
-    include: ["@shopify/app-bridge-react", "@shopify/polaris"],
+    include: ["@shopify/app-bridge-react", "@shopify/polaris", "@styled-compoents"],
   },
 });

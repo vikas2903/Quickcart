@@ -24,6 +24,10 @@
 
 import image from "../routes/assests/cart_drawer_image.png";
 import React, { useState, useEffect, useMemo } from "react";
+
+import Cart from '../routes/app.cartdrawerpreview.jsx'
+
+
 import {
   Grid,
   Page,
@@ -314,10 +318,16 @@ function Settings() {
   const [countdownBackgroundColor, setCountdownBackgroundColor] =
     useState("#5B9BD4");
   const [countdownTextColor, setCountdownTextColor] = useState("#ffffff");
+
+  console.log("countdownTextColor", countdownTextColor);
   const [countdownChipBackgroundColor, setCountdownChipBackgroundColor] =
     useState("#ffffff");
+
   const [countdownChipTextColor, setCountdownChipTextColor] =
     useState("#2c3e50");
+
+
+
   const [countdownBorderRadius, setCountdownBorderRadius] = useState(50);
   const [countdownEnable, setCountdownEnable] = useState(false);
 
@@ -435,6 +445,7 @@ function Settings() {
    * ============================================================================
    */
   useEffect(() => {
+
     const loadSettings = async () => {
       setIsLoading(true);
       try {
@@ -462,21 +473,21 @@ function Settings() {
           );
           setCountdownTextColor(
             countdown.countdown_text_color ||
-              data.countdown_text_color ||
-              "#ffffff",
+            data.countdown_text_color ||
+            "#ffffff",
           );
           setCountdownChipBackgroundColor(
             countdown.countdown_chip_bg || data.countdown_chip_bg || "#ffffff",
           );
           setCountdownChipTextColor(
             countdown.countdown_chip_text ||
-              data.countdown_chip_text ||
-              "#2c3e50",
+            data.countdown_chip_text ||
+            "#2c3e50",
           );
           setCountdownBorderRadius(
             countdown.countdown_border_radius ||
-              data.countdown_border_radius ||
-              50,
+            data.countdown_border_radius ||
+            50,
           );
 
           // Cart Drawer settings
@@ -503,18 +514,18 @@ function Settings() {
           setannouncementBarEnable(announcementBar.enabled ?? false);
           setanouncmentbartTextarea(
             announcementBar.content ||
-              "Free shipping order above 999, Get 10% Off order above 1999",
+            "Free shipping order above 999, Get 10% Off order above 1999",
           );
           // Announcement Bar colors
           setAnnouncementBarBackgroundColor(
             announcementBar.background_color ||
-              data.announcementBar?.background_color ||
-              "#f0e5e7",
+            data.announcementBar?.background_color ||
+            "#f0e5e7",
           );
           setAnnouncementBarTextColor(
             announcementBar.text_color ||
-              data.announcementBar?.text_color ||
-              "#000",
+            data.announcementBar?.text_color ||
+            "#000",
           );
 
           // Collection settings
@@ -713,7 +724,7 @@ function Settings() {
 
       // Step 4: Parse response and handle result
       const json = await res.json();
-      
+
       if (json?.ok) {
         toast.success("Settings saved successfully!");
         console.log("Settings saved to database:", json.data);
@@ -761,717 +772,738 @@ function Settings() {
       <Layout>
 
         <Grid>
-        <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 8, lg: 8, xl: 8 }} gap="small">
-          
-        <Layout.Section>
-          <Grid>
-            <Grid.Cell
-              columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-              gap="small"
-            >
-              <Button
-                primary
-                onClick={() => settabsbutton(1)}
-                variant={tabsbutton === 1 ? "primary" : "secondary"}
-                style={{ marginRight: "5px" }}
-              >
-                {" "}
-                Cart Settings{" "}
-              </Button>
-              <Button
-                primary
-                onClick={() => settabsbutton(0)}
-                variant={tabsbutton === 0 ? "primary" : "secondary"}
-                style={{ marginRight: "5px" }}
-              >
-                {" "}
-                CountDown Block{" "}
-              </Button>
-              <Button
-                primary
-                onClick={() => settabsbutton(2)}
-                variant={tabsbutton === 2 ? "primary" : "secondary"}
-                style={{ marginRight: "5px" }}
-              >
-                {" "}
-                Select Upsell Collection {" "}
-              </Button>
-              <Button
-                primary
-                onClick={() => settabsbutton(3)}
-                variant={tabsbutton === 3 ? "primary" : "secondary"}
-                style={{ marginRight: "5px" }}
-              >
-                {" "}
-                Select One Recommended Product{" "}
-              </Button>
-              <Button
-                primary
-                variant={tabsbutton === 4 ? "primary" : "secondary"}
-                onClick={() => settabsbutton(4)}
-              >
-                {" "}
-                Third Party  Chekout Integration{" "}
-              </Button>
-              <Button
-                primary
-                style={{ marginRight: "5px", marginTop: "5px" }}
-                variant={tabsbutton === 5 ? "primary" : "secondary"}
-                onClick={() => settabsbutton(5)}
-              >
-                {" "}
-                Announcementbar Crousel
-              </Button>
-            </Grid.Cell>
-          </Grid>
-        </Layout.Section>
+          <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 8, lg: 8, xl: 8 }} gap="small">
 
-        {tabsbutton === 0 && (
-          <Layout.Section>
-            <Grid>
-              <Grid.Cell
-                columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-                gap="small"
-              >
-                <BlockStack gap="200">
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Enable CountDown</div>
-                      {
-                        <InfoBanner text="Enable Countdown Block in Cart Drawer" />
-                      }
-                      <div className="color-picker-container">
-                        <Checkbox
-                          checked={countdownEnable}
-                          onChange={handleCountdown}
-                        >
-                          {" "}
-                          Enable
-                        </Checkbox>
-                      </div>
-                    </div>
-                  </LegacyCard>
+            <Layout.Section>
+              <Grid>
+                <Grid.Cell
+                  columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                  gap="small"
+                >
+                  <Button
+                    primary
+                    onClick={() => settabsbutton(1)}
+                    variant={tabsbutton === 1 ? "primary" : "secondary"}
+                    style={{ marginRight: "5px" }}
+                  >
+                    {" "}
+                    Cart Settings{" "}
+                  </Button>
+                  <Button
+                    primary
+                    onClick={() => settabsbutton(0)}
+                    variant={tabsbutton === 0 ? "primary" : "secondary"}
+                    style={{ marginRight: "5px" }}
+                  >
+                    {" "}
+                    CountDown Block{" "}
+                  </Button>
+                  <Button
+                    primary
+                    onClick={() => settabsbutton(2)}
+                    variant={tabsbutton === 2 ? "primary" : "secondary"}
+                    style={{ marginRight: "5px" }}
+                  >
+                    {" "}
+                    Select Upsell Collection {" "}
+                  </Button>
+                  <Button
+                    primary
+                    onClick={() => settabsbutton(3)}
+                    variant={tabsbutton === 3 ? "primary" : "secondary"}
+                    style={{ marginRight: "5px" }}
+                  >
+                    {" "}
+                    Select One Recommended Product{" "}
+                  </Button>
+                  <Button
+                    primary
+                    variant={tabsbutton === 4 ? "primary" : "secondary"}
+                    onClick={() => settabsbutton(4)}
+                  >
+                    {" "}
+                    Third Party  Chekout Integration{" "}
+                  </Button>
+                  <Button
+                    primary
+                    style={{ marginRight: "5px", marginTop: "5px" }}
+                    variant={tabsbutton === 5 ? "primary" : "secondary"}
+                    onClick={() => settabsbutton(5)}
+                  >
+                    {" "}
+                    Announcementbar Crousel
+                  </Button>
+                </Grid.Cell>
+              </Grid>
+            </Layout.Section>
 
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Border Radius</div>
-                      {<InfoBanner text="Border Radius for CountDown Block" />}
-                      <div className="color-picker-container">
-                        <InputNumber
-                          value={countdownBorderRadius}
-                          onChange={handlecountdownBorderRadius}
-                          min={0}
-                          max={50}
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Background Color</div>
-                      {
-                        <InfoBanner text="Background Color for CountDown Block" />
-                      }
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={countdownBackgroundColor}
-                          onChange={(color) =>
-                            setCountdownBackgroundColor(color.toHexString())
+            {tabsbutton === 0 && (
+              <Layout.Section>
+                <Grid>
+                  <Grid.Cell
+                    columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                    gap="small"
+                  >
+                    <BlockStack gap="200">
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Enable CountDown</div>
+                          {
+                            <InfoBanner text="Enable Countdown Block in Cart Drawer" />
                           }
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
+                          <div className="color-picker-container">
+                            <Checkbox
+                              checked={countdownEnable}
+                              onChange={handleCountdown}
+                            >
+                              {" "}
+                              Enable
+                            </Checkbox>
+                          </div>
+                        </div>
+                      </LegacyCard>
 
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Text Color</div>
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={countdownTextColor}
-                          onChange={handlecountdownTextColor}
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Border Radius</div>
+                          {<InfoBanner text="Border Radius for CountDown Block" />}
+                          <div className="color-picker-container">
+                            <InputNumber
+                              value={countdownBorderRadius}
+                              onChange={handlecountdownBorderRadius}
+                              min={0}
+                              max={50}
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
 
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">
-                        CountDown Block Background Color
-                      </div>
-                      {
-                        <InfoBanner text="Background Color for CountDown Timer Blocks" />
-                      }
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={countdownChipBackgroundColor}
-                          onChange={handlecountdownChipBackgroundColor}
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">
-                        CountDown Block Text Color
-                      </div>
-                      {
-                        <InfoBanner text="Text Color for CountDown Timer Blocks" />
-                      }
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={countdownChipTextColor}
-                          onChange={handlecountdownChipTextColor}
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-                </BlockStack>
-              </Grid.Cell>
-            </Grid>
-          </Layout.Section>
-        )}
-        {tabsbutton === 1 && (
-          <Layout.Section>
-            <Grid>
-              <Grid.Cell
-                columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-                gap="small"
-              >
-                <BlockStack gap="200">
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Background Color</div>
-                      {
-                        <InfoBanner text="Background Color for Cart Drawer Body" />
-                      }
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={cartDrawerBackgroundColor}
-                          onChange={handlecartDrawerBackgroundColoronchnage}
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title"> Text Color</div>
-                      {<InfoBanner text="Text Color for Cart Drawer Body" />}
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={textColor}
-                          onChange={handleTextColor}
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Border Radius</div>
-                      {
-                        <InfoBanner text="Border Radius for Cart Drawer Body Button and Checkout Button" />
-                      }
-                      <div className="color-picker-container">
-                        <InputNumber
-                          value={borderRadius}
-                          onChange={handleBorderRadius}
-                          min={0}
-                          max={100}
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Button Text Color</div>
-                      {
-                        <InfoBanner text="Text Color for Cart Drawer Buttons and Checkout Button" />
-                      }
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={buttonTextColor}
-                          onChange={handleButtonTextColor}
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">
-                        Button Background Color
-                      </div>
-                      {
-                        <InfoBanner text="Background Color for Cart Drawer Buttons and Checkout Button" />
-                      }
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={buttonColor}
-                          onChange={handleButtonColor}
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Border Radius</div>
-                      {
-                        <InfoBanner text="Border Radius for Cart Drawer Buttons and Checkout Button" />
-                      }
-                      <div className="color-picker-container">
-                        <InputNumber
-                          value={buttonBorderRadius}
-                          onChange={handleButtonBorderRadius}
-                          min={0}
-                          max={50}
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-                </BlockStack>
-              </Grid.Cell>
-            </Grid>
-          </Layout.Section>
-        )}
-
-        {tabsbutton === 5 && (
-          <Layout.Section>
-            <Grid>
-              <Grid.Cell
-                columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-                gap="small"
-              >
-                <BlockStack gap="200">
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">
-                        Enable Announcement Bar
-                      </div>
-                      {
-                        <InfoBanner text="Enable Announcement Bar Block in Cart Drawer" />
-                      }
-                      <div className="color-picker-container">
-                        <Checkbox
-                          checked={announcementBarEnable}
-                          onChange={handleAnnouncementBar}
-                        >
-                          {" "}
-                          Enable Announcement Bar
-                        </Checkbox>
-                      </div>
-                    </div>
-                  </LegacyCard>
-                  <LegacyCard sectioned>
-                    <div
-                      className="grid-item"
-                      style={{
-                        gridColumnStart: 2,
-                        gridColumnEnd: 4,
-                        width: "100%",
-                      }}
-                    >
-                      <div className="column-title">
-                        Announcement Bar Content
-                      </div>
-                      {
-                        <InfoBanner text="Update Announcement Bar ContentBy Comma(,)Separated Values (Example: Free shipping order above 999, Get 10% Off order above 1999)" />
-                      }
-
-                      <div className="custom-antd-textarea">
-                        <TextArea
-                          placeholder="Enter your message"
-                          rows={4}
-                          value={anouncmentbartTextarea}
-                          onChange={handleAnnouncementBarTextarea}
-                          className=""
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">text color</div>
-                      {<InfoBanner text="Text Color for Announcement Bar" />}
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={announcementBarTextColor}
-                          onChange={handleAnnouncementBarTextColor}
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Background color</div>
-                      {
-                        <InfoBanner text="Background Color for Announcement Bar" />
-                      }
-                      <div className="color-picker-container">
-                        <ColorPicker
-                          value={announcementBarBackgroundColor}
-                          onChange={handleAnnouncementBarBackgroundColor}
-                          size="large"
-                          showText
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-                </BlockStack>
-              </Grid.Cell>
-            </Grid>
-          </Layout.Section>
-        )}
-        {tabsbutton === 2 && (
-          <Layout.Section>
-            <Grid>
-              <Grid.Cell
-                columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-                gap="small"
-              >
-                <BlockStack gap="200">
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Enable Collection</div>
-                      {
-                        <InfoBanner text="Enable  Block Upsell Products in Cart Drawer" />
-                      }
-                      <div className="color-picker-container">
-                        <Checkbox
-                          checked={collectionEnable}
-                          onChange={handleCollectionEnable}
-                        >
-                          {" "}
-                          Enable Collection
-                        </Checkbox>
-                      </div>
-                    </div>
-                  </LegacyCard>
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Select Collection</div>
-                      {
-                        <InfoBanner text="Select Collection for Upsell Products in Cart Drawer" />
-                      }
-                      <div className="custom-collection">
-                        <Select
-                          label=""
-                          options={collectionOptions}
-                          value={
-                            collections.find(
-                              (col) => col.handle === selectedCollection.handle,
-                            )?.id || ""
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Background Color</div>
+                          {
+                            <InfoBanner text="Background Color for CountDown Block" />
                           }
-                          onChange={handleCollectionChange}
-                          disabled={!collectionEnable}
-                        />
-                        {selectedCollection.handle && (
-                          <div
-                            style={{
-                              marginTop: "10px",
-                              padding: "10px",
-                              backgroundColor: "#f5f5f5",
-                              borderRadius: "4px",
-                            }}
-                          >
-                            <Text as="p" variant="bodyMd">
-                              <strong>Selected Collection:</strong>{" "}
-                              {selectedCollection.title}
-                            </Text>
-                            <Text as="p" variant="bodySm" tone="subdued">
-                              <strong>Handle:</strong>{" "}
-                              {selectedCollection.handle}
-                            </Text>
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={countdownBackgroundColor}
+                              onChange={(color) =>
+                                setCountdownBackgroundColor(color.toHexString())
+                              }
+                              size="large"
+                              showText
+                            />
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  </LegacyCard>
-                </BlockStack>
-              </Grid.Cell>
-            </Grid>
-          </Layout.Section>
-        )}
+                        </div>
+                      </LegacyCard>
 
-        {tabsbutton === 3 && (
-          <Layout.Section>
-            <Grid>
-              <Grid.Cell
-                columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-                gap="small"
-              >
-                <BlockStack gap="200">
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">Enable Product</div>
-                      {
-                        <InfoBanner text="Enable Block Free Gift Product in Cart Drawer (Important: Product should be in the cart to show the free gift product)" />
-                      }
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Text Color</div>
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={countdownTextColor}
+                              onChange={(color) =>
+                                setCountdownTextColor(color.toHexString())
+                              }
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
 
-                      <div className="color-picker-container">
-                        <Checkbox
-                          checked={productEnable}
-                          onChange={handleProductEnable}
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">
+                            CountDown Block Background Color
+                          </div>
+                          {
+                            <InfoBanner text="Background Color for CountDown Timer Blocks" />
+                          }
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={countdownChipBackgroundColor}
+                              onChange={handlecountdownChipBackgroundColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">
+                            CountDown Block Text Color
+                          </div>
+                          {
+                            <InfoBanner text="Text Color for CountDown Timer Blocks" />
+                          }
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={countdownChipTextColor}
+                              onChange={handlecountdownChipTextColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+                    </BlockStack>
+                  </Grid.Cell>
+                </Grid>
+              </Layout.Section>
+            )}
+            {tabsbutton === 1 && (
+              <Layout.Section>
+                <Grid>
+                  <Grid.Cell
+                    columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                    gap="small"
+                  >
+                    <BlockStack gap="200">
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Background Color</div>
+                          {
+                            <InfoBanner text="Background Color for Cart Drawer Body" />
+                          }
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={cartDrawerBackgroundColor}
+                              onChange={handlecartDrawerBackgroundColoronchnage}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title"> Text Color</div>
+                          {<InfoBanner text="Text Color for Cart Drawer Body" />}
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={textColor}
+                              onChange={handleTextColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Border Radius</div>
+                          {
+                            <InfoBanner text="Border Radius for Cart Drawer Body Button and Checkout Button" />
+                          }
+                          <div className="color-picker-container">
+                            <InputNumber
+                              value={borderRadius}
+                              onChange={handleBorderRadius}
+                              min={0}
+                              max={100}
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Button Text Color</div>
+                          {
+                            <InfoBanner text="Text Color for Cart Drawer Buttons and Checkout Button" />
+                          }
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={buttonTextColor}
+                              onChange={handleButtonTextColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">
+                            Button Background Color
+                          </div>
+                          {
+                            <InfoBanner text="Background Color for Cart Drawer Buttons and Checkout Button" />
+                          }
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={buttonColor}
+                              onChange={handleButtonColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Border Radius</div>
+                          {
+                            <InfoBanner text="Border Radius for Cart Drawer Buttons and Checkout Button" />
+                          }
+                          <div className="color-picker-container">
+                            <InputNumber
+                              value={buttonBorderRadius}
+                              onChange={handleButtonBorderRadius}
+                              min={0}
+                              max={50}
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+                    </BlockStack>
+                  </Grid.Cell>
+                </Grid>
+              </Layout.Section>
+            )}
+
+            {tabsbutton === 5 && (
+              <Layout.Section>
+                <Grid>
+                  <Grid.Cell
+                    columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                    gap="small"
+                  >
+                    <BlockStack gap="200">
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">
+                            Enable Announcement Bar
+                          </div>
+                          {
+                            <InfoBanner text="Enable Announcement Bar Block in Cart Drawer" />
+                          }
+                          <div className="color-picker-container">
+                            <Checkbox
+                              checked={announcementBarEnable}
+                              onChange={handleAnnouncementBar}
+                            >
+                              {" "}
+                              Enable Announcement Bar
+                            </Checkbox>
+                          </div>
+                        </div>
+                      </LegacyCard>
+                      <LegacyCard sectioned>
+                        <div
+                          className="grid-item"
+                          style={{
+                            gridColumnStart: 2,
+                            gridColumnEnd: 4,
+                            width: "100%",
+                          }}
                         >
-                          {" "}
-                          Enable Product
-                        </Checkbox>
-                      </div>
-                    </div>
-                  </LegacyCard>
-
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">
-                        Search & Select Product
-                      </div>
-                      {
-                        <InfoBanner text="Search and Select Product for Free Gift Product in Cart Drawer (IMPORTANT : The free gift will appear in the cart drawer only after the selected product is added to the cart. The gift price is automatically taken from the product price set in Shopify.)" />
-                      }
-
-                      <div className="custom-product-search">
-                        <TextField
-                          label=""
-                          value={productSearch}
-                          onChange={setProductSearch}
-                          placeholder="Search for products..."
-                          autoComplete="off"
-                        />
-                        {productLoading && (
-                          <div style={{ marginTop: "10px" }}>
-                            <Text as="p" variant="bodySm" tone="subdued">
-                              Searching...
-                            </Text>
+                          <div className="column-title">
+                            Announcement Bar Content
                           </div>
-                        )}
-                        {products.length > 0 && !productLoading && (
-                          <div
-                            style={{
-                              marginTop: "10px",
-                              maxHeight: "300px",
-                              overflowY: "auto",
-                              border: "1px solid #e1e3e5",
-                              borderRadius: "4px",
-                            }}
-                          >
-                            {!productEnable && (
+                          {
+                            <InfoBanner text="Update Announcement Bar ContentBy Comma(,)Separated Values (Example: Free shipping order above 999, Get 10% Off order above 1999)" />
+                          }
+
+                          <div className="custom-antd-textarea">
+                            <TextArea
+                              placeholder="Enter your message"
+                              rows={4}
+                              value={anouncmentbartTextarea}
+                              onChange={handleAnnouncementBarTextarea}
+                              className=""
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">text color</div>
+                          {<InfoBanner text="Text Color for Announcement Bar" />}
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={announcementBarTextColor}
+                              onChange={handleAnnouncementBarTextColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Background color</div>
+                          {
+                            <InfoBanner text="Background Color for Announcement Bar" />
+                          }
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={announcementBarBackgroundColor}
+                              onChange={handleAnnouncementBarBackgroundColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+                    </BlockStack>
+                  </Grid.Cell>
+                </Grid>
+              </Layout.Section>
+            )}
+            {tabsbutton === 2 && (
+              <Layout.Section>
+                <Grid>
+                  <Grid.Cell
+                    columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                    gap="small"
+                  >
+                    <BlockStack gap="200">
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Enable Collection</div>
+                          {
+                            <InfoBanner text="Enable  Block Upsell Products in Cart Drawer" />
+                          }
+                          <div className="color-picker-container">
+                            <Checkbox
+                              checked={collectionEnable}
+                              onChange={handleCollectionEnable}
+                            >
+                              {" "}
+                              Enable Collection
+                            </Checkbox>
+                          </div>
+                        </div>
+                      </LegacyCard>
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Select Collection</div>
+                          {
+                            <InfoBanner text="Select Collection for Upsell Products in Cart Drawer" />
+                          }
+                          <div className="custom-collection">
+                            <Select
+                              label=""
+                              options={collectionOptions}
+                              value={
+                                collections.find(
+                                  (col) => col.handle === selectedCollection.handle,
+                                )?.id || ""
+                              }
+                              onChange={handleCollectionChange}
+                              disabled={!collectionEnable}
+                            />
+                            {selectedCollection.handle && (
                               <div
                                 style={{
+                                  marginTop: "10px",
                                   padding: "10px",
-                                  backgroundColor: "#fff3cd",
-                                  borderBottom: "1px solid #e1e3e5",
+                                  backgroundColor: "#f5f5f5",
+                                  borderRadius: "4px",
                                 }}
                               >
-                                <Text as="p" variant="bodySm" tone="warning">
-                                  Enable product selection above to select
-                                  products
+                                <Text as="p" variant="bodyMd">
+                                  <strong>Selected Collection:</strong>{" "}
+                                  {selectedCollection.title}
+                                </Text>
+                                <Text as="p" variant="bodySm" tone="subdued">
+                                  <strong>Handle:</strong>{" "}
+                                  {selectedCollection.handle}
                                 </Text>
                               </div>
                             )}
-                            <ResourceList
-                              resourceName={{
-                                singular: "product",
-                                plural: "products",
-                              }}
-                              items={products}
-                              renderItem={(item) => {
-                                const {
-                                  id,
-                                  title,
-                                  handle,
-                                  featuredImage,
-                                  priceRange,
-                                } = item;
-                                const price =
-                                  priceRange?.minVariantPrice?.amount || "0";
-                                const currency =
-                                  priceRange?.minVariantPrice?.currencyCode ||
-                                  "";
-                                return (
-                                  <ResourceItem
-                                    id={id}
-                                    media={
-                                      <Thumbnail
-                                        source={featuredImage?.url || ""}
-                                        alt={title}
-                                        size="small"
-                                      />
-                                    }
-                                    onClick={() =>
-                                      productEnable && handleProductSelect(item)
-                                    }
-                                    accessibilityLabel={`Select ${title}`}
+                          </div>
+                        </div>
+                      </LegacyCard>
+                    </BlockStack>
+                  </Grid.Cell>
+                </Grid>
+              </Layout.Section>
+            )}
+
+            {tabsbutton === 3 && (
+              <Layout.Section>
+                <Grid>
+                  <Grid.Cell
+                    columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                    gap="small"
+                  >
+                    <BlockStack gap="200">
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Enable Product</div>
+                          {
+                            <InfoBanner text="Enable Block Free Gift Product in Cart Drawer (Important: Product should be in the cart to show the free gift product)" />
+                          }
+
+                          <div className="color-picker-container">
+                            <Checkbox
+                              checked={productEnable}
+                              onChange={handleProductEnable}
+                            >
+                              {" "}
+                              Enable Product
+                            </Checkbox>
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">
+                            Search & Select Product
+                          </div>
+                          {
+                            <InfoBanner text="Search and Select Product for Free Gift Product in Cart Drawer (IMPORTANT : The free gift will appear in the cart drawer only after the selected product is added to the cart. The gift price is automatically taken from the product price set in Shopify.)" />
+                          }
+
+                          <div className="custom-product-search">
+                            <TextField
+                              label=""
+                              value={productSearch}
+                              onChange={setProductSearch}
+                              placeholder="Search for products..."
+                              autoComplete="off"
+                            />
+                            {productLoading && (
+                              <div style={{ marginTop: "10px" }}>
+                                <Text as="p" variant="bodySm" tone="subdued">
+                                  Searching...
+                                </Text>
+                              </div>
+                            )}
+                            {products.length > 0 && !productLoading && (
+                              <div
+                                style={{
+                                  marginTop: "10px",
+                                  maxHeight: "300px",
+                                  overflowY: "auto",
+                                  border: "1px solid #e1e3e5",
+                                  borderRadius: "4px",
+                                }}
+                              >
+                                {!productEnable && (
+                                  <div
+                                    style={{
+                                      padding: "10px",
+                                      backgroundColor: "#fff3cd",
+                                      borderBottom: "1px solid #e1e3e5",
+                                    }}
                                   >
-                                    <Text
-                                      as="h3"
-                                      variant="bodyMd"
-                                      fontWeight="bold"
-                                    >
-                                      {title}
+                                    <Text as="p" variant="bodySm" tone="warning">
+                                      Enable product selection above to select
+                                      products
                                     </Text>
-                                    <div>
-                                      <Text
-                                        as="p"
-                                        variant="bodySm"
-                                        tone="subdued"
+                                  </div>
+                                )}
+                                <ResourceList
+                                  resourceName={{
+                                    singular: "product",
+                                    plural: "products",
+                                  }}
+                                  items={products}
+                                  renderItem={(item) => {
+                                    const {
+                                      id,
+                                      title,
+                                      handle,
+                                      featuredImage,
+                                      priceRange,
+                                    } = item;
+                                    const price =
+                                      priceRange?.minVariantPrice?.amount || "0";
+                                    const currency =
+                                      priceRange?.minVariantPrice?.currencyCode ||
+                                      "";
+                                    return (
+                                      <ResourceItem
+                                        id={id}
+                                        media={
+                                          <Thumbnail
+                                            source={featuredImage?.url || ""}
+                                            alt={title}
+                                            size="small"
+                                          />
+                                        }
+                                        onClick={() =>
+                                          productEnable && handleProductSelect(item)
+                                        }
+                                        accessibilityLabel={`Select ${title}`}
                                       >
-                                        Handle: {handle}
-                                      </Text>
-                                      <Text as="p" variant="bodySm">
-                                        Price: {price} {currency}
-                                      </Text>
-                                    </div>
-                                  </ResourceItem>
-                                );
-                              }}
+                                        <Text
+                                          as="h3"
+                                          variant="bodyMd"
+                                          fontWeight="bold"
+                                        >
+                                          {title}
+                                        </Text>
+                                        <div>
+                                          <Text
+                                            as="p"
+                                            variant="bodySm"
+                                            tone="subdued"
+                                          >
+                                            Handle: {handle}
+                                          </Text>
+                                          <Text as="p" variant="bodySm">
+                                            Price: {price} {currency}
+                                          </Text>
+                                        </div>
+                                      </ResourceItem>
+                                    );
+                                  }}
+                                />
+                              </div>
+                            )}
+                            {selectedProduct.handle && (
+                              <div
+                                style={{
+                                  marginTop: "10px",
+                                  padding: "10px",
+                                  backgroundColor: "#f5f5f5",
+                                  borderRadius: "4px",
+                                }}
+                              >
+                                <Text as="p" variant="bodyMd">
+                                  <strong>Selected Product:</strong>{" "}
+                                  {selectedProduct.title || "N/A"}
+                                </Text>
+                                <Text as="p" variant="bodySm" tone="subdued">
+                                  <strong>Handle:</strong> {selectedProduct.handle}
+                                </Text>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </LegacyCard>
+                    </BlockStack>
+                  </Grid.Cell>
+                </Grid>
+              </Layout.Section>
+            )}
+
+            {tabsbutton === 4 && (
+              <Layout.Section>
+                <Grid>
+                  <Grid.Cell
+                    columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                    gap="small"
+                  >
+                    <BlockStack gap="200">
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">
+                            Enable Third-Party Integration
+                          </div>
+                          {
+                            <InfoBanner text="Enable Third-Party Integration in Cart Drawer" />
+                          }
+                          <div className="color-picker-container">
+                            <Checkbox
+                              checked={thirdPartyIntegrationEnable}
+                              onChange={handleThirdPartyIntegration}
+                            >
+                              {" "}
+                              Enable Third-Party Integration
+                            </Checkbox>
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">
+                            Third-Party Integration Code Snippet
+                          </div>
+                          {
+                            <InfoBanner text="Paste your third-party checkout integration code here" />
+                          }
+                          <div className="custom-antd-textarea">
+                            <TextArea
+                              placeholder="Enter your HTML code here..."
+                              rows={8}
+                              value={thirdPartyHtmlContent}
+                              onChange={handleThirdPartyHtmlContent}
+                              className=""
                             />
                           </div>
-                        )}
-                        {selectedProduct.handle && (
-                          <div
-                            style={{
-                              marginTop: "10px",
-                              padding: "10px",
-                              backgroundColor: "#f5f5f5",
-                              borderRadius: "4px",
-                            }}
-                          >
-                            <Text as="p" variant="bodyMd">
-                              <strong>Selected Product:</strong>{" "}
-                              {selectedProduct.title || "N/A"}
-                            </Text>
-                            <Text as="p" variant="bodySm" tone="subdued">
-                              <strong>Handle:</strong> {selectedProduct.handle}
-                            </Text>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </LegacyCard>
-                </BlockStack>
-              </Grid.Cell>
-            </Grid>
-          </Layout.Section>
-        )}
+                        </div>
+                      </LegacyCard>
+                    </BlockStack>
+                  </Grid.Cell>
+                </Grid>
+              </Layout.Section>
+            )}
 
-        {tabsbutton === 4 && (
-          <Layout.Section>
-            <Grid>
-              <Grid.Cell
-                columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-                gap="small"
-              >
-                <BlockStack gap="200">
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">
-                        Enable Third-Party Integration
-                      </div>
-                      {
-                        <InfoBanner text="Enable Third-Party Integration in Cart Drawer" />
-                      }
-                      <div className="color-picker-container">
-                        <Checkbox
-                          checked={thirdPartyIntegrationEnable}
-                          onChange={handleThirdPartyIntegration}
-                        >
-                          {" "}
-                          Enable Third-Party Integration
-                        </Checkbox>
-                      </div>
-                    </div>
-                  </LegacyCard>
+            <Layout.Section fullWidth>
+              <Grid>
+                <Grid.Cell
+                  columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                  gap="small"
+                >
+                  <Button
+                    style={{
+                      backgroundColor: "#0755d2ff",
+                      color: "#ffffff",
+                      fontWeight: "bold",
+                      display: "block",
 
-                  <LegacyCard sectioned>
-                    <div className="grid-item">
-                      <div className="column-title">
-                        Third-Party Integration Code Snippet
-                      </div>
-                      {
-                        <InfoBanner text="Paste your third-party checkout integration code here" />
-                      }
-                      <div className="custom-antd-textarea">
-                        <TextArea
-                          placeholder="Enter your HTML code here..."
-                          rows={8}
-                          value={thirdPartyHtmlContent}
-                          onChange={handleThirdPartyHtmlContent}
-                          className=""
-                        />
-                      </div>
-                    </div>
-                  </LegacyCard>
-                </BlockStack>
-              </Grid.Cell>
-            </Grid>
-          </Layout.Section>
-        )}
+                      width: "100%",
+                    }}
+                    primary
+                    onClick={handleSave}
+                    loading={isSaving}
+                    disabled={isSaving}
+                    tone="submit"
+                    type="submit"
+                    width="full"
+                    variant="primary"
+                  >
+                    {isSaving ? "Saving..." : "Save Settings"}
+                  </Button>
+                </Grid.Cell>
+              </Grid>
+            </Layout.Section>
 
-        <Layout.Section fullWidth>
-          <Grid>
-            <Grid.Cell
-              columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-              gap="small"
-            >
-              <Button
-                style={{
-                  backgroundColor: "#0755d2ff",
-                  color: "#ffffff",
-                  fontWeight: "bold",
-                  display: "block",
-              
-                  width: "100%",
-                }}
-                primary
-                onClick={handleSave}
-                loading={isSaving}
-                disabled={isSaving}
-                tone="submit"
-                type="submit"
-                width="full"
-                variant="primary"
-              >
-                {isSaving ? "Saving..." : "Save Settings"}
-              </Button>
-            </Grid.Cell>
-          </Grid>
-        </Layout.Section>
-
-        </Grid.Cell>
+          </Grid.Cell>
 
           <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }} gap="small">
 
-         
-            <BlockStack gap="200" style={{ marginTop: "20px" }}>
-              <LegacyCard sectioned>
+            <div className="cart-preview-wrapper" style={{ position: 'sticky', top: 0 }}>
+
+            <Cart
+              cartDrawerBackgroundColor={cartDrawerBackgroundColor}
+              cartDrawerItemBorderRadius={borderRadius}
+              cartDrawerItemTextColor={textColor}
+              CheckoutButtonColor={buttonTextColor}
+              checkoutButtonBackground={buttonColor}
+              CheckoutButtonBorderRadius={buttonBorderRadius} 
+
+              countdownEnable={countdownEnable}
+              countdownBackgroundColor={countdownBackgroundColor}
+              countdownChipBackgroundColor={countdownChipBackgroundColor}
+              countdownTextColor={countdownTextColor}
+              countdownChipTextColor={countdownChipTextColor}
+              countdownBorderRadius={countdownBorderRadius}
               
-             <img src={image} alt="Countdown" style={{ width: "100%", height: "auto", display: "block" }} />
-         
-              </LegacyCard>
-            </BlockStack>
-          
+              collectionEnable={collectionEnable}
+              productEnable={productEnable}
+
+
+              announcementBarEnablee={announcementBarEnable}
+              announcementBartext = {anouncmentbartTextarea}
+              announcementBarbg={announcementBarBackgroundColor}
+              announcementBartextcolor ={announcementBarTextColor}
+    />
+            </div>
+
           </Grid.Cell>
         </Grid>
 
