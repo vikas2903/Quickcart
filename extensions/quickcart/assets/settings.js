@@ -188,7 +188,11 @@
         document.querySelector(".cdp-checkout").style.borderRadius =
         settings.cartDrawer.button_border_radius + "px";
 
-        document.querySelector('.cdp-line').style.borderRadius = settings.cartDrawer.border_radius + "px"; 
+
+        document.querySelector(".cdp-lines").style.borderRadius =
+        settings.cartDrawer.border_radius + "px"; 
+
+        
 
         document.querySelector("[data-announcement-bar]").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
@@ -196,15 +200,16 @@
         document.querySelector(".cdp-content").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
 
-        document.querySelectorAll(".cdp-line").forEach((item) => {
-          item.style.borderRadius =
-            settings.cartDrawer.border_radius + "px";
-        });
+        if (settings?.cartDrawer?.border_radius !== undefined) {
+          document.querySelectorAll(".cdp-line").forEach((item) => {
+            item.style.borderRadius = `${settings.cartDrawer.border_radius}px`;
+          });
+        }
 
-        document.querySelectorAll(".cdp-qty").forEach((item) => {
-          item.style.borderRadius =
-            settings.cartDrawer.border_radius + "px";
-        });
+        // document.querySelectorAll(".cdp-qty").forEach((item) => {
+        //   item.style.borderRadius =
+        //     settings.cartDrawer.border_radius + "px";
+        // });
       } 
 
 
@@ -214,6 +219,11 @@
       if (settings.cartDrawer.button_color) {
           document.querySelector(".cdp-checkout").style.backgroundColor =
             settings.cartDrawer.button_color;
+
+            document.querySelectorAll('.mob_upsell .cdp-u-final').forEach((item) => {
+              item.style.color = settings.cartDrawer.button_color;
+            });
+
 
             document.querySelector('.cdp-checkout').style.color = settings.cartDrawer.button_text_color;
 
