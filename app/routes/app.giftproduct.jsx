@@ -120,6 +120,7 @@ export default function GiftProductPage() {
               title: savedData.selectedProduct.title,
               handle: savedData.selectedProduct.handle,
               price: savedData.selectedProduct.price,
+              image: savedData.selectedProduct.featuredImageUrl || "",
             });
           }
           
@@ -160,6 +161,7 @@ export default function GiftProductPage() {
       title: product.title,
       handle: product.handle,
       price: product.priceRange?.minVariantPrice?.amount || "0",
+      image: product.featuredImage?.url || "",
     };
     setSelectedProduct(productData);
   };
@@ -262,54 +264,50 @@ export default function GiftProductPage() {
                     autoComplete="off"
                   />
 
-                   <Banner tone="info">
-                    <p>
-                      <strong>Important:</strong>  Also make sure the price of this product is set to 0 from the Shopify dashboard the product will be added as a free gift, so you need to manually set the price of this product from Shopify to 0.
-                    </p>
-                    </Banner>
-                  <Banner tone="info">
-                    <p>
-                      <strong>Important:</strong> Select the product to gift from the list of products.
-                    </p>
-                    </Banner>
+                 
 
                   {loading && <Spinner accessibilityLabel="Loading products" size="large" />}
 
-                  {!loading && products.length > 0 && (
-                    <ResourceList
-                      resourceName={{ singular: "product", plural: "products" }}
-                      items={products}
-                      renderItem={(item) => (
-                        <ResourceItem
-                          id={item.id}
-                          onClick={() => handleSelect(item)}
-                          media={
-                            <Thumbnail
-                              source={item.featuredImage?.url || ""}
-                              alt={item.title}
-                            />
-                          }
-                        >
-                          <Text variant="bodyMd" fontWeight="semibold">
-                            {item.title}
-                          </Text>
-                          <Text variant="bodySm" color="subdued">
-                            {item.handle} — ₹{item.priceRange?.minVariantPrice?.amount / 100}
-                          </Text>
-                        </ResourceItem>
-                      )}
-                    />
+                  {!loading && products.length > 0 && ( 
+                    <div style={{ maxHeight: 250, overflowY: "auto" }}>
+                      <ResourceList 
+                        resourceName={{ singular: "product", plural: "products" }}
+                        items={products}
+                        renderItem={(item) => (
+                          <ResourceItem
+                            id={item.id}
+                            onClick={() => handleSelect(item)}
+                            media={
+                              <Thumbnail
+                                source={item.featuredImage?.url || ""}
+                                alt={item.title}
+                              />
+                            }
+                          >
+                            <Text variant="bodyMd" fontWeight="semibold">
+                              {item.title}
+                            </Text>
+                            <Text variant="bodySm" color="subdued">
+                              {item.handle} — ₹{item.priceRange?.minVariantPrice?.amount / 100}
+                            </Text>
+                          </ResourceItem>
+                        )}
+                      />
+                    </div>
                   )}
 
                   {!loading && search && products.length === 0 && (
                     <Text>No products found</Text>
                   )}
-
                   {selectedProduct && (
                     <LegacyCard title="Selected Product" sectioned>
-                      <p><b>Title:</b> {selectedProduct.title}</p>
-                      <p><b>Handle:</b> {selectedProduct.handle}</p>
-                      <p><b>Price:</b> ₹{selectedProduct.price }</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                        <img src={selectedProduct.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw_HeSzHfBorKS4muw4IIeVvvRgnhyO8Gn8w&s"} alt={selectedProduct.title} style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "4px", objectPosition: "top" }} />
+                        <div>
+                          <p><b>Product Title:</b> {selectedProduct.title}</p>
+                          <p><b>Product Price:</b> {selectedProduct.price}</p>
+                        </div>
+                      </div>
                     </LegacyCard>
                   )} 
 
@@ -320,7 +318,7 @@ export default function GiftProductPage() {
                   >
                     Save Gift Product Settings
                   </Button>
-
+{/* 
                   {submitted && (
                     <Banner
                       title="Gift Product Settings Saved!"
@@ -333,7 +331,7 @@ export default function GiftProductPage() {
                         Product: <b>{selectedProduct?.title}</b>
                       </p>
                     </Banner>
-                  )}
+                  )} */}
                 </BlockStack>
               </LegacyCard>
             </Grid.Cell>
@@ -390,6 +388,18 @@ export default function GiftProductPage() {
                           }
                            
                 </LegacyCard.Section>
+
+                  <Banner tone="info">
+                    <p>
+                      <strong>Important:</strong>  Also make sure the price of this product is set to 0 from the Shopify dashboard the product will be added as a free gift, so you need to manually set the price of this product from Shopify to 0.
+                    </p>
+                    </Banner>
+                  <Banner tone="info">
+                    <p>
+                      <strong>Important:</strong> Select the product to gift from the list of products.
+                    </p>
+                    </Banner>
+
               </LegacyCard>
 
             </Grid.Cell>

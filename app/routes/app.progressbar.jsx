@@ -256,7 +256,7 @@ export default function ProgressBar() {
                   />
 
                   {/* Progress Bar Color Picker */}
-                  <div style={{ marginTop: '10px' }}>
+                  {/* <div style={{ marginTop: '10px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
                       Progress Bar Color
                     </label>
@@ -304,7 +304,7 @@ export default function ProgressBar() {
                         ))}
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                 
 
@@ -326,7 +326,7 @@ export default function ProgressBar() {
                           value={texts[i]}
                           onChange={onTextChange(i)}
                           autoComplete="off"
-                          helpText='Example: "Extra 10% off on ₹{{price}}"'
+                          // helpText='Example: "Extra 10% off on ₹{{price}}"'
                         />
                       </BlockStack>
                     </LegacyCard>
@@ -511,7 +511,7 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
     height: 8,
     background: "#EEEFF3",
     borderRadius: 999,
-    position: "relative",
+    // position: "relative",
     overflow: "hidden",
     marginTop: 6,
   };
@@ -560,23 +560,34 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
               key={m.key}
               style={{
                 position: "absolute",
-                top: -2,
-                left: `calc(${m.left} - 6px)`,
-                width: 12,
-                height: 12,
-                background: "#9CA3AF",
-                borderRadius: 999,
+                top: -18,
+                left: m.left,
+                transform: "translateX(-50%)",
+                width: 40,
+                height: 40,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
-            />
+            >
+              <img
+                src="https://pickrr.s3.amazonaws.com/2025-08-01T06:57:59.706663_party_icon_colored.png"
+                alt="party"
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  objectFit: "contain",
+                }}
+              /> 
+            </div>
           ))}
         </div>
 
         <div style={markerWrap}>
           {markers.map((m) => (
             <div key={m.key} style={{ width: "33.33%", textAlign: "center" }}>
-              <div style={{ fontSize: 16 }}>{m.emoji}</div>
-              <div>{m.label}</div>
-              <div style={{ opacity: 0.8 }}>{nf.format(m.price)}</div>
+              <div style={{ fontWeight: 600, fontSize: 12 }}>{m.label}</div>
+              <div style={{ opacity: 0.8, fontSize: 11 }}>{nf.format(m.price)}</div>
             </div>
           ))}
         </div>

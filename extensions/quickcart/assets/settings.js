@@ -185,6 +185,8 @@
           "--border_radius",
           settings.cartDrawer.border_radius + "px",
         );
+
+
         document.querySelector(".cdp-checkout").style.borderRadius =
         settings.cartDrawer.button_border_radius + "px";
 
@@ -193,6 +195,11 @@
         settings.cartDrawer.border_radius + "px"; 
 
         
+      
+         
+        
+        
+      
 
         document.querySelector("[data-announcement-bar]").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
@@ -200,11 +207,29 @@
         document.querySelector(".cdp-content").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
 
-        if (settings?.cartDrawer?.border_radius !== undefined) {
+        function applyLineRadius() {
           document.querySelectorAll(".cdp-line").forEach((item) => {
-            item.style.borderRadius = `${settings.cartDrawer.border_radius}px`;
+            item.style.borderRadius = settings.cartDrawer.border_radius + "px";
           });
         }
+        
+        // Run once
+        applyLineRadius();
+        
+        // Watch for cart item add/remove
+        const cartContainer = document.querySelector(".cdp-lines");
+        
+        if (cartContainer) {
+          const observer = new MutationObserver(() => {
+            applyLineRadius();
+          });
+        
+          observer.observe(cartContainer, {
+            childList: true,
+            subtree: true
+          });
+        }
+      
 
         // document.querySelectorAll(".cdp-qty").forEach((item) => {
         //   item.style.borderRadius =
@@ -217,6 +242,7 @@
 
 
       if (settings.cartDrawer.button_color) {
+
           document.querySelector(".cdp-checkout").style.backgroundColor =
             settings.cartDrawer.button_color;
 

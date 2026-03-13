@@ -452,7 +452,7 @@ const CheckoutBtn = styled.button`
               onChange={(e) => setGiftWrap(e.target.checked)}
             />
 
-            🎁 <strong>Gift wrap it</strong> @Rs. 799 only
+            🎁 <strong>Add Mystry Box</strong> @Rs. 799 only
 
           </label>
 

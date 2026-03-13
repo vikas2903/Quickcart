@@ -617,7 +617,7 @@ export default function Dashboard() {
             >
               <BlockStack gap="300">
                 <Text as="p" fontWeight="medium">
-                  The app will not appear for customers until you enable it in your store. Go to Theme Editor → Customize → App blocks → QuickCart and turn the block on.
+                  The app will not appear for customers until you enable it in your store. Go to Theme Editor → Customize → App blocks → Premium Cart Drawer  and turn the block on.
                 </Text>
                 {themesList.length > 0 && (
                   <InlineStack gap="300" blockAlign="center" wrap>

@@ -694,7 +694,7 @@ img#popupProductImage2 {
 .cdp-lines {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   margin: 5px 0px;
   padding: 0 0px;
 }
@@ -702,14 +702,14 @@ img#popupProductImage2 {
 .cdp-line {
   display: grid;
   grid-template-columns: 85px 1fr;
-  gap: 15px;
+  gap: 20px;
   border: 1px solid #f0f0f0;
  
-  padding: 6px;
+  padding: 6px; 
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
-
+ 
 .cdp-line-media {
   height: 120px;
   width: 95px;
@@ -1446,7 +1446,7 @@ aside.cdp-upsell.active {
   .cdp-line {
     padding: 10px;
     grid-template-columns: 80px 1fr;
-    gap: 10px;
+    gap: 15px;
   }
   
   .cdp-line-media {
@@ -2196,7 +2196,7 @@ html.prevent-scroll, html.prevent-scroll body{overflow: scroll;}
 
 div#third-party-integration-wrapper {
   display: block;
-  width: 68%;
+  width: 68%; 
 }
 
 

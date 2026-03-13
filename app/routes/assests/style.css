@@ -23,10 +23,10 @@
     font-weight: 500;
 }
 
-
 .order-analytics-wrapper h5 {
     text-align: center;
     font-size: 1.2rem;
+    margin-bottom: 0; 
 } 
 
 .order-analytics-wrapper {

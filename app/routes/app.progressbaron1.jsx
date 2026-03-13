@@ -151,24 +151,24 @@ function BuyXGetYSection({ shop }) {
     
     }
 
-    useEffect(() =>{
-
-    let getdata = async () =>{
-      let data = await  saveddata_progressbar()
+  useEffect(() => {
+    let getdata = async () => {
+      let data = await saveddata_progressbar();
       let enabled = data?.enabled;
-      let offer=  data?.offer;
+      let offer = data?.offer;
+
       setsavedata({
-        enabled:enabled,
-        offer:offer
-      })
+        enabled: enabled,
+        offer: offer,
+      });
 
-    setEnabled(enabled);
-    setBuyQty(offer?.buyQty);
-    setGetQty(offer?.getQty);
+      setEnabled(enabled);
+      setBuyQty(offer?.buyQty);
+      setGetQty(offer?.getQty);
+    };
 
-    }
     getdata();
-    },[enabled,buyQty,getQty, shop])
+  }, [shop]);
   // ---------- RENDER ----------
   return (
     <Grid>

@@ -796,7 +796,7 @@ function Settings() {
                     style={{ marginRight: "5px" }}
                   >
                     {" "}
-                    CountDown Block{" "}
+                    Countdown Block{" "}
                   </Button>
                   <Button
                     primary
@@ -814,9 +814,9 @@ function Settings() {
                     style={{ marginRight: "5px" }}
                   >
                     {" "}
-                    Select One Recommended Product{" "}
+                    Set Mystry Box Product{" "} 
                   </Button>
-                  <Button
+                  <Button 
                     primary
                     variant={tabsbutton === 4 ? "primary" : "secondary"}
                     onClick={() => settabsbutton(4)}
