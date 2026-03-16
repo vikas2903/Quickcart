@@ -119,31 +119,6 @@
             : "none";
         }
       }
-      if (settings.announcementBar.enabled) {
-        const announcementBarElement =
-          drawer.querySelector("[data-announcement-bar]") ||
-          drawer.querySelector('[id*="announcement"]') ||
-          drawer.querySelector(".data-announcement-bar") ||
-          document.querySelector("[data-announcement-bar]");
-        if (announcementBarElement) {
-          announcementBarElement.style.display = settings.announcementBar
-            .enabled
-            ? ""
-            : "none";
-        }
-        if (settings.announcementBar.background_color) {
-          announcementBarElement.style.backgroundColor =
-            settings.announcementBar.background_color;
-        }
-        if (settings.announcementBar.text_color) {
-          announcementBarElement.style.color =
-            settings.announcementBar.text_color; 
-        }
-        // if (settings.announcementBar.border_radius !== undefined) {
-        //   announcementBarElement.style.borderRadius =
-        //     settings.announcementBar.border_radius + "px";
-        // } 
-      }
 
       // Show/hide countdown
       const countdownElement =
@@ -298,19 +273,17 @@
         announcementBarElement.style.color =
           settings.announcementBar.text_color;
       }
-      // if (settings.announcementBar.border_radius !== undefined) {
-      //   announcementBarElement.style.borderRadius =
-      //     settings.announcementBar.border_radius + "px";
-      // }
+      if (settings.announcementBar.border_radius !== undefined) {
+        announcementBarElement.style.borderRadius =
+          settings.announcementBar.border_radius + "px";
+      }
 
       if (settings.announcementBar.content) {
-        // Split by comma and clean spaces
-        const items = settings.announcementBar.content
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean);
-
-        if (items.length > 0) {
+        const content = settings.announcementBar.content.trim();
+        const items = content.split(",").map(item => item.trim()).filter(Boolean);
+        if (items.length === 1) {
+          announcementBarElement.innerHTML = items[0];
+        } else if (items.length > 1) {
           // Clear existing content
           announcementBarElement.innerHTML = "";
 
@@ -336,17 +309,6 @@
           window.dispatchEvent(new CustomEvent("announcementbar:updated"));
         }
       }
-    }
-
-    if (settings.announcementBar.items) {
-      const itemsElement =
-        announcementBarElement.querySelector("[data-announcement-items]") ||
-        announcementBarElement.querySelector(".sr-banner-carousel-span");
-      if (itemsElement) {
-        itemsElement.innerHTML = settings.announcementBar.items;
-      }
-    }
-    if (settings.announcementBar.display_time) {
     }
 
     // Apply collection (upsell) settings
