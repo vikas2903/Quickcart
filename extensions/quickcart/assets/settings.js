@@ -169,12 +169,6 @@
         document.querySelector(".cdp-lines").style.borderRadius =
         settings.cartDrawer.border_radius + "px"; 
 
-        
-      
-         
-        
-        
-      
 
         document.querySelector("[data-announcement-bar]").style.borderRadius =
         settings.cartDrawer.border_radius + "px";
@@ -260,53 +254,55 @@
         document.querySelector("[data-announcement-bar]");
 
       if (announcementBarElement) {
-        announcementBarElement.style.display = settings.announcementBar.enabled
-          ? ""
-          : "none";
-      }
+        if (settings.announcementBar.enabled) {
+          announcementBarElement.style.display = "";
+          if (settings.announcementBar.background_color) {
+            announcementBarElement.style.backgroundColor =
+              settings.announcementBar.background_color;
+          }
+          if (settings.announcementBar.text_color) {
+            announcementBarElement.style.color =
+              settings.announcementBar.text_color;
+          }
+          if (settings.announcementBar.border_radius !== undefined) {
+            announcementBarElement.style.borderRadius =
+              settings.announcementBar.border_radius + "px";
+          }
 
-      if (settings.announcementBar.background_color) {
-        announcementBarElement.style.backgroundColor =
-          settings.announcementBar.background_color;
-      }
-      if (settings.announcementBar.text_color) {
-        announcementBarElement.style.color =
-          settings.announcementBar.text_color;
-      }
-      if (settings.announcementBar.border_radius !== undefined) {
-        announcementBarElement.style.borderRadius =
-          settings.announcementBar.border_radius + "px";
-      }
+          if (settings.announcementBar.content) {
+            const content = settings.announcementBar.content.trim();
+            const items = content.split(",").map(item => item.trim()).filter(Boolean);
+            if (items.length === 1) {
+              announcementBarElement.innerHTML = items[0];
+            } else if (items.length > 1) {
+              // Clear existing content
+              announcementBarElement.innerHTML = "";
 
-      if (settings.announcementBar.content) {
-        const content = settings.announcementBar.content.trim();
-        const items = content.split(",").map(item => item.trim()).filter(Boolean);
-        if (items.length === 1) {
-          announcementBarElement.innerHTML = items[0];
-        } else if (items.length > 1) {
-          // Clear existing content
+              // Build Swiper structure
+              const swiper = document.createElement("div");
+              swiper.classList.add("sr-banner-swiper", "swiper");
+              swiper.setAttribute("data-announcement-swiper", "");
+
+              const wrapper = document.createElement("div");
+              wrapper.classList.add("swiper-wrapper");
+
+              items.forEach((text) => {
+                const slide = document.createElement("div");
+                slide.classList.add("swiper-slide");
+                slide.textContent = text;
+                wrapper.appendChild(slide);
+              });
+
+              swiper.appendChild(wrapper);
+              announcementBarElement.appendChild(swiper);
+
+              // Notify listeners to re-init swiper
+              window.dispatchEvent(new CustomEvent("announcementbar:updated"));
+            }
+          }
+        } else {
+          announcementBarElement.style.display = "none";
           announcementBarElement.innerHTML = "";
-
-          // Build Swiper structure
-          const swiper = document.createElement("div");
-          swiper.classList.add("sr-banner-swiper", "swiper");
-          swiper.setAttribute("data-announcement-swiper", "");
-
-          const wrapper = document.createElement("div");
-          wrapper.classList.add("swiper-wrapper");
-
-          items.forEach((text) => {
-            const slide = document.createElement("div");
-            slide.classList.add("swiper-slide");
-            slide.textContent = text;
-            wrapper.appendChild(slide);
-          });
-
-          swiper.appendChild(wrapper);
-          announcementBarElement.appendChild(swiper);
-
-          // Notify listeners to re-init swiper
-          window.dispatchEvent(new CustomEvent("announcementbar:updated"));
         }
       }
     }
@@ -612,3 +608,4 @@
 
   init();
 })();
+ 
