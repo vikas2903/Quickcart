@@ -1260,7 +1260,7 @@
   const renderLines = (cart) => {
     if (!linesRoot) return;
     if (!cart.items || cart.items.length === 0) {
-      linesRoot.innerHTML = '<div class="cdp-empty-msg">Your cart is empty.</div>';
+      linesRoot.innerHTML = '<img class="empty-cart-img" style="width: 100%; height: 100%; display: block;" src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/289-2892204_your-cart-is-empty-empty-cart-icon-png_1.png" alt="Empty Cart"><div class="cdp-empty-msg">Your cart is empty.</div>';
       return;
     }
     linesRoot.innerHTML = cart.items
@@ -2167,8 +2167,8 @@
     const hasVariants = openBtn.dataset.hasVariants === "true";
 
     // Populate popup with initial data from Liquid (server-side formatted)
-    if (popupProductImage) popupProductImage.src = productImage;
-    if (popupProductImage2) popupProductImage2.src = productImage; // Initially same image
+    if (popupProductImage) popupProductImage.src = productImage + "?width=200";
+    if (popupProductImage2) popupProductImage2.src = productImage + "?width=200"; // Initially same image
     if (popupProductTitle) popupProductTitle.textContent = productTitle;
     // Use Liquid-formatted price directly (from data-product-price attribute)
     // Product prices from Liquid might contain HTML, so use innerHTML

@@ -72,6 +72,12 @@
     line-height: 1.8;
 }
 }
+
+.empty-cart-img {
+    max-width: 120px;
+    max-height: 120px;
+    margin: 0 auto;
+}
 </style>
 <style>{{block.settings.custom-css-code}}</style>
 
@@ -190,7 +196,7 @@
                     <img loading="lazy" src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" width="300" height="300">
                     <div class="cdp-u-buttons">
                       <button class="cdp-u-quickview-btn" data-quickview-button data-product-url="{{ p.url }}" data-product-handle="{{ p.handle }}" style="display: none;" aria-label="Quick view {{ p.title | escape }}">👁️</button>
-                      <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Add</button>
+                      
                     </div>
                   </div>
                   <div class="cdp-u-info">
@@ -199,6 +205,7 @@
                       <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
                      
                     </div>
+                    <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Addd</button>
                   </div>
                 </article>
               {% endfor %}
@@ -236,7 +243,7 @@
     </header>
  {% render 'timer' show_countdown:block.settings.show_countdown, backgroundcolor:block.settings.count_down_bg %}
     {% render 'announcementbar' show_announcementbar:block.settings.show_announcementbar_text,  announcementbar_text:block.settings.announcementbar_text %}
-   
+
     {%  render 'progress-bar' %}
     {% render 'progressbar_qty_condition' %}
 
@@ -353,6 +360,7 @@
             </article>
           {% endfor %}
           {% if cart.item_count == 0 %}
+            <img style="width: 100%; height: 100%; display: block;" src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/289-2892204_your-cart-is-empty-empty-cart-icon-png_1.png" alt="Empty Cart">
             <div class="cdp-empty-msg">Your cart is empty.</div>
           {% endif %}
      
@@ -387,7 +395,7 @@
                     <img loading="lazy" src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" width="300" height="300">
                     <div class="cdp-u-buttons">
                       <button class="cdp-u-quickview-btn" data-quickview-button data-product-url="{{ p.url }}" data-product-handle="{{ p.handle }}" style="display: none;" aria-label="Quick view {{ p.title | escape }}">👁️</button>
-                      <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Add</button>
+                     
                     </div>
                   </div>
                   <div class="cdp-u-info">
@@ -396,6 +404,7 @@
                       <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
                     
                     </div>
+                     <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>ADD TO CART</button>
                   </div>
                 </article>
                 {% endunless %}
@@ -460,7 +469,7 @@
                 
               </div>
   </div>
-  <canvas id="partyCanvas" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 9999; width: 100%; height: 100%;"></canvas>
+  <canvas id="partyCanvas" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 9999; width: 100%; height: 100%; overflow: hidden;"></canvas>
 
 
     <footer class="cdp-footer">
@@ -563,8 +572,8 @@
     <div class="cdp-popup-content">
       <button class="cdp-popup-close" data-close-popup aria-label="Close">×</button>
       <div class="cdp-popup-images">
-        <img id="popupProductImage" class="cdp-popup-img" src="" alt="Product Image">
-        <img id="popupProductImage2" class="cdp-popup-img" src="" alt="Product Image 2">
+        <img id="popupProductImage" class="cdp-popup-img" src="" alt="Product Image" width="200px" height="400px">
+        <img id="popupProductImage2" class="cdp-popup-img" src="" alt="Product Image 2" width="200px" height="400px">
       </div>
       <div class="cdp-popup-info">
         <h3 class="cdp-popup-title" id="popupProductTitle"></h3>
@@ -582,7 +591,7 @@
           <button class="cdp-popup-qty-btn" data-popup-qty-down>−</button>
           <input type="number" class="cdp-popup-qty-input" id="popupQty" value="1" min="1">
           <button class="cdp-popup-qty-btn" data-popup-qty-up>+</button>
-          <button class="cdp-popup-add-btn" id="popupAddBtn" data-variant-id="">Add</button>
+          <button class="cdp-popup-add-btn" id="popupAddBtn" data-variant-id="">Add Now</button>
         </div>
         <button class="cdp-popup-view-btn" id="popupViewBtn">
           <span>View Details</span>

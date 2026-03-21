@@ -14,6 +14,7 @@ body {
 
 :root {
   --primary_color: #7c3444;
+  --font-size-1: 14px;
 }
 
 .drawer {
@@ -160,7 +161,7 @@ body.gradient.overflow-hidden {
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 2px 4px 0px;
+  padding: 2px 0px 0px;
 
 
   /* border-top-left-radius: 12px;
@@ -421,7 +422,6 @@ body.gradient.overflow-hidden {
 
 .cdp-popup-info input#popupQty {
   border-radius: 0;
-  height: revert-layer;
   padding: 1px 2px;
 }
 
@@ -587,13 +587,13 @@ img#popupProductImage2 {
 .cdp-popup-qty {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
   margin-bottom: 12px;
 }
 
 .cdp-popup-qty-btn {
   width: 40px;
-  height: 20px;
+  height: 30px;
   border: 1px solid #e0e0e0;
   background: #fff;
   border-radius: 2px;
@@ -612,7 +612,7 @@ img#popupProductImage2 {
 
 .cdp-popup-qty-input {
   width: 30px;
-  height: 20px;
+  height: 30px;
   border: 1px solid #e0e0e0;
   border-radius: 2px;
   text-align: center;
@@ -631,6 +631,7 @@ img#popupProductImage2 {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  margin-left: 10px;
 }
 
 .cdp-popup-add-btn:hover {
@@ -669,7 +670,7 @@ img#popupProductImage2 {
 .cdp-content {
   min-width: 0;
   overflow: auto;
-  padding: 6px 4px 0;
+  padding: 6px 12px 0;
   width: 100%;
   display: block;
 }
@@ -701,7 +702,7 @@ img#popupProductImage2 {
 .cdp-lines {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 5px;
   margin: 5px 0px;
   padding: 0 0px;
 }
@@ -718,11 +719,12 @@ img#popupProductImage2 {
 }
 
 .cdp-line-media {
-  height: 120px;
-  width: 95px;
+  height: 100px;
+  width: 90px;
   border-radius: 8px;
   overflow: hidden;
-  padding: 1px;
+  padding: 0;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
 }
 
 .cdp-line-media img {
@@ -876,7 +878,7 @@ button.cdp-line-remove {
 
 .cart-item-title {
   display: block;
-  font-size: 14px;
+  font-size: calc(var(--font-size-1) - 2px);
   /* padding-bottom: 3px; */
   text-transform: inherit;
   font-weight: 600;
@@ -1000,7 +1002,7 @@ button.cdp-qty-btn[data-qty-up] {
   width: 28px;
   height: 28px;
   cursor: pointer;
-  background: transparent;
+  background: #fff;
   color: #666;
   transition: all 0.2s;
 }
@@ -1394,6 +1396,12 @@ aside.cdp-upsell.active {
   }
 }
 
+@media (max-width: 767px) {
+  .cdp-panel {
+    max-width: 370px;
+  }
+}
+
 @media (max-width: 520px) {
   .cdp-footer {
     grid-template-columns: 1fr;
@@ -1424,6 +1432,7 @@ aside.cdp-upsell.active {
     max-width: 98%;
     height: 100dvh;
     max-height: 100dvh;
+
   }
 
   .cdp-total-lbl {
@@ -1461,7 +1470,7 @@ aside.cdp-upsell.active {
   }
 
   .cart-item-title {
-    font-size: 14px;
+    font-size: calc(var(--font-size-1) - 2px);
   }
 
   .cdp-line {
@@ -1471,7 +1480,7 @@ aside.cdp-upsell.active {
   }
 
   .cdp-line-media {
-    height: 120px;
+    height: 100px;
     width: 80px;
   }
 
@@ -1601,7 +1610,7 @@ aside.cdp-upsell.active {
   }
 
   .cdp-body {
-    padding: 1px 2px 0px;
+    padding: 1px 0px 0px;
   }
 
   .cdp-line {
@@ -1677,10 +1686,12 @@ body.no-scroll {
 /* Prestige */
 /* ===== MOBILE UPSELL HORIZONTAL SLIDER ===== */
 .mob_upsell {
-  width: 100%;
-  margin: 10px 0;
+  width: calc(100% + 24px);
+  margin: 10px -12px 0;
   overflow: hidden;
   position: relative;
+  padding: 0 0 0 14px;
+  background: #fff;
 }
 
 .mob_upsell .cdp-upsell {
@@ -1694,10 +1705,11 @@ body.no-scroll {
 }
 
 .mob_upsell .cdp-upsell-head {
-  padding: 15px 20px 8px 3px;
+  padding: 13px 10px 10px 6px;
   text-transform: uppercase;
   font-weight: 600;
   line-height: 1;
+  justify-content: center;
 }
 
 .mob_upsell .cdp-v-slider {
@@ -1725,18 +1737,23 @@ body.no-scroll {
 }
 
 .mob_upsell .cdp-v-track article.cdp-u-card {
-  flex: 0 0 35%;
-  width: 35%;
-  min-width: 35%;
-  max-width: 35%;
+  flex: 0 0 30%;
+  width: 30%;
+  min-width: 30%;
+  max-width: 30%;
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
-  border-radius: 10px;
+  border-radius: 6px;
   background: #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
-
+  @media(max-width:767px) {
+    flex: 0 0 40%;
+    width: 40%;
+    min-width: 40%;
+    max-width: 40%;
+  }
 }
 
 .mob_upsell .cdp-u-media {
@@ -1744,22 +1761,22 @@ body.no-scroll {
   height: 100%;
   position: relative;
   overflow: hidden;
-  border-radius: 10px 10px 0 0;
+  border-radius: 6px 6px 0 0;
 }
 
 .mob_upsell .cdp-u-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 10px 10px 0 0;
+  border-radius: 6px 6px 0 0;
 }
 
 .mob_upsell .cdp-u-info {
-  padding: 8px;
+  padding: 0px;
 }
 
 .mob_upsell .cdp-u-title {
-  font-size: 10px;
+  font-size: 12px;
   color: #000;
   margin-bottom: 0px;
   line-height: 1.3;
@@ -1769,18 +1786,23 @@ body.no-scroll {
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-weight: 400;
+  padding-left: 5px;
+  padding-top: 6px;
+  letter-spacing: 0;
 }
 
 .mob_upsell .cdp-u-price {
   display: flex;
   align-items: baseline;
   gap: 4px;
+  padding-left: 5px;
 }
 
 .mob_upsell .cdp-u-final {
   font-size: 12px;
   color: #000;
   font-weight: 500;
+  line-height: 1.3;
 }
 
 .mob_upsell .cdp-u-compare {
@@ -1790,19 +1812,18 @@ body.no-scroll {
 }
 
 .mob_upsell .cdp-u-add-btn {
-  position: absolute;
-  bottom: 6px;
-  right: 6px;
   padding: 4px 10px;
   font-size: 12px;
-  color: #000;
-  background: #fff;
+  color: #fff;
+  background: #000;
   border: none;
-  border-radius: 6px;
+  border-radius: 2px 2px 6px 6px;
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   text-transform: uppercase;
+  width: 100%;
+  margin: 0 0px -30px;
 }
 
 /* width */
