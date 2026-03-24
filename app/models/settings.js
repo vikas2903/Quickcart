@@ -71,7 +71,7 @@ const CartDrawerSchema = new mongoose.Schema({
  * ============================================================================
  */
 const AnnouncementBarSchema = new mongoose.Schema({
-  enabled: { type: Boolean, default: false },
+  enabled: { type: Boolean, default: true },
   content: { type: String, default: 'Free shipping order above 999, Get 10% Off order above 1999' },
   background_color: { type: String, default: '#f0e5e7' },
   text_color: { type: String, default: '#000' },
