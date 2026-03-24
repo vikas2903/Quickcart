@@ -183,7 +183,7 @@
         return `
         <article class="cdp-line" data-line-key="${item.key}">
           <div class="cdp-line-media">
-            <img src="${img}" alt="${item.product_title}" width="90" height="90" loading="lazy">
+            <img ss src="${img}" alt="${item.product_title}" width="90" height="90" loading="lazy">
           </div>
           <div class="cdp-line-info">
             <div class="cdp-line-title">

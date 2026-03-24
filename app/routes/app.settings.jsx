@@ -256,6 +256,7 @@ function Settings() {
   // Product state
   const [productEnable, setProductEnable] = useState(false);
   const [productSearch, setProductSearch] = useState("");
+  const [productInfo, setProductInfo] = useState("");
   const [selectedProduct, setSelectedProduct] = useState({
     handle: "",
   });
@@ -319,7 +320,6 @@ function Settings() {
     useState("#5B9BD4");
   const [countdownTextColor, setCountdownTextColor] = useState("#ffffff");
 
-  console.log("countdownTextColor", countdownTextColor);
   const [countdownChipBackgroundColor, setCountdownChipBackgroundColor] =
     useState("#ffffff");
 
@@ -339,7 +339,7 @@ function Settings() {
   const [borderRadius, setBorderRadius] = useState(10);
 
   // Announcement bar settings
-  const [announcementBarEnable, setannouncementBarEnable] = useState(false);
+  const [announcementBarEnable, setannouncementBarEnable] = useState(true);
   const [anouncmentbartTextarea, setanouncmentbartTextarea] = useState(
     "Free shipping order above 999, Get 10% Off order above 1999",
   );
@@ -351,7 +351,7 @@ function Settings() {
   const [thirdPartyHtmlContent, setThirdPartyHtmlContent] = useState("");
 
   const [buttonColor, setButtonColor] = useState("#000000");
-  const [buttonTextColor, setButtonTextColor] = useState("#000");
+  const [buttonTextColor, setButtonTextColor] = useState("#fff");
   const [buttonBorderRadius, setButtonBorderRadius] = useState(10);
 
   const [announcementBarTextColor, setAnnouncementBarTextColor] =
@@ -503,15 +503,15 @@ function Settings() {
             cartDrawer.button_color || data.button_color || "#f0e5e7",
           );
           setButtonTextColor(
-            cartDrawer.button_text_color || data.button_text_color || "#000",
+            cartDrawer.button_text_color || data.button_text_color || "#fff",
           );
           setButtonBorderRadius(
-            cartDrawer.button_border_radius || data.button_border_radius || 10,
+            cartDrawer.button_border_radius || data.button_border_radius || 0,
           );
 
           // Announcement Bar settings
           const announcementBar = data.announcementBar || {};
-          setannouncementBarEnable(announcementBar.enabled ?? false);
+          setannouncementBarEnable(announcementBar.enabled ?? true);
           setanouncmentbartTextarea(
             announcementBar.content ||
             "Free shipping order above 999, Get 10% Off order above 1999",
@@ -542,6 +542,7 @@ function Settings() {
             setSelectedProduct(product.selectedProduct);
             setProductSearch(product.selectedProduct.title || "");
           }
+          setProductInfo(product.productInfo || "🎁 ADD MYSTERYBOX WORTH ₹199");
 
           // Third-party Integration settings
           const thirdPartyIntegration = data.thirdPartyIntegration || {};
@@ -586,6 +587,7 @@ function Settings() {
       buttonBorderRadius,
       announcementBarTextColor,
       announcementBarBackgroundColor,
+      productInfo,
     }),
     [
       countdownBackgroundColor,
@@ -610,6 +612,7 @@ function Settings() {
       buttonBorderRadius,
       announcementBarTextColor,
       announcementBarBackgroundColor,
+      productInfo,
     ],
   );
 
@@ -669,6 +672,7 @@ function Settings() {
       product: {
         enabled: productEnable,
         selectedProduct: selectedProduct,
+        productInfo: productInfo,
       },
 
       // Third-party Integration settings - send as nested object
@@ -814,9 +818,9 @@ function Settings() {
                     style={{ marginRight: "5px" }}
                   >
                     {" "}
-                    Set Mystry Box Product{" "} 
+                    Set Mystery Box Product{" "}
                   </Button>
-                  <Button 
+                  <Button
                     primary
                     variant={tabsbutton === 4 ? "primary" : "secondary"}
                     onClick={() => settabsbutton(4)}
@@ -1267,6 +1271,13 @@ function Settings() {
                           <div className="custom-product-search">
                             <TextField
                               label=""
+                              value={productInfo}
+                              onChange={setProductInfo}
+                              placeholder="🎁 ADD MYSTERYBOX WORTH ₹199..."
+
+                            />
+                            <TextField
+                              label=""
                               value={productSearch}
                               onChange={setProductSearch}
                               placeholder="Search for products..."
@@ -1478,30 +1489,31 @@ function Settings() {
 
             <div className="cart-preview-wrapper" style={{ position: 'sticky', top: 0 }}>
 
-            <Cart
-              cartDrawerBackgroundColor={cartDrawerBackgroundColor}
-              cartDrawerItemBorderRadius={borderRadius}
-              cartDrawerItemTextColor={textColor}
-              CheckoutButtonColor={buttonTextColor}
-              checkoutButtonBackground={buttonColor}
-              CheckoutButtonBorderRadius={buttonBorderRadius} 
+              <Cart
+                cartDrawerBackgroundColor={cartDrawerBackgroundColor}
+                cartDrawerItemBorderRadius={borderRadius}
+                cartDrawerItemTextColor={textColor}
+                CheckoutButtonColor={buttonTextColor}
+                checkoutButtonBackground={buttonColor}
+                CheckoutButtonBorderRadius={buttonBorderRadius}
 
-              countdownEnable={countdownEnable}
-              countdownBackgroundColor={countdownBackgroundColor}
-              countdownChipBackgroundColor={countdownChipBackgroundColor}
-              countdownTextColor={countdownTextColor}
-              countdownChipTextColor={countdownChipTextColor}
-              countdownBorderRadius={countdownBorderRadius}
-              
-              collectionEnable={collectionEnable}
-              productEnable={productEnable}
+                countdownEnable={countdownEnable}
+                countdownBackgroundColor={countdownBackgroundColor}
+                countdownChipBackgroundColor={countdownChipBackgroundColor}
+                countdownTextColor={countdownTextColor}
+                countdownChipTextColor={countdownChipTextColor}
+                countdownBorderRadius={countdownBorderRadius}
+
+                collectionEnable={collectionEnable}
+                productEnable={productEnable}
+                productInfo={productInfo}
 
 
-              announcementBarEnablee={announcementBarEnable}
-              announcementBartext = {anouncmentbartTextarea}
-              announcementBarbg={announcementBarBackgroundColor}
-              announcementBartextcolor ={announcementBarTextColor}
-    />
+                announcementBarEnablee={announcementBarEnable}
+                announcementBartext={anouncmentbartTextarea}
+                announcementBarbg={announcementBarBackgroundColor}
+                announcementBartextcolor={announcementBarTextColor}
+              />
             </div>
 
           </Grid.Cell>

@@ -98,123 +98,124 @@
 
 
   <div class="cdp-overlay" data-close></div>
-  <aside class="cdp-upsell">
 
-
-
-        <div class="cdp-upsell-head">
-          <span>UpSell</span>
-          <span class="upsell-mob-close-icon" style="display:none;">✕</span>
-          <div class="cdp-v-ctrls">
-            <button class="cdp-v-btn" data-v-prev aria-label="Previous">
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 199.404 199.404" style="enable-background:new 0 0 199.404 199.404;" xml:space="preserve">
-<g>
-	<polygon points="0,135.411 28.285,163.695 99.703,92.277 171.119,163.695 199.404,135.412 99.703,35.709  "/>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-</svg>
-            </button>
-            <button class="cdp-v-btn" data-v-next aria-label="Next">
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 199.404 199.404" style="enable-background:new 0 0 199.404 199.404;" xml:space="preserve">
-<g>
-	<polygon points="199.404,63.993 171.12,35.709 99.702,107.127 28.284,35.709 0,63.993 99.702,163.695  "/>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-</svg>
-            </button>
-          </div>
+{% comment %}
+    <aside class="cdp-upsell">
+      <div class="cdp-upsell-head">
+        <span>UpSell</span>
+        <span class="upsell-mob-close-icon" style="display:none;">✕</span>
+        <div class="cdp-v-ctrls">
+          <button class="cdp-v-btn" data-v-prev aria-label="Previous">
+          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 199.404 199.404" style="enable-background:new 0 0 199.404 199.404;" xml:space="preserve">
+                <g>
+                  <polygon points="0,135.411 28.285,163.695 99.703,92.277 171.119,163.695 199.404,135.412 99.703,35.709  "/>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                </svg>
+                            </button>
+                            <button class="cdp-v-btn" data-v-next aria-label="Next">
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 199.404 199.404" style="enable-background:new 0 0 199.404 199.404;" xml:space="preserve">
+                <g>
+                  <polygon points="199.404,63.993 171.12,35.709 99.702,107.127 28.284,35.709 0,63.993 99.702,163.695  "/>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                <g>
+                </g>
+                </svg>
+          </button>
         </div>
+      </div>
 
-        <div class="cdp-v-slider" data-v-slider>
-          <div class="cdp-v-track">
-           {% if shop.metafields.custom.upsell_collection_handle != blank %}
-             {% assign upsell_collection = shop.metafields.custom.upsell_collection_handle.value %}
+      <div class="cdp-v-slider" data-v-slider>
+        <div class="cdp-v-track">
+          {% if shop.metafields.custom.upsell_collection_handle != blank %}
+            {% assign upsell_collection = shop.metafields.custom.upsell_collection_handle.value %}
 
-              {% assign usell = collections[ upsell_collection ] %}
+            {% assign usell = collections[ upsell_collection ] %}
 
-              {% for p in usell.products limit: 12 %}
-                <article class="cdp-u-card" data-upsell-card>
-                  <div class="cdp-u-media">
-                    <img loading="lazy" src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" width="300" height="300">
-                    <div class="cdp-u-buttons">
-                      <button class="cdp-u-quickview-btn" data-quickview-button data-product-url="{{ p.url }}" data-product-handle="{{ p.handle }}" style="display: none;" aria-label="Quick view {{ p.title | escape }}">👁️</button>
-                      
-                    </div>
+            {% for p in usell.products limit: 12 %}
+              <article class="cdp-u-card" data-upsell-card>
+                <div class="cdp-u-media">
+                  <img loading="lazy" src="{{ p.featured_image | image_url: width: 150 }}" alt="{{ p.title | escape }}" width="150" height="150">
+                  <div class="cdp-u-buttons">
+                    <button class="cdp-u-quickview-btn" data-quickview-button data-product-url="{{ p.url }}" data-product-handle="{{ p.handle }}" style="display: none;" aria-label="Quick view {{ p.title | escape }}">👁️</button>
+                    
                   </div>
-                  <div class="cdp-u-info">
-                    <div class="cdp-u-title">{{ p.title | escape | truncate: 22 }}</div>
-                    <div class="cdp-u-price">
-                      <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
-                     
-                    </div>
-                    <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Addd</button>
+                </div>
+                <div class="cdp-u-info">
+                  <div class="cdp-u-title">{{ p.title | escape | truncate: 22 }}</div>
+                  <div class="cdp-u-price">
+                    <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
+                    
                   </div>
-                </article>
-              {% endfor %}
-            {% else %}
-              <div class="cdp-u-empty">Add an upsell collection (styling & Display Settings > select upsell collection)</div>
-            {% endif %}
-          </div>
+                  <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>Addd</button>
+                </div>
+              </article>
+            {% endfor %}
+          {% else %}
+            <div class="cdp-u-empty">Add an upsell collection (styling & Display Settings > select upsell collection)</div>
+          {% endif %}
         </div>
-      </aside>
+      </div>
+    </aside>
+{% endcomment %}
+
 
   <div class="cdp-panel color-{{ settings.cart_color_scheme | default: 'background-1' }}">
 
@@ -261,9 +262,9 @@
         <div class="cdp-lines" data-lines>
           {% for item in cart.items %}
             <article class="cdp-line" data-line-key="{{ item.key }}">
-              <div class="cdp-line-media">
+              <div ss class="cdp-line-media">
                 <img
-                  src="{{ item.image | image_url: width: 180 }}"
+                  src="{{ item.image | image_url: width: 140 }}"
                   alt="{{ item.product.title | escape }}"
                   width="90"
                   height="90"
@@ -392,7 +393,7 @@
                 {% unless product_in_cart %}
                 <article class="cdp-u-card" data-upsell-card>
                   <div class="cdp-u-media">
-                    <img loading="lazy" src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" width="300" height="300">
+                    <img loading="lazy" src="{{ p.featured_image | image_url: width: 150 }}" alt="{{ p.title | escape }}" width="150" height="150">
                     <div class="cdp-u-buttons">
                       <button class="cdp-u-quickview-btn" data-quickview-button data-product-url="{{ p.url }}" data-product-handle="{{ p.handle }}" style="display: none;" aria-label="Quick view {{ p.title | escape }}">👁️</button>
                      
@@ -454,7 +455,7 @@
                   Subtotal
                   <span class="sr-sub-total" data-subtotal>{{ cart.original_total_price | money_without_trailing_zeros }}</span>
                 </p>
-                <p class="discount-applied-at-cartdrawer" id="discount-applied-row" style="{% if cart.total_discount > 0 %}display: flex;{% else %}display: none;{% endif %}" data-discount-wrapper>Discount applied
+                <p class="discount-applied-at-cartdrawer" id="discount-applied-row" style="{% if cart.total_discount > 0 %}display: flex;{% else %}display: none;{% endif %}" data-discount-wrapper>Discount applied sdsd
                    <span class="discounted-value" data-discounted-value>-{{ cart.total_discount | money_without_trailing_zeros }}</span>
                 </p>
 
@@ -462,7 +463,7 @@
                   Shipping Charges
                   <span class="sr-cart-shipping-charges">Calculated on checkout</span>
                 </p>
-                <p class="bill-grandtotal-row" style="font-weight: 700; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 5px; font-size: 16px;">
+                <p class="bill-grandtotal-row">
                   Grand Total
                   <span class="sr-cart-total" data-total>{{ cart.total_price | money_without_trailing_zeros }}</span>
                 </p>
@@ -591,7 +592,7 @@
           <button class="cdp-popup-qty-btn" data-popup-qty-down>−</button>
           <input type="number" class="cdp-popup-qty-input" id="popupQty" value="1" min="1">
           <button class="cdp-popup-qty-btn" data-popup-qty-up>+</button>
-          <button class="cdp-popup-add-btn" id="popupAddBtn" data-variant-id="">Add Now</button>
+          <button class="cdp-popup-add-btn" id="popupAddBtn" data-variant-id="">Add to Cart</button>
         </div>
         <button class="cdp-popup-view-btn" id="popupViewBtn">
           <span>View Details</span>

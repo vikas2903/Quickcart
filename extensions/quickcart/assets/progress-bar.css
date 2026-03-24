@@ -247,6 +247,7 @@
     background-color: var();
     transition: width 0.3s ease;
 }
+
 .discount {
     color: #fff;
     font-weight: 400;
@@ -263,9 +264,11 @@
     letter-spacing: 0;
     font-weight: 100;
 }
+
 span.cart-item-variant-title {
     line-height: normal;
 }
+
 .progress-bar-sub-heading.hide {
     font-size: 0;
 }
@@ -286,7 +289,7 @@ span.cart-item-variant-title {
 
 div#third-party-integration-wrapper {
     display: block;
-    width: 70%;
+    width: 60%;
 }
 
 div#upcart_loader {
@@ -299,6 +302,6 @@ div#upcart_loader {
     left: 0;
     content: "";
     background: #ffffffc7;
-   
+
     z-index: 99;
 }

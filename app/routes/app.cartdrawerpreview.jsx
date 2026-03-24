@@ -43,13 +43,13 @@ const CloseBtn = styled.button`
 `;
 
 const CountdownBanner = styled.div`
-  background:${({$countdownbg})=> $countdownbg || "#000"};
+  background:${({ $countdownbg }) => $countdownbg || "#000"};
   color: #fff;
   display: flex;
   justify-content: space-between;
   padding: 10px 18px;
-  border-radius:${({$timerborderradius})=> $timerborderradius+ 'px' || "0px" };
-  display:${({$timereanble})=>$timereanble ? 'flex': 'none'};
+  border-radius:${({ $timerborderradius }) => $timerborderradius + 'px' || "0px"};
+  display:${({ $timereanble }) => $timereanble ? 'flex' : 'none'};
 `;
 
 const CountdownLeft = styled.div`
@@ -65,9 +65,9 @@ const Timer = styled.div`
 `;
 
 const TimeBox = styled.span`
-  background: ${({$countchipbg}) => $countchipbg || '#fff'};
-  color: ${({$countchiptext})=> $countchiptext || '#000'};
-  border-radius:${({$timerborderradius})=> $timerborderradius+ 'px' || '0px'};
+  background: ${({ $countchipbg }) => $countchipbg || '#fff'};
+  color: ${({ $countchiptext }) => $countchiptext || '#000'};
+  border-radius:${({ $timerborderradius }) => $timerborderradius + 'px' || '0px'};
   font-weight: 800;
   padding: 3px 8px;
   min-width: 34px;
@@ -80,9 +80,9 @@ const ShippingBanner = styled.div`
   color: #fff;
   text-align: center;
   padding: 9px 18px;
-  display:${({$carouselEnable})=> $carouselEnable?'block':"none"};
-  background:${({$carouselbg})=> $carouselbg || "#000" };
-  color:${({$carouselTextcolor})=> $carouselTextcolor || "#fff" };  
+  display:${({ $carouselEnable }) => $carouselEnable ? 'block' : "none"};
+  background:${({ $carouselbg }) => $carouselbg || "#000"};
+  color:${({ $carouselTextcolor }) => $carouselTextcolor || "#fff"};  
 `;
 
 const CartItem = styled.div`
@@ -90,7 +90,7 @@ const CartItem = styled.div`
   border-bottom: 1px solid #f0f0f0;
   background:#fff;
   margin-top:10px;
-  border-radius:${({ $itemborderradius }) => $itemborderradius+ 'px' || "10px"}; 
+  border-radius:${({ $itemborderradius }) => $itemborderradius + 'px' || "10px"}; 
   margin:10px;
 `;
 
@@ -112,14 +112,14 @@ const ItemDetails = styled.div`
 const ItemName = styled.div`
   font-weight: 700;
   font-size: 15px;
-  color: ${({$itemcolor})=> $itemcolor || '#000'}
+  color: ${({ $itemcolor }) => $itemcolor || '#000'}
 `;
 
 const ItemVariant = styled.div`
   opacity: .6;
   font-size: 13px;
   margin-bottom: 10px;
-   color: ${({$itemcolor})=> $itemcolor || '#000'}
+   color: ${({ $itemcolor }) => $itemcolor || '#000'}
 `;
 
 const Pricing = styled.div`
@@ -131,7 +131,7 @@ const Pricing = styled.div`
 
 const Price = styled.span`
   font-weight: 700;
-  color: ${({$itemcolor})=> $itemcolor || '#000'}
+  color: ${({ $itemcolor }) => $itemcolor || '#000'}
 `;
 
 const Mrp = styled.span`
@@ -177,7 +177,7 @@ const QtyValue = styled.div`
 
 const RecsSection = styled.div`
   padding: 20px 18px;
-  display:${({$collectionenablee})=> $collectionenablee? 'block': 'none'};
+  display:${({ $collectionenablee }) => $collectionenablee ? 'block' : 'none'};
  
 `;
 
@@ -229,7 +229,7 @@ const GiftWrapRow = styled.div`
   padding: 14px 18px;
   border-top: 1px solid #eee;
   background:#fff;
-  display:${({$gifteanble})=> $gifteanble? 'block': 'none'};
+  display:${({ $gifteanble }) => $gifteanble ? 'block' : 'none'};
 `;
 
 const CheckoutBar = styled.div`
@@ -268,30 +268,32 @@ const CheckoutBtn = styled.button`
 
 /* -------------------- COMPONENT -------------------- */
 
- function Cart({
-    cartDrawerBackgroundColor,
-    cartDrawerItemBorderRadius,
-    cartDrawerItemTextColor,
-    CheckoutButtonColor,
-    checkoutButtonBackground,
-    CheckoutButtonBorderRadius,
+function Cart({
+  cartDrawerBackgroundColor,
+  cartDrawerItemBorderRadius,
+  cartDrawerItemTextColor,
+  CheckoutButtonColor,
+  checkoutButtonBackground,
+  CheckoutButtonBorderRadius,
 
-    countdownEnable,
-    countdownBackgroundColor,
-    countdownChipBackgroundColor,
-    countdownTextColor,
-    countdownChipTextColor,
-    countdownBorderRadius,
+  countdownEnable,
+  countdownBackgroundColor,
+  countdownChipBackgroundColor,
+  countdownTextColor,
+  countdownChipTextColor,
+  countdownBorderRadius,
 
-    productEnable,
-    collectionEnable,
+  productInfo,
 
-    announcementBarEnablee,
-    announcementBartext,
-    announcementBarbg,
-    announcementBartextcolor
+  productEnable,
+  collectionEnable,
 
- }) {
+  announcementBarEnablee,
+  announcementBartext,
+  announcementBarbg,
+  announcementBartextcolor
+
+}) {
 
   const [qty, setQty] = useState(2);
   const [giftWrap, setGiftWrap] = useState(false);
@@ -300,7 +302,6 @@ const CheckoutBtn = styled.button`
 
   let announcement_bat_text = announcementBartext.split(',')
 
-  console.log("announcement_bat_text", announcement_bat_text);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -319,7 +320,7 @@ const CheckoutBtn = styled.button`
   return (
     <Body>
 
-      <CartWrapper  $background={cartDrawerBackgroundColor}>
+      <CartWrapper $background={cartDrawerBackgroundColor}>
 
         <CartHeader>
           <h2>Your Cart ({qty})</h2>
@@ -327,30 +328,30 @@ const CheckoutBtn = styled.button`
         </CartHeader>
 
 
-        <CountdownBanner $timereanble={countdownEnable} $countdownbg = {countdownBackgroundColor} $timerborderradius={countdownBorderRadius}>
+        <CountdownBanner $timereanble={countdownEnable} $countdownbg={countdownBackgroundColor} $timerborderradius={countdownBorderRadius}>
 
           <CountdownLeft>
-            <span style={{color:`${countdownTextColor}`, fontSize:'1rem'}}>Hurry ! Offer ends in</span>
+            <span style={{ color: `${countdownTextColor}`, fontSize: '1rem' }}>Hurry ! Offer ends in</span>
           </CountdownLeft>
 
           <Timer>
-            <TimeBox $timerborderradius={countdownBorderRadius}  $countchipbg={countdownChipBackgroundColor} $countchiptext={countdownChipTextColor}>{hrs}</TimeBox> :
-            <TimeBox $timerborderradius={countdownBorderRadius} $countchipbg={countdownChipBackgroundColor}  $countchiptext={countdownChipTextColor}>{mins}</TimeBox> :
-            <TimeBox $timerborderradius={countdownBorderRadius}  $countchipbg={countdownChipBackgroundColor} $countchiptext={countdownChipTextColor}>{secs}</TimeBox>
+            <TimeBox $timerborderradius={countdownBorderRadius} $countchipbg={countdownChipBackgroundColor} $countchiptext={countdownChipTextColor}>{hrs}</TimeBox> :
+            <TimeBox $timerborderradius={countdownBorderRadius} $countchipbg={countdownChipBackgroundColor} $countchiptext={countdownChipTextColor}>{mins}</TimeBox> :
+            <TimeBox $timerborderradius={countdownBorderRadius} $countchipbg={countdownChipBackgroundColor} $countchiptext={countdownChipTextColor}>{secs}</TimeBox>
           </Timer>
 
         </CountdownBanner>
 
 
-        <hr style={{ margin: "0", background: "#fff", height: "14px", outline:'none', border:'none' }} />
+        <hr style={{ margin: "0", background: "#fff", height: "14px", outline: 'none', border: 'none' }} />
 
         <ShippingBanner
-            $carouselEnable ={announcementBarEnablee}
-            $carouselText = {announcementBartext}
-            $carouselbg = {announcementBarbg}
-            $carouselTextcolor ={announcementBartextcolor}
+          $carouselEnable={announcementBarEnablee}
+          $carouselText={announcementBartext}
+          $carouselbg={announcementBarbg}
+          $carouselTextcolor={announcementBartextcolor}
         >
-         {
+          {
 
             // announcement_bat_text.map((item, index)=>{ return(
             //         <>
@@ -359,7 +360,7 @@ const CheckoutBtn = styled.button`
 
             // );})
             announcement_bat_text[0]
-         }
+          }
         </ShippingBanner>
 
 
@@ -443,7 +444,7 @@ const CheckoutBtn = styled.button`
 
         </RecsSection>
 
-        <GiftWrapRow $gifteanble = {productEnable}>
+        <GiftWrapRow $gifteanble={productEnable}>
 
           <label>
             <input
@@ -451,8 +452,7 @@ const CheckoutBtn = styled.button`
               checked={giftWrap}
               onChange={(e) => setGiftWrap(e.target.checked)}
             />
-
-            🎁 <strong>Add Mystry Box</strong> @Rs. 799 only
+            {productInfo}
 
           </label>
 
@@ -469,11 +469,11 @@ const CheckoutBtn = styled.button`
 
 
 
-          <CheckoutBtn 
-          $check_btn_color= {CheckoutButtonColor}
-          $check_btn_bg = {checkoutButtonBackground}
-          $check_btn_rad = {CheckoutButtonBorderRadius}
-          
+          <CheckoutBtn
+            $check_btn_color={CheckoutButtonColor}
+            $check_btn_bg={checkoutButtonBackground}
+            $check_btn_rad={CheckoutButtonBorderRadius}
+
           >
             CHECKOUT
           </CheckoutBtn>

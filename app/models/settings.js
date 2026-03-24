@@ -56,7 +56,7 @@ const CartDrawerSchema = new mongoose.Schema({
   text_color: { type: String, default: '#000' }, // Updated default to match frontend
   border_radius: { type: Number, default: 10 }, // Updated default to match frontend
   button_color: { type: String, default: '#000000' },
-  button_text_color: { type: String, default: '#000' },
+  button_text_color: { type: String, default: '#fff' },
   button_border_radius: { type: Number, default: 10 }
 }, { _id: false })
 
@@ -117,7 +117,8 @@ const ProductSchema = new mongoose.Schema({
     handle: { type: String, default: '' },
     title: { type: String, default: '' },
     id: { type: String, default: '' }
-  }
+  },
+  productInfo: { type: String, default: '🎁 ADD MYSTERYBOX WORTH ₹199' }
 }, { _id: false })
 
 /**

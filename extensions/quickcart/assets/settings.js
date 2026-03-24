@@ -11,13 +11,13 @@
       console.warn('upcart_loader: element not found');
       return;
     }
-  
+
     loader.style.display = show ? 'block' : 'none';
   }
-  
+
   // Make loader function globally accessible
   window.upcart_loader = upcart_loader;
-  
+
   // Initialize loader as hidden
   upcart_loader(false);
 
@@ -128,7 +128,7 @@
       if (countdownElement) {
         if (settings.countdown.countdown_text_color) {
           const countdownElement =
-            document.querySelector("[data-countdown]") || 
+            document.querySelector("[data-countdown]") ||
             document.querySelector(".sr-countdown") ||
             drawer.querySelector('[id*="countdown"]');
           if (countdownElement) {
@@ -154,7 +154,7 @@
         root.style.setProperty("--text_color", settings.cartDrawer.text_color);
       }
 
-   
+
       if (settings.cartDrawer.border_radius !== undefined) {
         root.style.setProperty(
           "--border_radius",
@@ -163,48 +163,48 @@
 
 
         document.querySelector(".cdp-checkout").style.borderRadius =
-        settings.cartDrawer.button_border_radius + "px";
+          settings.cartDrawer.button_border_radius + "px";
 
 
         document.querySelector(".cdp-lines").style.borderRadius =
-        settings.cartDrawer.border_radius + "px"; 
+          settings.cartDrawer.border_radius + "px";
 
 
         document.querySelector("[data-announcement-bar]").style.borderRadius =
-        settings.cartDrawer.border_radius + "px";
+          settings.cartDrawer.border_radius + "px";
 
         document.querySelector(".cdp-content").style.borderRadius =
-        settings.cartDrawer.border_radius + "px";
+          settings.cartDrawer.border_radius + "px";
 
         function applyLineRadius() {
           document.querySelectorAll(".cdp-line").forEach((item) => {
             item.style.borderRadius = settings.cartDrawer.border_radius + "px";
           });
         }
-        
+
         // Run once
         applyLineRadius();
-        
+
         // Watch for cart item add/remove
         const cartContainer = document.querySelector(".cdp-lines");
-        
+
         if (cartContainer) {
           const observer = new MutationObserver(() => {
             applyLineRadius();
           });
-        
+
           observer.observe(cartContainer, {
             childList: true,
             subtree: true
           });
         }
-      
+
 
         // document.querySelectorAll(".cdp-qty").forEach((item) => {
         //   item.style.borderRadius =
         //     settings.cartDrawer.border_radius + "px";
         // });
-      } 
+      }
 
 
 
@@ -212,22 +212,22 @@
 
       if (settings.cartDrawer.button_color) {
 
-          document.querySelector(".cdp-checkout").style.backgroundColor =
-            settings.cartDrawer.button_color;
-
-            document.querySelectorAll('.mob_upsell .cdp-u-final').forEach((item) => {
-              item.style.color = settings.cartDrawer.button_color;
-            });
-
-
-            document.querySelector('.cdp-checkout').style.color = settings.cartDrawer.button_text_color;
-
-          document.querySelector(".combined-offer-badge").style.backgroundColor =
+        document.querySelector(".cdp-checkout").style.backgroundColor =
           settings.cartDrawer.button_color;
-          document.querySelectorAll(" .ball").forEach((ball)=>{
-            ball.style.backgroundColor =
+
+        document.querySelectorAll('.mob_upsell .cdp-u-final').forEach((item) => {
+          item.style.color = settings.cartDrawer.button_color;
+        });
+
+
+        document.querySelector('.cdp-checkout').style.color = settings.cartDrawer.button_text_color;
+
+        document.querySelector(".combined-offer-badge").style.backgroundColor =
+          settings.cartDrawer.button_color;
+        document.querySelectorAll(" .ball").forEach((ball) => {
+          ball.style.backgroundColor =
             settings.cartDrawer.button_color;
-          })
+        })
       }
       if (settings.cartDrawer.button_text_color) {
         root.style.setProperty(
@@ -244,7 +244,7 @@
         );
       }
     }
- 
+
     // Apply announcement bar settings
     if (settings.announcementBar) {
       const announcementBarElement =
@@ -264,9 +264,10 @@
             announcementBarElement.style.color =
               settings.announcementBar.text_color;
           }
-          if (settings.announcementBar.border_radius !== undefined) {
+
+          if (settings.cartDrawer.border_radius !== undefined) {
             announcementBarElement.style.borderRadius =
-              settings.announcementBar.border_radius + "px";
+              settings.cartDrawer.border_radius + "px";
           }
 
           if (settings.announcementBar.content) {
@@ -341,7 +342,10 @@
 
       if (giftSection) {
         giftSection.style.display = settings.product.enabled ? "" : "none";
-
+        const giftBoxInfo = giftSection.querySelector(".gift-box-info");
+        if (settings.product.enabled && settings.product.selectedProduct?.handle) {
+          giftBoxInfo.innerHTML = settings.product.productInfo;
+        }
         // You may want to dynamically load the gift product here
         if (
           settings.product.enabled &&
@@ -359,15 +363,15 @@
     if (settings.thirdPartyIntegration) {
       const existingCheckout = document.querySelector(".cdp-checkout");
       const footerRight = document.querySelector(".cdp-footer-right");
-      
-      if(settings.thirdPartyIntegration.enabled == false){
+
+      if (settings.thirdPartyIntegration.enabled == false) {
         {
           const thirdPartyHtml = document.querySelector("#third-party-integration-wrapper");
           if (thirdPartyHtml) {
             thirdPartyHtml.style.display = "none";
           }
         }
-      }else{
+      } else {
         document.querySelector(".cdp-checkout").style.display = "block";
       }
 
@@ -375,19 +379,19 @@
         // Hide or remove existing checkout button
         if (existingCheckout) {
           existingCheckout.style.display = "none";
-        }else{
+        } else {
           const thirdPartyHtml = document.querySelector("#third-party-integration-wrapper");
           if (thirdPartyHtml) {
             thirdPartyHtml.style.display = "none";
           }
         }
-        
+
         // Remove any existing third-party button to avoid duplicates
         const existingThirdPartyBtn = document.querySelector(".cdp-third-party-checkout");
         if (existingThirdPartyBtn) {
           existingThirdPartyBtn.remove();
         }
-        
+
         // Create button wrapper and insert htmlContent inside
         if (settings.thirdPartyIntegration.htmlContent && footerRight) {
           // const thirdPartyButton = document.createElement("a");
@@ -397,13 +401,13 @@
           // thirdPartyButton.setAttribute("aria-label", "Proceed to checkout");
           // thirdPartyButton.innerHTML = settings.thirdPartyIntegration.htmlContent;
           // footerRight.appendChild(thirdPartyButton);
-        } 
+        }
       } else {
         // Show existing checkout button if third party is disabled
         if (existingCheckout) {
           existingCheckout.style.display = "";
         }
-        
+
         // Remove third-party button if it exists
         const existingThirdPartyBtn = document.querySelector(".cdp-third-party-checkout");
         if (existingThirdPartyBtn) {
@@ -422,8 +426,8 @@
 
     // Apply upsell_collection settings ()
 
- 
-    if(settings.collection !== undefined){
+
+    if (settings.collection !== undefined) {
 
 
       // let emptyContent = `<div class="cdp-u-empty">Add an upsell collection Go to Upcart App Dashboard 
@@ -434,13 +438,13 @@
 
 
 
-      if(settings.collection.enabled == true){
+      if (settings.collection.enabled == true) {
         document.querySelector('.mob_upsell').style.display = ' ';
-        
-      }else{
+
+      } else {
         document.querySelector('.mob_upsell').style.display = 'none';
         // upsell_next_insert.insertAdjacentHTML('afterend', emptyContent);
-      } 
+      }
     }
 
 
@@ -484,7 +488,7 @@
       if (data.ok && data.data) {
         const cartDrawerSettings = data.data;
         const drawer = document.getElementById("CartDrawerPremium");
-        
+
         if (drawer) {
           // Apply quickview button visibility
           if (cartDrawerSettings.enable_quickview_button !== undefined) {
@@ -582,7 +586,7 @@
       fetchSettingsData();
       fetchCartDrawerSettings();
     }
-    
+
     // Refresh cart drawer settings when drawer opens for dynamic updates
     const drawer = document.getElementById("CartDrawerPremium");
     if (drawer) {
@@ -599,7 +603,7 @@
       });
       observer.observe(drawer, { attributes: true, attributeFilter: ["aria-hidden"] });
     }
-    
+
     // Also listen for custom cart drawer open events
     document.addEventListener("cartDrawerOpen", () => {
       fetchCartDrawerSettings();
@@ -608,4 +612,3 @@
 
   init();
 })();
- 

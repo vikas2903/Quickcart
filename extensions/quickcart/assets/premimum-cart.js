@@ -1271,8 +1271,8 @@
 
           return `
       <article class="cdp-line" data-line-key="${item.key}" ${isFreeGift ? 'data-free-gift="true"' : ''}>
-        <div class="cdp-line-media">
-          <img src="${item.image ? item.image.replace(/\.(jpg|png|jpeg)/, "_180x.$1") : ""
+        <div ss class="cdp-line-media">
+          <img src="${item.image ? item.image.replace(/\.(jpg|png|jpeg)/, "_140x.$1") : ""
             }" alt="${item.product_title}" width="90" height="90" loading="lazy">
         </div>
         <div class="cdp-line-info">
