@@ -321,10 +321,10 @@ export const action = async ({ request }) => {
       const cartDrawerData = {
         body_color: body.body_color ?? body.cartDrawer?.body_color ?? existing?.cartDrawer?.body_color ?? "#f0e5e7",
         text_color: body.text_color ?? body.cartDrawer?.text_color ?? existing?.cartDrawer?.text_color ?? "#000",
-        border_radius: body.border_radius ?? body.cartDrawer?.border_radius ?? existing?.cartDrawer?.border_radius ?? 10,
+        border_radius: body.border_radius ?? body.cartDrawer?.border_radius ?? existing?.cartDrawer?.border_radius ?? 8,
         button_color: body.button_color ?? body.cartDrawer?.button_color ?? existing?.cartDrawer?.button_color ?? "#f0e5e7",
         button_text_color: body.button_text_color ?? body.cartDrawer?.button_text_color ?? existing?.cartDrawer?.button_text_color ?? "#fff",
-        button_border_radius: body.button_border_radius ?? body.cartDrawer?.button_border_radius ?? existing?.cartDrawer?.button_border_radius ?? 10
+        button_border_radius: body.button_border_radius ?? body.cartDrawer?.button_border_radius ?? existing?.cartDrawer?.button_border_radius ?? 8
       };
 
       // Update or create settings document
@@ -334,18 +334,18 @@ export const action = async ({ request }) => {
           $set: {
             // Countdown settings
             countdown: {
-              show_countdown: body.show_countdown ?? body.countdown?.show_countdown ?? existing?.countdown?.show_countdown ?? false,
+              show_countdown: body.show_countdown ?? body.countdown?.show_countdown ?? existing?.countdown?.show_countdown ?? true,
               count_down_bg: body.count_down_bg ?? body.countdown?.count_down_bg ?? existing?.countdown?.count_down_bg ?? "#5B9BD5",
               countdown_text_color: body.countdown_text_color ?? body.countdown?.countdown_text_color ?? existing?.countdown?.countdown_text_color ?? "#ffffff",
               countdown_chip_bg: body.countdown_chip_bg ?? body.countdown?.countdown_chip_bg ?? existing?.countdown?.countdown_chip_bg ?? "#ffffff",
               countdown_chip_text: body.countdown_chip_text ?? body.countdown?.countdown_chip_text ?? existing?.countdown?.countdown_chip_text ?? "#2c3e50",
-              countdown_border_radius: body.countdown_border_radius ?? body.countdown?.countdown_border_radius ?? existing?.countdown?.countdown_border_radius ?? 50
+              countdown_border_radius: body.countdown_border_radius ?? body.countdown?.countdown_border_radius ?? existing?.countdown?.countdown_border_radius ?? 8
             },
             // Cart Drawer settings - full object replacement to ensure all fields are saved
             cartDrawer: cartDrawerData,
             // Announcement Bar settings
             announcementBar: {
-              enabled: body.announcementBar?.enabled ?? existing?.announcementBar?.enabled ?? false,
+              enabled: body.announcementBar?.enabled ?? existing?.announcementBar?.enabled ?? true,
               content: body.announcementBar?.content ?? existing?.announcementBar?.content ?? "Free shipping order above 999, Get 10% Off order above 1999",
               background_color: body.announcementBar?.background_color ?? existing?.announcementBar?.background_color ?? "#f0e5e7",
               text_color: body.announcementBar?.text_color ?? existing?.announcementBar?.text_color ?? "#000",
