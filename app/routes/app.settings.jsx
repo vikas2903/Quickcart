@@ -53,6 +53,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./assests/style.css";
 import { TitleBar } from "@shopify/app-bridge-react";
+import { useTranslation } from "react-i18next";
 
 export const links = () => [{ rel: "stylesheet", href: antdResetHref }];
 
@@ -234,6 +235,7 @@ export const action = async ({ request }) => {
 
 function Settings() {
   const { shop, collections, shopMetafields } = useLoaderData();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const fetcher = useFetcher();
@@ -263,7 +265,7 @@ function Settings() {
 
   // Collection dropdown options
   const collectionOptions = [
-    { label: "Select a collection", value: "" },
+    { label: t("settingsPage.select-collection-placeholder"), value: "" },
     ...collections.map((col) => ({
       label: col.title,
       value: col.id,
@@ -542,7 +544,7 @@ function Settings() {
             setSelectedProduct(product.selectedProduct);
             setProductSearch(product.selectedProduct.title || "");
           }
-          setProductInfo(product.productInfo || "🎁 ADD MYSTERYBOX WORTH ₹199");
+          setProductInfo(product.productInfo || t("settingsPage.mystery-box-placeholder"));
 
           // Third-party Integration settings
           const thirdPartyIntegration = data.thirdPartyIntegration || {};
@@ -554,13 +556,13 @@ function Settings() {
       } catch (error) {
         // Step 4: Handle errors gracefully
         console.error("Failed to load settings:", error);
-        toast.error("Failed to load settings");
+        toast.error(t("settingsPage.load-error"));
       } finally {
         setIsLoading(false);
       }
     };
     loadSettings();
-  }, [shop]);
+  }, [shop, t]);
 
   // Memoize settings data
   const settings_data = useMemo(
@@ -730,17 +732,17 @@ function Settings() {
       const json = await res.json();
 
       if (json?.ok) {
-        toast.success("Settings saved successfully!");
+        toast.success(t("settingsPage.save-success"));
         console.log("Settings saved to database:", json.data);
       } else {
-        toast.error(json?.error || "Failed to save settings");
+        toast.error(json?.error || t("settingsPage.save-error"));
         console.error("Save error:", json?.error);
       }
     } catch (e) {
       // Handle network errors or other exceptions
       console.error("Failed to save settings:", e);
       const errorMessage =
-        e instanceof Error ? e.message : "Failed to save settings";
+        e instanceof Error ? e.message : t("settingsPage.save-error");
       toast.error(errorMessage);
     } finally {
       // Step 4: Reset saving state (always runs, even if error occurs)
@@ -753,7 +755,7 @@ function Settings() {
       <Page fullWidth>
         <Layout>
           <Layout.Section>
-            <Banner tone="info">Loading settings...</Banner>
+            <Banner tone="info">{t("settingsPage.loading-settings")}</Banner>
           </Layout.Section>
         </Layout>
       </Page>
@@ -771,7 +773,7 @@ function Settings() {
 
   return (
     <Page fullWidth>
-      <TitleBar title="Cart Drawer Settings" />
+      <TitleBar title={t("settingsPage.page-title")} />
       <ToastContainer position="top-right" autoClose={3000} />
       <Layout>
 
@@ -791,7 +793,7 @@ function Settings() {
                     style={{ marginRight: "5px" }}
                   >
                     {" "}
-                    Cart Settings{" "}
+                    {t("settingsPage.tab-cart-settings")}{" "}
                   </Button>
                   <Button
                     primary
@@ -800,7 +802,7 @@ function Settings() {
                     style={{ marginRight: "5px" }}
                   >
                     {" "}
-                    Countdown Block{" "}
+                    {t("settingsPage.tab-countdown-block")}{" "}
                   </Button>
                   <Button
                     primary
@@ -809,7 +811,7 @@ function Settings() {
                     style={{ marginRight: "5px" }}
                   >
                     {" "}
-                    Select Upsell Collection {" "}
+                    {t("settingsPage.tab-upsell-collection")}{" "}
                   </Button>
                   <Button
                     primary
@@ -818,7 +820,7 @@ function Settings() {
                     style={{ marginRight: "5px" }}
                   >
                     {" "}
-                    Set Mystery Box Product{" "}
+                    {t("settingsPage.tab-mystery-box")}{" "}
                   </Button>
                   <Button
                     primary
@@ -826,7 +828,7 @@ function Settings() {
                     onClick={() => settabsbutton(4)}
                   >
                     {" "}
-                    Third Party  Chekout Integration{" "}
+                    {t("settingsPage.tab-third-party")}{" "}
                   </Button>
                   <Button
                     primary
@@ -835,7 +837,7 @@ function Settings() {
                     onClick={() => settabsbutton(5)}
                   >
                     {" "}
-                    Announcementbar Crousel
+                    {t("settingsPage.tab-announcement")}
                   </Button>
                 </Grid.Cell>
               </Grid>
@@ -851,9 +853,9 @@ function Settings() {
                     <BlockStack gap="200">
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Enable CountDown</div>
+                          <div className="column-title">{t("settingsPage.enable-countdown-title")}</div>
                           {
-                            <InfoBanner text="Enable Countdown Block in Cart Drawer" />
+                            <InfoBanner text={t("settingsPage.enable-countdown-info")} />
                           }
                           <div className="color-picker-container">
                             <Checkbox
@@ -861,7 +863,7 @@ function Settings() {
                               onChange={handleCountdown}
                             >
                               {" "}
-                              Enable
+                              {t("settingsPage.enable-label")}
                             </Checkbox>
                           </div>
                         </div>
@@ -869,8 +871,8 @@ function Settings() {
 
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Border Radius</div>
-                          {<InfoBanner text="Border Radius for CountDown Block" />}
+                          <div className="column-title">{t("settingsPage.border-radius-title")}</div>
+                          {<InfoBanner text={t("settingsPage.countdown-border-radius-info")} />}
                           <div className="color-picker-container">
                             <InputNumber
                               value={countdownBorderRadius}
@@ -884,9 +886,9 @@ function Settings() {
 
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Background Color</div>
+                          <div className="column-title">{t("settingsPage.background-color-title")}</div>
                           {
-                            <InfoBanner text="Background Color for CountDown Block" />
+                            <InfoBanner text={t("settingsPage.countdown-background-info")} />
                           }
                           <div className="color-picker-container">
                             <ColorPicker
@@ -903,7 +905,7 @@ function Settings() {
 
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Text Color</div>
+                          <div className="column-title">{t("settingsPage.text-color-title")}</div>
                           <div className="color-picker-container">
                             <ColorPicker
                               value={countdownTextColor}
@@ -920,10 +922,10 @@ function Settings() {
                       <LegacyCard sectioned>
                         <div className="grid-item">
                           <div className="column-title">
-                            CountDown Block Background Color
+                            {t("settingsPage.countdown-chip-background-title")}
                           </div>
                           {
-                            <InfoBanner text="Background Color for CountDown Timer Blocks" />
+                            <InfoBanner text={t("settingsPage.countdown-chip-background-info")} />
                           }
                           <div className="color-picker-container">
                             <ColorPicker
@@ -939,10 +941,10 @@ function Settings() {
                       <LegacyCard sectioned>
                         <div className="grid-item">
                           <div className="column-title">
-                            CountDown Block Text Color
+                            {t("settingsPage.countdown-chip-text-title")}
                           </div>
                           {
-                            <InfoBanner text="Text Color for CountDown Timer Blocks" />
+                            <InfoBanner text={t("settingsPage.countdown-chip-text-info")} />
                           }
                           <div className="color-picker-container">
                             <ColorPicker
@@ -969,9 +971,9 @@ function Settings() {
                     <BlockStack gap="200">
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Background Color</div>
+                          <div className="column-title">{t("settingsPage.background-color-title")}</div>
                           {
-                            <InfoBanner text="Background Color for Cart Drawer Body" />
+                            <InfoBanner text={t("settingsPage.cart-background-info")} />
                           }
                           <div className="color-picker-container">
                             <ColorPicker
@@ -985,8 +987,8 @@ function Settings() {
                       </LegacyCard>
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title"> Text Color</div>
-                          {<InfoBanner text="Text Color for Cart Drawer Body" />}
+                          <div className="column-title">{t("settingsPage.text-color-title")}</div>
+                          {<InfoBanner text={t("settingsPage.cart-text-info")} />}
                           <div className="color-picker-container">
                             <ColorPicker
                               value={textColor}
@@ -999,9 +1001,9 @@ function Settings() {
                       </LegacyCard>
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Border Radius</div>
+                          <div className="column-title">{t("settingsPage.border-radius-title")}</div>
                           {
-                            <InfoBanner text="Border Radius for Cart Drawer Body Button and Checkout Button" />
+                            <InfoBanner text={t("settingsPage.cart-border-radius-info")} />
                           }
                           <div className="color-picker-container">
                             <InputNumber
@@ -1016,9 +1018,9 @@ function Settings() {
 
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Button Text Color</div>
+                          <div className="column-title">{t("settingsPage.button-text-color-title")}</div>
                           {
-                            <InfoBanner text="Text Color for Cart Drawer Buttons and Checkout Button" />
+                            <InfoBanner text={t("settingsPage.button-text-color-info")} />
                           }
                           <div className="color-picker-container">
                             <ColorPicker
@@ -1033,10 +1035,10 @@ function Settings() {
                       <LegacyCard sectioned>
                         <div className="grid-item">
                           <div className="column-title">
-                            Button Background Color
+                            {t("settingsPage.button-background-title")}
                           </div>
                           {
-                            <InfoBanner text="Background Color for Cart Drawer Buttons and Checkout Button" />
+                            <InfoBanner text={t("settingsPage.button-background-info")} />
                           }
                           <div className="color-picker-container">
                             <ColorPicker
@@ -1051,9 +1053,9 @@ function Settings() {
 
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Border Radius</div>
+                          <div className="column-title">{t("settingsPage.border-radius-title")}</div>
                           {
-                            <InfoBanner text="Border Radius for Cart Drawer Buttons and Checkout Button" />
+                            <InfoBanner text={t("settingsPage.button-border-radius-info")} />
                           }
                           <div className="color-picker-container">
                             <InputNumber
@@ -1082,10 +1084,10 @@ function Settings() {
                       <LegacyCard sectioned>
                         <div className="grid-item">
                           <div className="column-title">
-                            Enable Announcement Bar
+                            {t("settingsPage.enable-announcement-title")}
                           </div>
                           {
-                            <InfoBanner text="Enable Announcement Bar Block in Cart Drawer" />
+                            <InfoBanner text={t("settingsPage.enable-announcement-info")} />
                           }
                           <div className="color-picker-container">
                             <Checkbox
@@ -1093,7 +1095,7 @@ function Settings() {
                               onChange={handleAnnouncementBar}
                             >
                               {" "}
-                              Enable Announcement Bar
+                              {t("settingsPage.enable-announcement-title")}
                             </Checkbox>
                           </div>
                         </div>
@@ -1108,15 +1110,15 @@ function Settings() {
                           }}
                         >
                           <div className="column-title">
-                            Announcement Bar Content
+                            {t("settingsPage.announcement-content-title")}
                           </div>
                           {
-                            <InfoBanner text="Update Announcement Bar ContentBy Comma(,)Separated Values (Example: Free shipping order above 999, Get 10% Off order above 1999)" />
+                            <InfoBanner text={t("settingsPage.announcement-content-info")} />
                           }
 
                           <div className="custom-antd-textarea">
                             <TextArea
-                              placeholder="Enter your message"
+                              placeholder={t("settingsPage.message-placeholder")}
                               rows={4}
                               value={anouncmentbartTextarea}
                               onChange={handleAnnouncementBarTextarea}
@@ -1127,8 +1129,8 @@ function Settings() {
                       </LegacyCard>
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">text color</div>
-                          {<InfoBanner text="Text Color for Announcement Bar" />}
+                          <div className="column-title">{t("settingsPage.announcement-text-color-title")}</div>
+                          {<InfoBanner text={t("settingsPage.announcement-text-color-info")} />}
                           <div className="color-picker-container">
                             <ColorPicker
                               value={announcementBarTextColor}
@@ -1142,9 +1144,9 @@ function Settings() {
 
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Background color</div>
+                          <div className="column-title">{t("settingsPage.announcement-background-title")}</div>
                           {
-                            <InfoBanner text="Background Color for Announcement Bar" />
+                            <InfoBanner text={t("settingsPage.announcement-background-info")} />
                           }
                           <div className="color-picker-container">
                             <ColorPicker
@@ -1171,9 +1173,9 @@ function Settings() {
                     <BlockStack gap="200">
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Enable Collection</div>
+                          <div className="column-title">{t("settingsPage.enable-collection-title")}</div>
                           {
-                            <InfoBanner text="Enable  Block Upsell Products in Cart Drawer" />
+                            <InfoBanner text={t("settingsPage.enable-collection-info")} />
                           }
                           <div className="color-picker-container">
                             <Checkbox
@@ -1181,16 +1183,16 @@ function Settings() {
                               onChange={handleCollectionEnable}
                             >
                               {" "}
-                              Enable Collection
+                              {t("settingsPage.enable-collection-title")}
                             </Checkbox>
                           </div>
                         </div>
                       </LegacyCard>
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Select Collection</div>
+                          <div className="column-title">{t("settingsPage.select-collection-title")}</div>
                           {
-                            <InfoBanner text="Select Collection for Upsell Products in Cart Drawer" />
+                            <InfoBanner text={t("settingsPage.select-collection-info")} />
                           }
                           <div className="custom-collection">
                             <Select
@@ -1214,11 +1216,11 @@ function Settings() {
                                 }}
                               >
                                 <Text as="p" variant="bodyMd">
-                                  <strong>Selected Collection:</strong>{" "}
+                                  <strong>{t("settingsPage.selected-collection-label")}</strong>{" "}
                                   {selectedCollection.title}
                                 </Text>
                                 <Text as="p" variant="bodySm" tone="subdued">
-                                  <strong>Handle:</strong>{" "}
+                                  <strong>{t("settingsPage.handle-label")}:</strong>{" "}
                                   {selectedCollection.handle}
                                 </Text>
                               </div>
@@ -1242,9 +1244,9 @@ function Settings() {
                     <BlockStack gap="200">
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">Enable Product</div>
+                          <div className="column-title">{t("settingsPage.enable-product-title")}</div>
                           {
-                            <InfoBanner text="Enable Block Free Gift Product in Cart Drawer (Important: Product should be in the cart to show the free gift product)" />
+                            <InfoBanner text={t("settingsPage.enable-product-info")} />
                           }
 
                           <div className="color-picker-container">
@@ -1253,7 +1255,7 @@ function Settings() {
                               onChange={handleProductEnable}
                             >
                               {" "}
-                              Enable Product
+                              {t("settingsPage.enable-product-title")}
                             </Checkbox>
                           </div>
                         </div>
@@ -1262,10 +1264,10 @@ function Settings() {
                       <LegacyCard sectioned>
                         <div className="grid-item">
                           <div className="column-title">
-                            Search & Select Product
+                            {t("settingsPage.search-product-title")}
                           </div>
                           {
-                            <InfoBanner text="Search and Select Product for Free Gift Product in Cart Drawer (IMPORTANT : The free gift will appear in the cart drawer only after the selected product is added to the cart. The gift price is automatically taken from the product price set in Shopify.)" />
+                            <InfoBanner text={t("settingsPage.search-product-info")} />
                           }
 
                           <div className="custom-product-search">
@@ -1273,20 +1275,20 @@ function Settings() {
                               label=""
                               value={productInfo}
                               onChange={setProductInfo}
-                              placeholder="🎁 ADD MYSTERYBOX WORTH ₹199..."
+                              placeholder={t("settingsPage.mystery-box-placeholder")}
 
                             />
                             <TextField
                               label=""
                               value={productSearch}
                               onChange={setProductSearch}
-                              placeholder="Search for products..."
+                              placeholder={t("settingsPage.search-products-placeholder")}
                               autoComplete="off"
                             />
                             {productLoading && (
                               <div style={{ marginTop: "10px" }}>
                                 <Text as="p" variant="bodySm" tone="subdued">
-                                  Searching...
+                                  {t("settingsPage.searching")}
                                 </Text>
                               </div>
                             )}
@@ -1309,8 +1311,7 @@ function Settings() {
                                     }}
                                   >
                                     <Text as="p" variant="bodySm" tone="warning">
-                                      Enable product selection above to select
-                                      products
+                                      {t("settingsPage.enable-product-selection-warning")}
                                     </Text>
                                   </div>
                                 )}
@@ -1346,7 +1347,7 @@ function Settings() {
                                         onClick={() =>
                                           productEnable && handleProductSelect(item)
                                         }
-                                        accessibilityLabel={`Select ${title}`}
+                                        accessibilityLabel={t("settingsPage.select-product-accessibility", { title })}
                                       >
                                         <Text
                                           as="h3"
@@ -1361,10 +1362,10 @@ function Settings() {
                                             variant="bodySm"
                                             tone="subdued"
                                           >
-                                            Handle: {handle}
+                                            {t("settingsPage.handle-label")}: {handle}
                                           </Text>
                                           <Text as="p" variant="bodySm">
-                                            Price: {price} {currency}
+                                            {t("settingsPage.price-label")}: {price} {currency}
                                           </Text>
                                         </div>
                                       </ResourceItem>
@@ -1383,11 +1384,11 @@ function Settings() {
                                 }}
                               >
                                 <Text as="p" variant="bodyMd">
-                                  <strong>Selected Product:</strong>{" "}
-                                  {selectedProduct.title || "N/A"}
+                                  <strong>{t("settingsPage.selected-product-label")}</strong>{" "}
+                                  {selectedProduct.title || t("settingsPage.not-available")}
                                 </Text>
                                 <Text as="p" variant="bodySm" tone="subdued">
-                                  <strong>Handle:</strong> {selectedProduct.handle}
+                                  <strong>{t("settingsPage.handle-label")}:</strong> {selectedProduct.handle}
                                 </Text>
                               </div>
                             )}
@@ -1411,10 +1412,10 @@ function Settings() {
                       <LegacyCard sectioned>
                         <div className="grid-item">
                           <div className="column-title">
-                            Enable Third-Party Integration
+                            {t("settingsPage.enable-third-party-title")}
                           </div>
                           {
-                            <InfoBanner text="Enable Third-Party Integration in Cart Drawer" />
+                            <InfoBanner text={t("settingsPage.enable-third-party-info")} />
                           }
                           <div className="color-picker-container">
                             <Checkbox
@@ -1422,7 +1423,7 @@ function Settings() {
                               onChange={handleThirdPartyIntegration}
                             >
                               {" "}
-                              Enable Third-Party Integration
+                              {t("settingsPage.enable-third-party-title")}
                             </Checkbox>
                           </div>
                         </div>
@@ -1431,14 +1432,14 @@ function Settings() {
                       <LegacyCard sectioned>
                         <div className="grid-item">
                           <div className="column-title">
-                            Third-Party Integration Code Snippet
+                            {t("settingsPage.third-party-code-title")}
                           </div>
                           {
-                            <InfoBanner text="Paste your third-party checkout integration code here" />
+                            <InfoBanner text={t("settingsPage.third-party-code-info")} />
                           }
                           <div className="custom-antd-textarea">
                             <TextArea
-                              placeholder="Enter your HTML code here..."
+                              placeholder={t("settingsPage.html-placeholder")}
                               rows={8}
                               value={thirdPartyHtmlContent}
                               onChange={handleThirdPartyHtmlContent}
@@ -1477,7 +1478,7 @@ function Settings() {
                     width="full"
                     variant="primary"
                   >
-                    {isSaving ? "Saving..." : "Save Settings"}
+                    {isSaving ? t("settingsPage.saving") : t("settingsPage.save-settings")}
                   </Button>
                 </Grid.Cell>
               </Grid>

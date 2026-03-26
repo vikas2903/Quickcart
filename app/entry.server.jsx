@@ -4,6 +4,8 @@ import { RemixServer } from "@remix-run/react";
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { isbot } from "isbot";
 import { addDocumentResponseHeaders } from "./shopify.server";
+import i18n from "./i18n/i18n.client.js";
+import { I18nextProvider } from "react-i18next";
 
 export const streamTimeout = 5000;
 
@@ -19,7 +21,9 @@ export default async function handleRequest(
 
   return new Promise((resolve, reject) => {
     const { pipe, abort } = renderToPipeableStream(
-      <RemixServer context={remixContext} url={request.url} />,
+      <I18nextProvider i18n={i18n}>
+        <RemixServer context={remixContext} url={request.url} />
+      </I18nextProvider>,
       {
         [callbackName]: () => {
           const body = new PassThrough();

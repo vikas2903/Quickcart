@@ -11,7 +11,7 @@ export const loader = async ({ request }) => {
 
   // Authenticate Shopify Admin
   await authenticate.admin(request);
-  const {session} = await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
   const shop = session.shop;
   const accessToken = session.accessToken;
@@ -47,4 +47,4 @@ export function ErrorBoundary() {
 
 export const headers = (headersArgs) => {
   return boundary.headers(headersArgs);
-};
+}; 

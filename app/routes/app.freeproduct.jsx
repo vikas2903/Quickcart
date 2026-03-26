@@ -6,6 +6,7 @@ import { authenticate } from "../shopify.server.js";
 import {
   Page, Layout, Card, BlockStack, Checkbox, TextField, Autocomplete, Button, Banner,
 } from "@shopify/polaris";
+import { useTranslation } from "react-i18next";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
@@ -19,6 +20,7 @@ const API_LOOKUP = "/app/api/products/lookup";
 export default function BxgyPage() {
   const { shop } = useLoaderData();
   const shortShop = shop.replace(".myshopify.com", "");
+  const { t } = useTranslation();
   console.log("vikasShortShop",shortShop);
   // form state
   const [enabled, setEnabled] = useState(true);
@@ -114,14 +116,14 @@ export default function BxgyPage() {
         const txt = await res.text().catch(() => "");
         throw new Error(`HTTP ${res.status} ${txt}`);
       }
-      setStatus({ type: "success", text: "Saved!" });
+      setStatus({ type: "success", text: t("freeproduct.save-success-message") });
     } catch (e) {
-      setStatus({ type: "critical", text: e.message || "Save failed" });
+      setStatus({ type: "critical", text: e.message || t("freeproduct.save-error-message") });
     }
   };
 
   return (
-    <Page title="Buy X, Get 1 Free (by product)">
+    <Page title={t("freeproduct.page-title")}>
       <Layout>
         <Layout.Section>
           
@@ -129,15 +131,15 @@ export default function BxgyPage() {
             <BlockStack gap="400">
               {status && <Banner tone={status.type}>{status.text}</Banner>}
 
-              <Checkbox label="Enable rule" checked={enabled} onChange={setEnabled} />
+              <Checkbox label={t("freeproduct.enable-rule")} checked={enabled} onChange={setEnabled} />
               <Banner tone="info">
                 <p>
-                  <strong>Important:</strong> This rule will give free product to the customer when they buy the selected products.
+                  <strong>{t("freeproduct.important-title")}</strong> {t("freeproduct.important-text")}
                 </p>
                 </Banner>
 
               <TextField
-                label="Buy quantity (X)"
+                label={t("freeproduct.buy-quantity-label")}
                 type="number"
                 min={1}
                 value={buyQty}
@@ -153,11 +155,11 @@ export default function BxgyPage() {
                 onSelect={setBuySelected}
                 textField={
                   <Autocomplete.TextField
-                    label="Buy products (search & select multiple)"
+                    label={t("freeproduct.buy-products-label")}
                     value={buyQuery}
                     onChange={setBuyQuery}
                     autoComplete="off"
-                    placeholder="Search products…"
+                    placeholder={t("freeproduct.search-products-placeholder")}
                   />
                 }
               />
@@ -169,17 +171,17 @@ export default function BxgyPage() {
                 onSelect={setFreeSelected}
                 textField={
                   <Autocomplete.TextField
-                    label="Free product (search & select one)"
+                    label={t("freeproduct.free-product-label")}
                     value={freeQuery}
                     onChange={setFreeQuery}
                     autoComplete="off"
-                    placeholder="Search products…"
+                    placeholder={t("freeproduct.search-products-placeholder")}
                   />
                 }
               />
 
               <Button variant="primary" onClick={handleSave}>
-                Save
+                {t("freeproduct.save-button")}
               </Button>
             </BlockStack>
           </Card>

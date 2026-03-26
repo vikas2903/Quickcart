@@ -1,4 +1,3 @@
-// app/routes/app.help-support.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
@@ -16,8 +15,8 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { sendSupportEmail } from "../utils/mailer.server.js";
+import { useTranslation } from "react-i18next";
 
-// ----- SERVER -----
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   return json({ shop: session.shop });
@@ -43,23 +42,21 @@ export const action = async ({ request }) => {
   }
 };
 
-// ----- CLIENT -----
 export default function HelpSupportMini() {
   const { shop } = useLoaderData();
   const fetcher = useFetcher();
+  const { t } = useTranslation();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Placeholder text dynamically adjusts
   const descPlaceholder = useMemo(() => {
     const target = email || shop;
-    return `Describe the issue. You can attach screenshots by replying to our confirmation email (${target}).`;
-  }, [email, shop]);
+    return t("helpPage.description-placeholder", { target });
+  }, [email, shop, t]);
 
-  // Submit handler
   const handleSubmit = () => {
     const fd = new FormData();
     fd.append("shop", shop);
@@ -67,11 +64,9 @@ export default function HelpSupportMini() {
     fd.append("email", email.trim());
     fd.append("description", description.trim());
 
-    console.log("fd", fd)
     fetcher.submit(fd, { method: "post" });
   };
 
-  // After submission success
   useEffect(() => {
     if (fetcher.data?.ok) {
       setModalOpen(true);
@@ -88,27 +83,24 @@ export default function HelpSupportMini() {
 
   return (
     <Page fullWidth>
-      <TitleBar title="Help & Support" />
+      <TitleBar title={t("helpPage.page-title")} />
       <Layout>
         <Layout.Section>
-
-
-      
-
-
           <div style={{ width: "70%", margin: "0 auto" }}>
-<div className="help-support-banner" style={{ marginBottom: "20px" }}>
-  <Banner tone="info">
-    <p>If you have any questions or encounter errors while using this app, email <a href="mailto:support@digisidekick.com">support@digisidekick.com</a> or <a href="mailto:vikasprasad@digisidekick.com">vikasprasad@digisidekick.com</a></p>
-  </Banner>
-</div>
-
-
+            <div className="help-support-banner" style={{ marginBottom: "20px" }}>
+              <Banner tone="info">
+                <p>
+                  {t("helpPage.banner-text-prefix")}{" "}
+                  <a href="mailto:support@digisidekick.com">support@digisidekick.com</a> or{" "}
+                  <a href="mailto:vikasprasad@digisidekick.com">vikasprasad@digisidekick.com</a>
+                </p>
+              </Banner>
+            </div>
 
             {fetcher.data?.ok === false && (
               <Box marginBlockEnd="300">
-                <Banner tone="critical" title="Failed to send email">
-                  <p>{fetcher.data?.error || "Unknown error"}</p>
+                <Banner tone="critical" title={t("helpPage.send-failed-title")}>
+                  <p>{fetcher.data?.error || t("helpPage.unknown-error")}</p>
                 </Banner>
               </Box>
             )}
@@ -116,20 +108,20 @@ export default function HelpSupportMini() {
             <LegacyCard sectioned>
               <BlockStack gap="500">
                 <TextField
-                  label="Your name"
+                  label={t("helpPage.name-label")}
                   value={name}
                   onChange={setName}
                   autoComplete="name"
                 />
                 <TextField
-                  label="Your email"
+                  label={t("helpPage.email-label")}
                   type="email"
                   value={email}
                   onChange={setEmail}
                   autoComplete="email"
                 />
                 <TextField
-                  label="Description"
+                  label={t("helpPage.description-label")}
                   value={description}
                   onChange={setDescription}
                   autoComplete="off"
@@ -141,7 +133,7 @@ export default function HelpSupportMini() {
                   onClick={handleSubmit}
                   loading={sending}
                 >
-                  Submit
+                  {t("helpPage.submit-button")}
                 </Button>
               </BlockStack>
             </LegacyCard>
@@ -152,24 +144,26 @@ export default function HelpSupportMini() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="We’ve received your request"
+        title={t("helpPage.modal-title")}
         primaryAction={{
-          content: "Close",
+          content: t("helpPage.modal-close"),
           onAction: () => setModalOpen(false),
         }}
       >
         <Modal.Section>
           <p style={{ marginBottom: 8 }}>
-            Thanks for reaching out! Our support team will get back to you
-            within <strong>2 business days</strong>
-            {email ? ` at ${email}.` : "."}
+            {t("helpPage.modal-message-prefix")}{" "}
+            <strong>{t("helpPage.modal-business-days")}</strong>
+            {email
+              ? t("helpPage.modal-email-suffix", { email })
+              : t("helpPage.modal-no-email-suffix")}
           </p>
           <p style={{ opacity: 0.8 }}>
-            If your issue is urgent, email{" "}
+            {t("helpPage.urgent-message-prefix")}{" "}
             <a href="mailto:support@digisidekick.com">
               support@digisidekick.com
             </a>{" "}
-            with “URGENT” in the subject.
+            {t("helpPage.urgent-message-suffix")}
           </p>
         </Modal.Section>
       </Modal>

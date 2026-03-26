@@ -1623,7 +1623,7 @@ aside.cdp-upsell.active {
   .cdp-checkout {
     align-items: center;
     font-size: 12px;
-    padding: 6px 14px;
+    padding: 10px 14px;
     flex: 0 0 65% !important;
   }
 

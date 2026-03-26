@@ -1,188 +1,4 @@
-// import { json } from "@remix-run/node";
-// import { useLoaderData } from "@remix-run/react";
-// import './assests/style.css';
-// import {
-//   Page,
-//   Layout,
-//   BlockStack,
-//   Banner,
-//   Grid,
-//   LegacyCard,
-//   Button,
-// } from "@shopify/polaris";
-// import { TitleBar } from "@shopify/app-bridge-react";
-// import { authenticate } from "../shopify.server";
 
-// import connectDatabase from '../lib/dbconnect.js';
-// import {Store} from '../models/storemodal.js'
-
-// export const loader = async ({ request }) => {
-//   await authenticate.admin(request);
-
-//   const { session } = await authenticate.admin(request);
-//   const shopName = session.shop;
-//   const accessToken = session.accessToken;
-
-//   // Fetch theme Ids
-
-
-//   // Fetch Theme Ids
-
-//   // console.log("🔑 Access token for", shopName);
-
-//   // # Database Connect
-//   await connectDatabase ();
-
-//   await Store.updateOne(
-//     { shopName },                       // 1) FILTER: which doc to target
-//     {                                   // 2) UPDATE: how to change it
-//       $set: { accessToken, uninstalledAt: null },
-//       $setOnInsert: { installedAt: new Date() },
-//       $currentDate: { updatedAt: true },
-//     },
-//     { upsert: true }                    // 3) OPTIONS: create if it doesn't exist
-//   );
-
-//   // console.log("✅ Store saved");
-
-// // Keep host/shop in URLs to avoid OAuth relogin on internal nav
-//   const url = new URL(request.url);
-//   const host = url.searchParams.get ("host") ?? "";
-//   const shop = url.searchParams.get("shop") ?? "";
-
-// const getThemeId = await fetch('https://' + shopName + '/admin/api/2023-10/themes.json?role=main', {
-//     method: 'GET',
-//     headers: {
-//       'Content-Type': 'application/json',
-//       'X-Shopify-Access-Token': accessToken,
-//     },
-//   });
-//   const themeData = await getThemeId.json(); 
-//   console.log("🎯 Theme data", themeData);
-//   const themeIds = themeData.themes.map(theme => theme.id);
-//   // console.log("🎯 Theme Ids", themeIds); 
-
-//   return json({ host, shop, themeIds });
-// };
-
-// export default function Dashboard() {
-//   const { host, shop, themeIds } = useLoaderData();
-
-//   const storeShort = shop?.replace(".myshopify.com", ""); 
-//   const Published_theme_id = themeIds;
-
-//   // helper to append host/shop to internal links
-//   const withParams = (path) => {
-//     const params = new URLSearchParams();
-//     if (host) params.set("host", host);
-//     if (shop) params.set("shop", shop);
-//     return `${path}${path.includes("?") ? "&" : "?"}${params.toString()}`;
-//   };
-
-//   return (
-//     <Page>
-//       <TitleBar title="Dashboard" />
-//       <BlockStack gap="500">
-//         <Layout>
-//           <Layout.Section>
-//             <Banner
-//               tone="warning"
-//               title="You need to integrate the app into your Shopify theme"
-//             action={{
-//               content: "Activate extension in theme",
-//               url: withParams(`https://admin.shopify.com/store/${storeShort}/themes/${Published_theme_id}/editor?context=apps`),
-//               external: true,  
-//               target: "_blank",          
-//           }}
-//           secondaryAction={{
-//             content: "How to use & Customize",
-//             url: "https://youtu.be/ojooDuF6UlE?si=LqSznKp4X0N51z_w",
-//             external: true,    
-//             target: "_blank",          
-//           }}
-//             >
-//               <p>
-//                 Your settings are saved. Activate the app in Shopify’s Theme Editor to make it visible on your store.
-//               </p>
-//             </Banner>
-//           </Layout.Section>
-
-//           <Layout.Section>
-//             <h4 className="i-gs-section-title">Get Started</h4>
-
-//             <Grid>
-//               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
-//                 <LegacyCard sectioned>
-//                   <img
-//                     className="i-gs-img"
-//                     src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
-//                     alt="Unlock Offers"
-//                   />
-//                   <h4 className="i-gs-grid-heading">1. Create Progress Bar</h4>
-//                   <p className="i-gs-grid-subheading">
-//                     Configure milestones based on cart total or product price.
-//                   </p>
-//                   <Button fullWidth url={withParams("/app/progressbar")} variant="primary">
-//                     Setup Progress Bar
-//                   </Button>
-//                 </LegacyCard>
-//               </Grid.Cell>
-
-//               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
-//                 <LegacyCard sectioned>
-//                   <img
-//                     className="i-gs-img"
-//                     src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
-//                     alt="Buy X Get Y"
-//                   />
-//                   <h4 className="i-gs-grid-heading">2. Buy X Get Y</h4>
-//                   <p className="i-gs-grid-subheading">
-//                     Set Buy/Free quantities and custom messages.
-//                   </p>
-//                   <Button fullWidth url={withParams("/app/progressbaron1")}>Setup BxGy</Button>
-//                 </LegacyCard>
-//               </Grid.Cell>
-//                <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
-//                 <LegacyCard sectioned>
-//                   <img
-//                     className="i-gs-img"
-//                     src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-1.svg"
-//                     alt="Buy X Get Y"
-//                   />
-//                   <h4 className="i-gs-grid-heading">2. Buy X Get Free</h4>
-//                   <p className="i-gs-grid-subheading">
-//                     Buy X Get Free Product
-//                   </p>
-//                   <Button fullWidth url={withParams("/app/freeproduct")}>Setup BxGy</Button>
-//                 </LegacyCard>
-//               </Grid.Cell>
-
-//               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
-//                 <LegacyCard sectioned>
-//                   <img
-//                     className="i-gs-img"
-//                     src="https://cdn.qikify.com/portal/v2/checkout/dashboard-step-3.svg"
-//                     alt="Integrate with theme"
-//                   />
-//                   <h4 className="i-gs-grid-heading">Integrate with theme</h4>
-//                   <p className="i-gs-grid-subheading">
-//                     Activate the app block in Theme Editor to go live.
-//                   </p>
-//                   <Button external  target="_blank" fullWidth url={withParams(`https://admin.shopify.com/store/${storeShort}/themes/${Published_theme_id}/editor?context=apps`)} variant="primary">
-//                     Activate Theme
-//                   </Button>
-//                 </LegacyCard>
-//               </Grid.Cell>
-
-//             </Grid>
-//           </Layout.Section>
-//         </Layout>
-//       </BlockStack>
-//     </Page>
-//   );
-// }
-
-// app/routes/app._index.jsx
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigation } from "@remix-run/react";
 import "./assests/style.css";
@@ -194,128 +10,15 @@ import connectDatabase from "../lib/dbconnect.js";
 import { Store } from "../models/storemodal.js";
 import 'antd/dist/reset.css'
 
-// export const loader = async ({ request }) => {
-//   const { session } = await authenticate.admin(request);
-//   const shopName = session.shop;
-//   const accessToken = session.accessToken;
+import { useTranslation } from "react-i18next";
 
-//   // DB upsert
-//   await connectDatabase();
-//   await Store.updateOne(
-//     { shopName },
-//     {
-//       $set: { accessToken, uninstalledAt: null },
-//       $setOnInsert: { installedAt: new Date() },
-//       $currentDate: { updatedAt: true },
-//     },
-//     { upsert: true }
-//   );
-
-
-//   const storeDoc = await Store.findOne({ shopName: shopName }).lean();
-//   const installedAt = storeDoc?.installedAt || storeDoc?.createdAt;
-//   let sinceFromDB  = new Date(installedAt).toISOString();
-
-//   const sinceISO = new Date(sinceFromDB).toISOString().replace(/\.\d{3}Z$/, "Z");
-
-//   console.log("vikasssss",sinceISO);
-
-//    const query = `#graphql
-//     query OrdersAfterCount($q: String!) {
-//       ordersCount(query: $q) { count }
-//     }
-//   `;
-   
-//    const variables = {
-//     q: `created_at:>=${sinceISO} status:any`,
-//   };
-
-//     const API_VERSION = "2025-07"; // adjust if you prefer a different stable version
-//   const endpoint = `https://${session.shop}/admin/api/${API_VERSION}/graphql.json`;
-
-//   const res = await fetch(endpoint, {
-//     method: "POST",
-//     headers: {
-//       "X-Shopify-Access-Token": session.accessToken,
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({ query, variables }),
-//   });
-
-//     const payload = await res.json();
-//   if (payload.errors) {
-//     return new Response(
-//       JSON.stringify({ error: payload.errors, sinceISO }),
-//       { status: 500, headers: { "Content-Type": "application/json" } }
-//     );
-//   }
-
-//   const count = payload?.data?.ordersCount?.count ?? 0;
-
-//   if(count){
-//       return new Response(
-//         JSON.stringify({ count, sinceISO }),
-//         { headers: { "Content-Type": "application/json" } }
-//   );
-//   }
-
-
-//   console.log("cdgfxbgvecdscfvg", count);
-//   // Keep host/shop in URLs to avoid OAuth relogin on internal nav
-//   const url = new URL(request.url);
-//   const host = url.searchParams.get("host") ?? "";
-//   const shop = url.searchParams.get("shop") ?? "";
-
-//   // ---- Fetch main theme safely ----
-//   const api = `https://${shopName}/admin/api/2023-10`;
-//   const headers = {
-//     "Content-Type": "application/json",
-//     "X-Shopify-Access-Token": accessToken,
-//   };
-
-//   let themes = [];
-//   let mainThemeId = null;
-
-//   // Try role=main first
-//   try {
-//     const res = await fetch(`${api}/themes.json?role=main`, { method: "GET", headers });
-//     const data = await res.json();
-//     const arr = Array.isArray(data?.themes) ? data.themes : [];
-//     if (arr.length) {
-//       themes = arr;
-//       mainThemeId = arr[0]?.id ?? null;
-//     }
-//   } catch (e) {
-//     console.warn("Themes (role=main) fetch failed:", e);
-//   }
-
-//   // Fallback: fetch all themes and pick main/live/first
-//   if (!mainThemeId) {
-//     try {
-//       const resAll = await fetch(`${api}/themes.json`, { method: "GET", headers });
-//       const dataAll = await resAll.json();
-//       const arrAll = Array.isArray(dataAll?.themes) ? dataAll.themes : [];
-//       themes = arrAll;
-//       const main = arrAll.find((t) => t.role === "main") || arrAll.find((t) => t.role === "live") || arrAll[0];
-//       mainThemeId = main?.id ?? null;
-//     } catch (e) {
-//       console.warn("Themes (all) fetch failed:", e);
-//     }
-//   }
-
-//   // Always return consistent shapes
-//   const themeIds = themes.map((t) => t.id).filter(Boolean);
-
-//   return json({ host, shop, mainThemeId, themeIds });
-// };
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const shopName = session.shop;
   const accessToken = session.accessToken;
 
-  // Validate we have a shop name from the session. If this is missing
-  // something upstream failed during auth; surface a helpful error.
+
   if (!shopName) {
     console.error("Missing shopName in session during dashboard loader", { session });
     throw new Response(JSON.stringify({ error: "Missing shop in session" }), {
@@ -324,14 +27,10 @@ export const loader = async ({ request }) => {
     });
   }
 
-  // DB upsert
   try {
     await connectDatabase();
-    
-    // Some older deployments created a unique index on `shop` instead of
-    // `shopName`. To be defensive we set both fields when inserting/updating
-    // so we don't accidentally create documents with a null `shop` value
-    // which would trigger E11000 duplicate key errors.
+
+
     await Store.updateOne(
       { shopName: shopName },
       {
@@ -343,7 +42,7 @@ export const loader = async ({ request }) => {
     );
   } catch (e) {
     console.error("Database operation failed", { shopName, error: e && e.message, stack: e && e.stack });
-    // Re-throw a helpful 500 response so the host logs contain the stacktrace
+
     throw new Response(JSON.stringify({ error: "Failed to connect to database or upsert store", details: e && e.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
@@ -431,8 +130,8 @@ export const loader = async ({ request }) => {
     const arrAll = Array.isArray(dataAll?.themes) ? dataAll.themes : [];
     themes = arrAll;
     const main = arrAll.find((t) => t.role === "main") ||
-                 arrAll.find((t) => t.role === "live") ||
-                 arrAll[0];
+      arrAll.find((t) => t.role === "live") ||
+      arrAll[0];
     mainThemeId = main?.id ?? null;
   } catch (e) {
     console.warn("❌ Themes fetch failed:", e.message);
@@ -453,15 +152,16 @@ export const loader = async ({ request }) => {
 
   const shopRes = await fetch(`https://${shopName}/admin/api/${API_VERSION}/shop.json`, {
     method: "GET",
-    headers: { 
+    headers: {
       "X-Shopify-Access-Token": accessToken,
       "Content-Type": "application/json",
     },
   });
-  
+
   const shopData = await shopRes.json();
-  console.log("shopData",shopData);
+  console.log("shopData", shopData);
   const currency = shopData?.shop?.currency || "USD";
+  const primaryLocale = shopData?.shop?.primary_locale || "en";
 
 
   const currencySymbolMap = {
@@ -475,7 +175,7 @@ export const loader = async ({ request }) => {
     "SGD": "S$",
   };
 
-  const currencySymbol  = currencySymbolMap[currency] || currency
+  const currencySymbol = currencySymbolMap[currency] || currency
 
 
   // Combine order data with theme data
@@ -491,15 +191,18 @@ export const loader = async ({ request }) => {
     todayAmount,
     sinceISO,
     currency,
-    currencySymbol
+    currencySymbol,
+    primaryLocale
   });
 
-}; 
+};
 
 
 export default function Dashboard() {
   const data = useLoaderData();
   const navigation = useNavigation();
+  const { t, i18n: reactI18n } = useTranslation();
+
   const {
     host,
     shop,
@@ -511,7 +214,22 @@ export default function Dashboard() {
     totalAmount = 0,
     todayCount = 0,
     todayAmount = 0,
+    primaryLocale = "en",
   } = data;
+
+  useEffect(() => {
+    if (!primaryLocale || !reactI18n) return;
+
+    const normalizedLocale = primaryLocale.replace("_", "-");
+    const availableLanguages = Object.keys(reactI18n?.options?.resources || {});
+    const targetLanguage = availableLanguages.includes(normalizedLocale)
+      ? normalizedLocale
+      : normalizedLocale.split("-")[0];
+
+    if (reactI18n.language !== targetLanguage) {
+      reactI18n.changeLanguage(targetLanguage);
+    }
+  }, [primaryLocale, reactI18n]);
 
   const storeShort = shop?.replace(".myshopify.com", "");
 
@@ -592,89 +310,90 @@ export default function Dashboard() {
         <Layout>
           {isPageLoading && (
             <Layout.Section>
-              <Banner tone="info" title="Loading dashboard">
-                Please wait for the page to finish loading. Theme buttons will work once the dashboard has loaded.
+              <Banner tone="info" title={t("dashboard.loading-banner-title")} vs-comments="on loading information">
+                {t("dashboard.loading-banner-message")}
               </Banner>
             </Layout.Section>
           )}
           {!isPageLoading && themeButtonsDisabled && dismiss1 && (
             <Layout.Section>
-              <Banner tone="attention" title="Theme buttons need a refresh">
-                If the theme buttons above don&apos;t work, refresh the page to load theme data (e.g. switch away and back to Dashboard, or reload the app).
+              <Banner tone="attention" title={t("dashboard.integration-button-if-not-working-title")}>
+                {t("dashboard.integration-button-if-not-working-info")}
               </Banner>
             </Layout.Section>
           )}
+
+
           <Layout.Section>
-          {dismiss1 && (
-            <Banner
-              tone="warning"
-              title="Enable the app from your store"
-              onDismiss={() => setDismiss1(false)}
-              secondaryAction={{
-                content: "Third Party Checkout Integration",
-                url: withParams("/app/settings"),
-              }}
-            >
-              <BlockStack gap="300">
-                <Text as="p" fontWeight="medium">
-                  The app will not appear for customers until you enable it in your store. Go to Theme Editor → Customize → App blocks → Premium Cart Drawer  and turn the block on.
-                </Text>
-                {themesList.length > 0 && (
-                  <InlineStack gap="300" blockAlign="center" wrap>
-                    <div style={{ minWidth: 280 }}>
-                      <Select
-                        label="Choose theme (Published or Preview)"
-                        labelInline
-                        options={themeOptions}
-                        value={effectiveThemeId}
-                        onChange={setSelectedThemeId}
-                      />
-                    </div>
-                    <Button variant="primary" onClick={handleOpenSelectedTheme} disabled={!effectiveThemeId || !storeShort}>
-                      Open selected theme in Theme Editor
-                    </Button>
-                    <Button onClick={handleOpenLiveTheme} disabled={!mainThemeId || !storeShort}>
-                      Enable on live theme
-                    </Button>
-                  </InlineStack>
-                )}
-              </BlockStack>
-            </Banner>
-          )}
+            {dismiss1 && (
+              <Banner
+                tone="warning"
+                title={t("dashboard.enable-app-title")}
+                onDismiss={() => setDismiss1(false)}
+
+              >
+                <BlockStack gap="300">
+                  <Text as="p" fontWeight="medium">
+                    {t("dashboard.enable-app-integration-info")}
+                  </Text>
+                  {themesList.length > 0 && (
+                    <InlineStack gap="300" blockAlign="center" wrap>
+                      <div style={{ minWidth: 280 }}>
+                        <Select
+                          label="Choose theme (Published or Preview)"
+                          labelInline
+                          options={themeOptions}
+                          value={effectiveThemeId}
+                          onChange={setSelectedThemeId}
+                        />
+                      </div>
+                      <Button variant="primary" onClick={handleOpenSelectedTheme} disabled={!effectiveThemeId || !storeShort}>
+                        {t("dashboard.enable-app-integration-button")}
+                      </Button>
+
+                      <Button onClick={handleOpenLiveTheme} disabled={!mainThemeId || !storeShort}>
+                        {t("dashboard.enable-app-integration-button-text")}
+                      </Button>
+
+                    </InlineStack>
+                  )}
+                </BlockStack>
+              </Banner>
+            )}
           </Layout.Section>
-     
+
           <Layout.Section>
-          <h4 className="i-gs-section-title" style={{textTransform:"uppercase"}}>Orders Analytics Dashboard</h4>
+            <h4 className="i-gs-section-title" style={{ textTransform: "uppercase" }}>{t("dashboard.grid-title")}</h4>
             <Grid>
-              <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
-                <LegacyCard sectioned> 
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
+                <LegacyCard sectioned>
                   <div className="order-analytics-wrapper">
                     <h5>{(Number(totalOrders) || 0).toLocaleString()}</h5>
-                    <p>Total Orders</p>
+                    <p>{t("dashboard.grid-total-orders")}</p>
                   </div>
                 </LegacyCard>
               </Grid.Cell>
-                <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
                 <LegacyCard sectioned>
                   <div className="order-analytics-wrapper">
                     <h5><span className="curecnySymbol">{currencySymbol || currency || ""}</span>{(Number(totalAmount) || 0).toLocaleString()}</h5>
-                    <p>Total Amount</p>
+                    <p>{t("dashboard.grid-total-amount")}</p>
                   </div>
                 </LegacyCard>
               </Grid.Cell>
-                <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
-                  <LegacyCard sectioned>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
+                <LegacyCard sectioned>
                   <div className="order-analytics-wrapper">
                     <h5>{(Number(todayCount) || 0).toLocaleString()}</h5>
-                    <p>Today Orders</p>
+                    <p>{t("dashboard.grid-today-orders")}</p>
                   </div>
-                  </LegacyCard>
+                </LegacyCard>
               </Grid.Cell>
-              <Grid.Cell columnSpan={{xs:12, sm:12, md:3, lg:3, xl:3}}>
-                <LegacyCard sectioned> 
-                <div className="order-analytics-wrapper">
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
+                <LegacyCard sectioned>
+                  <div className="order-analytics-wrapper">
                     <h5><span className="curecnySymbol">{currencySymbol || currency || ""}</span>{(Number(todayAmount) || 0).toLocaleString()}</h5>
-                    <p>Today Amount</p>
+                    <p>{t("dashboard.grid-today-amount")}</p>
                   </div>
                 </LegacyCard>
               </Grid.Cell>
@@ -682,7 +401,7 @@ export default function Dashboard() {
           </Layout.Section>
 
           <Layout.Section>
-            <h4 className="i-gs-section-title" style={{textTransform:"uppercase"}}>Create Discount Progress Bar  </h4>
+            <h4 className="i-gs-section-title" style={{ textTransform: "uppercase" }}>{t("dashboard.progressbar-section-title")}  </h4>
 
             <Grid>
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
@@ -690,13 +409,13 @@ export default function Dashboard() {
                   <img
                     className="i-gs-img"
                     src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/price_based_disount.png?v=1768556274"
-                    alt="Unlock Offers" 
+                    alt="Unlock Offers"
                   />
-                  <h4 className="i-gs-grid-heading"> Price based Discount Progress Bar  </h4>
-                  <p className="i-gs-grid-subheading">Create a discount progress bar based on the price range of the cart total. (IMPORTANT : Create Disount as per the Price Ranges in Shopify Discounts) </p>
-                  <Button fullWidth url={withParams("/app/progressbar")} variant="primary">
-                    Setup Progress Bar
-                  </Button>
+
+                  <h4 className="i-gs-grid-heading"> {t("dashboard.progressbar1-block-title")} </h4>
+                  <p className="i-gs-grid-subheading">{t("dashboard.progressbar1-block-info")} </p>
+                  <Button fullWidth url={withParams("/app/progressbar")} variant="primary">{t("dashboard.progressbar1-block-button")}</Button>
+
                 </LegacyCard>
               </Grid.Cell>
 
@@ -706,20 +425,20 @@ export default function Dashboard() {
                     className="i-gs-img"
                     src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/buy-one-get-one.png?v=1768556274"
                     alt="Buy X Get Y"
-                  />  
-                  <h4 className="i-gs-grid-heading">Buy X Get Y Discount Progress Bar</h4>
-                  <p className="i-gs-grid-subheading">Create a discount progress bar based on the buy and get quantities. (IMPORTANT : Create Disount as per the Buy and Get Quantities in Shopify Discounts) </p>
-                  <Button fullWidth url={withParams("/app/progressbaron1")}>Setup BxGy</Button>
+                  />
+                  <h4 className="i-gs-grid-heading">{t("dashboard.progressbar2-block-title")}</h4>
+                  <p className="i-gs-grid-subheading">{t("dashboard.progressbar2-block-info")}</p>
+                  <Button fullWidth url={withParams("/app/progressbaron1")}>{t("dashboard.progressbar2-block-button")}</Button>
                 </LegacyCard>
               </Grid.Cell>
 
-            
+
 
             </Grid>
           </Layout.Section>
 
           <Layout.Section>
-            <h4 className="i-gs-section-title" style={{textTransform:"uppercase"}}>Cart Drawer Features</h4>
+            <h4 className="i-gs-section-title" style={{ textTransform: "uppercase" }}>{t("dashboard.cart-drawer-section-title")}</h4>
 
             <Grid>
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
@@ -727,12 +446,12 @@ export default function Dashboard() {
                   <img
                     className="i-gs-img"
                     src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/upsell_product.png?v=1768556274"
-                    alt="Unlock Offers" 
+                    alt="Unlock Offers"
                   />
-                  <h4 className="i-gs-grid-heading">Setup Upsell Collection</h4>
-                  <p className="i-gs-grid-subheading">Select the collection for upsell products in the cart drawer. (IMPORTANT : Collection should be in the shopify) </p>
+                  <h4 className="i-gs-grid-heading">{t("dashboard.block-upsell")}</h4>
+                  <p className="i-gs-grid-subheading">{t("dashboard.block-upsell-info")}</p>
                   <Button fullWidth url={withParams("/app/settings")} variant="primary">
-                   Setup Upsell Collection
+                    {t("dashboard.block-upsell-button")}
                   </Button>
                 </LegacyCard>
               </Grid.Cell>
@@ -741,35 +460,38 @@ export default function Dashboard() {
                   <img
                     className="i-gs-img"
                     src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/one-product.png?v=1768556274"
-                    alt="Buy X Get Y"
-                  />   
-                  <h4 className="i-gs-grid-heading">A Most Selling Product at cart Drawer</h4>
-                  <p className="i-gs-grid-subheading">Add one product at the cart drawer. (IMPORTANT : Product should be in the shopify) </p>
-                  <Button fullWidth url={withParams("/app/settings")}>Setup One Product</Button>
+                    alt="Mystry Box"
+                  />
+                  <h4 className="i-gs-grid-heading">{t("dashboard.block-Mystrybox")}</h4>
+                  <p className="i-gs-grid-subheading">{t("dashboard.block-Mystrybox-info")}</p>
+                  <Button fullWidth url={withParams("/app/settings")}>{t("dashboard.block-Mystrybox-button")}</Button>
                 </LegacyCard>
               </Grid.Cell>
+
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
                     src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/third_party.png?v=1768556274"
                     alt="Buy X Get Y"
-                  />  
-                  <h4 className="i-gs-grid-heading">Third Party Checkout Integration</h4>
-                  <p className="i-gs-grid-subheading">Append Third Party Checkout Integration Code in the cart drawer. (IMPORTANT : Code should be in the shopify) </p>
-                  <Button fullWidth url={withParams("/app/settings")}>Third Party Checkout Integration</Button>
+                  />
+                  <h4 className="i-gs-grid-heading">{t("dashboard.block-thirdparty-integration")}</h4>
+                  <p className="i-gs-grid-subheading">{t("dashboard.block-thirdparty-integration-info")}</p>
+                  <Button fullWidth url={withParams("/app/settings")}>{t("dashboard.block-thirdparty-integration-button")}</Button>
                 </LegacyCard>
               </Grid.Cell>
+
+
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
                     src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/announcement-carousel.png?v=1768556274"
                     alt="Buy X Get Y"
-                  />  
-                  <h4 className="i-gs-grid-heading">Create Announcement Bar carousel</h4>
-                  <p className="i-gs-grid-subheading"> Create Announcement Bar carousel in the cart drawer.  Add multiple announcements slide by seprated (,) to the carousel. </p>
-                  <Button fullWidth url={withParams("/app/settings")}>Setup Announcement Bar carousel</Button>
+                  />
+                  <h4 className="i-gs-grid-heading">{t("dashboard.block-announcementbar-title")}</h4>
+                  <p className="i-gs-grid-subheading">{t("dashboard.block-announcementbar-info")}</p>
+                  <Button fullWidth url={withParams("/app/settings")}>{t("dashboard.block-announcementbar-button")}</Button>
                 </LegacyCard>
               </Grid.Cell>
 
@@ -779,40 +501,37 @@ export default function Dashboard() {
                     className="i-gs-img"
                     src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/stopwatch.png?v=1768556274"
                     alt="Buy X Get Y"
-                  />  
-                  <h4 className="i-gs-grid-heading">Setup Countdown Timer</h4>
-                  <p className="i-gs-grid-subheading"> Setup Countdown Timer in the cart drawer. (CountDown Timer refresh automatically After a day) </p>
-                  <Button fullWidth url={withParams("/app/settings")}>Setup Countdown Timer</Button>
+                  />
+                  <h4 className="i-gs-grid-heading">{t("dashboard.block-countdown-title")}</h4>
+                  <p className="i-gs-grid-subheading">{t("dashboard.block-countdown-info")}</p>
+                  <Button fullWidth url={withParams("/app/settings")}>{t("dashboard.block-countdown-button")}</Button>
                 </LegacyCard>
               </Grid.Cell>
-            
+
 
             </Grid>
           </Layout.Section>
 
-          
-
-          
           <Layout.Section>
-             <h4 className="i-gs-section-title">Setup Free Gift Product</h4>
+            <h4 className="i-gs-section-title">{t("dashboard.block-freegift-title")}</h4>
             <Grid>
-            <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LegacyCard sectioned>
                   <img
                     className="i-gs-img"
                     src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/gift_product.png?v=1768556274"
                     alt="Gift Product"
                   />
-                  <h4 className="i-gs-grid-heading">Setup Free Gift Product</h4>
-                  <p className="i-gs-grid-subheading">Gift Product Automatically Added to cart  when the cart total exceeds the set price (IMPORTANT : Gift Product Price same as updated in shopify)</p>
-                  <Button variant="primary" fullWidth url={withParams("/app/giftproduct")}> Set Gift Product</Button>
-                </LegacyCard> 
+                  <h4 className="i-gs-grid-heading">{t("dashboard.block-freegift-title")}</h4>
+                  <p className="i-gs-grid-subheading">{t("dashboard.block-freegift-info")}</p>
+                  <Button variant="primary" fullWidth url={withParams("/app/giftproduct")}> {t("dashboard.block-freegift-button")}</Button>
+                </LegacyCard>
 
-              </Grid.Cell> 
+              </Grid.Cell>
             </Grid>
           </Layout.Section>
 
-          <Layout.Section>
+          {/* <Layout.Section>
             <h4 className="i-gs-section-title">Integrate with theme</h4>
             <Box paddingBlockEnd="300">
               <Banner tone="attention" title="You must enable the app from your store">
@@ -863,44 +582,44 @@ export default function Dashboard() {
                 </LegacyCard>
               </Grid.Cell>
             </Grid>
-          </Layout.Section>
+          </Layout.Section> */}
 
           <Layout.Section>
-            {dismiss && 
-            <div style={{ marginBottom: 16 }}>
-              <Box marginBlockEnd="400">
-                <Banner
-                  tone="info"
-                  title="Need help?"
-                  onDismiss={() => {setDismiss(false)}} 
-                  action={{ 
-                    content: "Support",
-                    url: withParams(`/app/help`),
-                    external: true, // opens in new tab
-                  }}
-                  secondaryAction={{
-                    content: "How to use & Customize",
-                    url: "https://cdn.shopify.com/videos/c/o/v/7bf07a776af648b1a140f0ce6608fd6d.mp4",
-                   external: true,
-                target: "_blank",
-                  }}
-                >
-                  <p> 
-                    If you have any questions or encounter errors while using this app, email{" "}
-                    <a href="mailto:support@digisidekick.com">support@digisidekick.com</a> or <a href="mailto:vikasprasad@digisidekick.com">vikasprasad@digisidekick.com</a>.
-                  </p>
-                </Banner>
-              </Box>
-            </div>}
-             
+            {dismiss &&
+              <div style={{ marginBottom: 16 }}>
+                <Box marginBlockEnd="400">
+                  <Banner
+                    tone="info"
+                    title="Need help?"
+                    onDismiss={() => { setDismiss(false) }}
+                    action={{
+                      content: t("dashboard.help-title-button"),
+                      url: withParams(`/app/help`), 
+                      external: true, // opens in new tab
+                    }}
+                    secondaryAction={{
+                      content: t("dashboard.help-title-banner"),
+                      url: "https://cdn.shopify.com/videos/c/o/v/7bf07a776af648b1a140f0ce6608fd6d.mp4",
+                      external: true,
+                      target: "_blank",
+                    }}
+                  >
+                    <p>
+                      {t("dashboard.help-info")}{" "}
+                      <a href="mailto:support@digisidekick.com">support@digisidekick.com</a> or <a href="mailto:vikasprasad@digisidekick.com">vikasprasad@digisidekick.com</a>.
+                    </p>
+                  </Banner>
+                </Box>
+              </div>}
 
-        
+
+
           </Layout.Section>
- 
+
         </Layout>
       </BlockStack>
 
-   
+
     </Page>
   );
 }

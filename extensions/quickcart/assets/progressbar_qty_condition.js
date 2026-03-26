@@ -1,305 +1,167 @@
-let shop = document.querySelector("#shop-primary-url").value;
-let progressbar_qty = document.querySelector(".reward-progress-line .fill");
-let progressbar_qty_text = document.querySelector(".reward-progress-text");
+const shop = document.querySelector("#shop-primary-url")?.value;
+const progressbar_qty = document.querySelector(".reward-progress-line .fill");
+const progressbar_qty_text = document.querySelector(".reward-progress-text");
 
 let progressbar_qty_enabled = false;
 let progressbar_qty_buyqty = 0;
 let progressbar_qty_getqty = 0;
 
-let progressbar_text_remainingMany = "";
-let progressbar_text_remainingOne = "";
-let progressbar_text_unlocked = "";
+const quickCartI18n = window.QuickCartI18n || {};
 
-// let free_product_text = document.querySelector(".p_buy3get1, .p_buy2get1, .p_buy1get1");
+function formatText(template, values = {}) {
+  return String(template || "").replace(/{{\s*(\w+)\s*}}/g, (_, key) => values[key] ?? "");
+}
 
+function getDefaultRemainingMany(remaining) {
+  return formatText(quickCartI18n.bxgyItemsAwayGift || "", { count: remaining });
+}
 
+function getDefaultRemainingOne(remaining) {
+  return formatText(quickCartI18n.bxgyItemAwayGift || quickCartI18n.bxgyItemsAwayGift || "", { count: remaining });
+}
 
+function getDefaultUnlocked(freeCount) {
+  return formatText(quickCartI18n.bxgyCongratulations || "", { freeCount });
+}
 
-async function getbxgy(shop) {
-  const url = `https://quickcart-vf8k.onrender.com/app/quickcart/bxgy`; 
+function setProgressMarkers(buyQty, getQty) {
+  const selectors = [".buy3get1", ".buy3get2", ".last-step", ".p_buy1get1", ".p_buy2get1", ".p_buy3get1", ".p_buy3get2"];
+  selectors.forEach((selector) => {
+    const el = document.querySelector(selector);
+    if (el) {
+      if (selector.startsWith(".buy")) el.style.display = "none";
+      if (selector.startsWith(".p_")) el.style.opacity = "";
+    }
+  });
+
+  if (buyQty === 1) {
+    const lastStep = document.querySelector(".last-step");
+    const marker = document.querySelector(".p_buy1get1");
+    if (lastStep) lastStep.style.display = "none";
+    if (marker) marker.style.opacity = 1;
+  }
+
+  if (buyQty === 2) {
+    const marker = document.querySelector(".p_buy2get1");
+    if (marker) marker.style.opacity = 1;
+  }
+
+  if (buyQty === 3 && getQty === 1) {
+    const section = document.querySelector(".buy3get1");
+    const marker = document.querySelector(".p_buy3get1");
+    if (section) section.style.display = "block";
+    if (marker) marker.style.opacity = 1;
+  }
+
+  if (buyQty === 3 && getQty === 2) {
+    const section1 = document.querySelector(".buy3get1");
+    const section2 = document.querySelector(".buy3get2");
+    const marker = document.querySelector(".p_buy3get2");
+    if (section1) section1.style.display = "block";
+    if (section2) section2.style.display = "block";
+    if (marker) marker.style.opacity = 1;
+  }
+}
+
+function getProgressWidth(updated_qty, buyQty, getQty) {
+  const maxQty = buyQty + getQty;
+  if (maxQty <= 0) return 0;
+  return Math.min(100, Math.round((updated_qty / maxQty) * 100));
+}
+
+function getBannerMessage(updated_qty, buyQty, getQty) {
+  const unlockAt = buyQty + getQty;
+  const remaining = Math.max(0, unlockAt - updated_qty);
+
+  if (updated_qty >= unlockAt) {
+    return getDefaultUnlocked(getQty);
+  }
+
+  if (remaining === 1) {
+    return getDefaultRemainingOne(remaining);
+  }
+
+  if (remaining > 1) {
+    return getDefaultRemainingMany(remaining);
+  }
+
+  return getDefaultRemainingMany(remaining);
+}
+
+async function getbxgy(shopDomain) {
+  const url = "https://quickcart-vf8k.onrender.com/app/quickcart/bxgy";
 
   try {
     const response = await fetch(url, {
       method: "GET",
-      // Remove credentials: "include" to avoid CORS issues with wildcard origin
-      // credentials: "include", 
       headers: {
         "Content-Type": "application/json",
-        "X-Shopify-Shop-Domain": shop, // required by backend
+        "X-Shopify-Shop-Domain": shopDomain,
         Accept: "application/json",
       },
     });
 
-    // Check if response is OK
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("BXGY API error:", response.status, errorText);
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    // Check if response is JSON
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await response.text();
-      console.error("Non-JSON response from BXGY API:", text.substring(0, 200));
-      throw new Error("Server returned non-JSON response");
-    }
-
     const json = await response.json();
-
     if (json?.ok === false) {
       throw new Error(json.error || "Endpoint returned error");
     }
-    
-    let bxgyResponse = json.data || json;
 
-    // Safely extract data with defaults
+    const bxgyResponse = json.data || json;
+
     progressbar_qty_enabled = bxgyResponse?.enabled || false;
-    progressbar_qty_buyqty = bxgyResponse?.offer?.buyQty || 0;
-    progressbar_qty_getqty = bxgyResponse?.offer?.getQty || 0;
+    progressbar_qty_buyqty = Number(bxgyResponse?.offer?.buyQty || 0);
+    progressbar_qty_getqty = Number(bxgyResponse?.offer?.getQty || 0);
 
-    progressbar_text_remainingMany = bxgyResponse?.offer?.remainingMany || "";
-    progressbar_text_remainingOne = bxgyResponse?.offer?.remainingOne || "";
-    progressbar_text_unlocked = bxgyResponse?.messages?.unlocked || "";
   } catch (error) {
     console.error("Error fetching BXGY configuration:", error);
-    // Set defaults on error to prevent breaking the app
     progressbar_qty_enabled = false;
     progressbar_qty_buyqty = 0;
     progressbar_qty_getqty = 0;
-    progressbar_text_remainingMany = "";
-    progressbar_text_remainingOne = "";
-    progressbar_text_unlocked = "";
   }
 }
 
-// Fetch settings separately (if needed)
-async function getSettings(shop) {
-  try {
-    const settingsData = await fetch(`https://quickcart-vf8k.onrender.com/app/api/settings`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Shopify-Shop-Domain": shop,
-        Accept: "application/json",
-      },
-    });
-    
-    if (settingsData.ok) {
-      const jsonSettings = await settingsData.json();
-      console.log("dataFromDB", jsonSettings);
-      return jsonSettings;
-    }
-  } catch (error) {
-    console.error("Error fetching settings:", error);
-  }
-  return null;
-}
-
-// Initialize both
 if (shop) {
   getbxgy(shop);
-  getSettings(shop);
 }
 
 (function () {
-  // Custom function to run when cart updates
-
-  
   async function onCartUpdateQty() {
-    
     try {
-
-      if(progressbar_qty_enabled){
-       document.querySelector(".reward-progress").style.display = "block";
-      }else{
-       document.querySelector(".reward-progress").style.display = "none";
+      const rewardProgress = document.querySelector(".reward-progress");
+      if (rewardProgress) {
+        rewardProgress.style.display = progressbar_qty_enabled ? "block" : "none";
       }
-      
+
+      if (!progressbar_qty_enabled || !progressbar_qty || !progressbar_qty_text) {
+        return;
+      }
+
+      setProgressMarkers(progressbar_qty_buyqty, progressbar_qty_getqty);
+
       const response = await fetch("/cart.js");
       const cart = await response.json();
-      // console.log("onCartUpdateQty--:", cart);
-      if (progressbar_qty_buyqty === 3 &&  progressbar_qty_getqty === 1 ) {
-        document.querySelector(".buy3get1").style.display = "block";
-          document.querySelector(".p_buy3get1 ").style.opacity = 1;
-        }
-        if (progressbar_qty_buyqty === 3 && progressbar_qty_getqty === 2 ) {
-        document.querySelector(".buy3get2").style.display = "block";
-         document.querySelector(".buy3get1").style.display = "block"
-          document.querySelector(".p_buy3get2 ").style.opacity = 1;
-        }
-        if (progressbar_qty_enabled == false) {
-        document.querySelector(".reward-progress").style.display = "none";
-        }
-    
-      let updated_qty = cart?.item_count;
+      const updated_qty = Number(cart?.item_count || 0);
 
-      if (progressbar_qty_buyqty === 2) {
-        document.querySelector(".p_buy2get1 ").style.opacity = 1;
-        if (updated_qty == 1) {
-          progressbar_qty.style.width = "33%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " Products away from getting " +
-            progressbar_qty_getqty +
-            " Free Product";
-        } else if (updated_qty == 2) {
-          progressbar_qty.style.width = "66%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " items away from getting " +
-            progressbar_qty_getqty +
-            " Free Product";
-        } else if (updated_qty == 3) {
-          progressbar_qty.style.width = "100%";
-          progressbar_qty_text.innerHTML =
-            `🎉 Congratulations! You got a ${progressbar_qty_getqty} free product`;
-        } else if (updated_qty > 3) {
-          progressbar_qty.style.width = "100%";
-          progressbar_qty_text.innerHTML =
-                  `🎉 Congratulations! You got a ${progressbar_qty_getqty} free product`;
-        } else {
-          progressbar_qty.style.width = "0%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " items away from getting Free gift";
-        }
-      } else if (progressbar_qty_buyqty === 1) {
-        document.querySelector(".last-step").style.display = "none";
-        document.querySelector(".p_buy1get1").style.opacity = 1;
-
-        if (updated_qty == 1) {
-          progressbar_qty.style.width = "50%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) + " Product away from getting " + progressbar_qty_getqty +" Free Product";
-        } else if (updated_qty == 2) {
-          progressbar_qty.style.width = "100%";
-          progressbar_qty_text.innerHTML =
-            `🎉 Congratulations! You got a ${progressbar_qty_getqty} free product`;
-        } else if (updated_qty > 2) {
-          progressbar_qty.style.width = "100%";
-          progressbar_qty_text.innerHTML =
-           `🎉 Congratulations! You got a ${progressbar_qty_getqty} free product`;
-        } else {
-          progressbar_qty.style.width = "0%";
-          progressbar_qty_text.innerHTML = 
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) + " Product away from getting " + progressbar_qty_getqty + " Free Product";
-        }
-      } else if (progressbar_qty_buyqty === 3 && progressbar_qty_getqty === 1) {
-   
-  if (updated_qty == 1) {
-          progressbar_qty.style.width = "25%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " Products away from getting " +
-            progressbar_qty_getqty +
-            " Free Product";
-        } else if (updated_qty == 2) {
-          progressbar_qty.style.width = "50%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " items away from getting " +
-            progressbar_qty_getqty +
-            " Free Product";
-        } else if (updated_qty == 3) {
-          progressbar_qty.style.width = "75%";
-         progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " items away from getting " +
-            progressbar_qty_getqty +
-            " Free Product";
-        }else if (updated_qty == 4) {
-          progressbar_qty.style.width = "100%";
-          progressbar_qty_text.innerHTML =
-            `🎉 Congratulations! You got a ${progressbar_qty_getqty} free product`;
-        }
-        
-        else if (updated_qty > 4) {
-          progressbar_qty.style.width = "100%";
-          progressbar_qty_text.innerHTML =
-                  `🎉 Congratulations! You got a ${progressbar_qty_getqty} free product`;
-        } else {
-          progressbar_qty.style.width = "0%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " items away from getting Free gift";
-        }
-      }else if (progressbar_qty_buyqty === 3 && progressbar_qty_getqty === 2 ) {
-        document.querySelector(".p_buy3get2").style.opacity = 1;
-
-  if (updated_qty == 1) {
-          progressbar_qty.style.width = "20%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " Products away from getting " +
-            progressbar_qty_getqty +
-            " Free Product";
-        } else if (updated_qty == 2) {
-          progressbar_qty.style.width = "40%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " items away from getting " +
-            progressbar_qty_getqty +
-            " Free Product";
-        } else if (updated_qty == 3) {
-          progressbar_qty.style.width = "60%";
-         progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " items away from getting " +
-            progressbar_qty_getqty +
-            " Free Product";
-        }else if (updated_qty == 4) {
-          progressbar_qty.style.width = "80%"; 
-       progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " items away from getting " +
-            progressbar_qty_getqty +
-            " Free Product";
-        }else if (updated_qty == 5) {
-          progressbar_qty.style.width = "100%";
-          progressbar_qty_text.innerHTML =
-            `🎉 Congratulations! You got a ${progressbar_qty_getqty} free product`;
-        }else if (updated_qty < 5) {
-          progressbar_qty.style.width = "100%";
-          progressbar_qty_text.innerHTML =
-                  `🎉 Congratulations! You got a ${progressbar_qty_getqty} free product`;
-        } else {
-          progressbar_qty.style.width = "0%";
-          progressbar_qty_text.innerHTML =
-            "You are " +
-            (progressbar_qty_buyqty + progressbar_qty_getqty - updated_qty) +
-            " items away from getting Free gift";
-        }
-      }
-       else {
-        document
-          .querySelector(".reward-progress-text")
-          .innerHTML("contact with support");
-      }
-  
-      // 👉 Your custom logic here
+      progressbar_qty.style.width = `${getProgressWidth(updated_qty, progressbar_qty_buyqty, progressbar_qty_getqty)}%`;
+      progressbar_qty_text.textContent = getBannerMessage(
+        updated_qty,
+        progressbar_qty_buyqty,
+        progressbar_qty_getqty
+      );
     } catch (err) {
       console.error("Error fetching cart:", err);
+      if (progressbar_qty_text) {
+        progressbar_qty_text.textContent = quickCartI18n.contactSupport || "";
+      }
     }
   }
 
-  // ---- 1. Listen for Shopify events (if theme supports) ----
   document.addEventListener("cart:updated", onCartUpdateQty);
 
-  // ---- 2. Intercept Shopify AJAX API calls (/cart/add, /cart/change, /cart/update) ----
   const originalFetch = window.fetch;
   window.fetch = async (...args) => {
     const response = await originalFetch(...args);
@@ -316,7 +178,6 @@ if (shop) {
     return response;
   };
 
-  // ---- 3. Intercept older themes using XMLHttpRequest ----
   const originalOpen = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function (...args) {
     this.addEventListener("load", function () {
@@ -332,6 +193,5 @@ if (shop) {
     return originalOpen.apply(this, args);
   };
 
-  // ---- 4. Run once on page load ----
   onCartUpdateQty();
 })();

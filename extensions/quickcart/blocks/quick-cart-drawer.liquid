@@ -93,6 +93,17 @@
   data-shop="{{ shop.permanent_domain }}"
   data-app-url="https://quickcart-vf8k.onrender.com"
 >
+  <script>
+    window.QuickCartI18n = {
+      bxgyProductsAway: {{ 'quickcart.bxgy_products_away' | t | json }},
+      bxgyItemsAway: {{ 'quickcart.bxgy_items_away' | t | json }},
+      bxgyItemsAwayGift: {{ 'quickcart.bxgy_items_away_gift' | t | json }},
+      bxgyItemAwayGift: {{ 'quickcart.bxgy_item_away_gift' | t | json }},
+      bxgyProductAway: {{ 'quickcart.bxgy_product_away' | t | json }},
+      bxgyCongratulations: {{ 'quickcart.bxgy_congratulations' | t | json }},
+      contactSupport: {{ 'quickcart.contact_support' | t | json }}
+    };
+  </script>
 
 
 
@@ -237,16 +248,19 @@
     <!-- Header (fixed) -->
     <header class="cdp-header" >
       <div class="cdp-h-left">
-        <span class="cdp-h-title">Your Cart</span>
+        <span class="cdp-h-title">{{ 'quickcart.your_cart' | t }}</span>
         <span class="cdp-h-count" data-cart-count>({{ cart.item_count }})</span>
       </div>
-      <button class="cdp-close" aria-label="Close" data-close>&#10005;</button>
+      <button class="cdp-close" aria-label="{{ 'quickcart.close' | t }}" data-close>&#10005;</button>
     </header>
+
+
  {% render 'timer' show_countdown:block.settings.show_countdown, backgroundcolor:block.settings.count_down_bg %}
     {% render 'announcementbar' show_announcementbar:block.settings.show_announcementbar_text,  announcementbar_text:block.settings.announcementbar_text %}
 
     {%  render 'progress-bar' %}
     {% render 'progressbar_qty_condition' %}
+    {% render 'shipping-bar1' %}
 
     
     </div>
@@ -302,9 +316,9 @@
                         {% endfor %}
                       </div>
                     {% endif %}
-                    <span class="cdp-line-qty-label"> - Quantity {{ item.quantity }}</span>
+                    <span class="cdp-line-qty-label"> - {{ 'quickcart.quantity' | t }} {{ item.quantity }}</span>
                   {% else %}
-                    <span class="cdp-line-qty-label">Quantity {{ item.quantity }}</span>
+                    <span class="cdp-line-qty-label">{{ 'quickcart.quantity' | t }} {{ item.quantity }}</span>
                     {% if item.properties.size > 0 %}
                       <div class="cdp-line-properties">
                         {% for property in item.properties %}
@@ -345,7 +359,7 @@
                 <div class="cdp-line-bottom">
                   <div class="cdp-qty" data-qty-wrap>
                     <button class="cdp-qty-btn" data-qty-down aria-label="Decrease quantity">−</button>
-                    <input class="cdp-qty-input" type="number" min="0" value="{{ item.quantity }}" data-qty aria-label="Quantity">
+                    <input class="cdp-qty-input" type="number" min="0" value="{{ item.quantity }}" data-qty aria-label="{{ 'quickcart.quantity' | t }}">
                     <button class="cdp-qty-btn" data-qty-up aria-label="Increase quantity">+</button>
                   </div>
                   <button class="cdp-line-remove" data-remove="{{ item.key }}" aria-label="Remove item">
@@ -362,7 +376,7 @@
           {% endfor %}
           {% if cart.item_count == 0 %}
             <img style="width: 100%; height: 100%; display: block;" src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/289-2892204_your-cart-is-empty-empty-cart-icon-png_1.png" alt="Empty Cart">
-            <div class="cdp-empty-msg">Your cart is empty.</div>
+            <div class="cdp-empty-msg">{{ 'quickcart.your_cart_empty' | t }}</div>
           {% endif %}
      
             
@@ -372,7 +386,7 @@
 <div class="mob_upsell">
           <aside class="cdp-upsell">
         <div class="cdp-upsell-head">
-          <span>You May Also Like</span>
+          <span>{{ 'quickcart.you_may_also_like' | t }}</span>
           <span class="upsell-mob-close-icon" style="display:none;">✕</span>
         </div>
 
@@ -405,7 +419,7 @@
                       <span class="cdp-u-final">{{ p.price_min | money_without_trailing_zeros }}</span>
                     
                     </div>
-                     <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>ADD TO CART</button>
+                     <button class="cdp-u-add-btn" data-open-upsell-popup data-product-id="{{ p.id }}" data-product-handle="{{ p.handle }}" data-variant-id="{{ p.first_available_variant.id }}" data-product-title="{{ p.title | escape }}" data-product-image="{{ p.featured_image | image_url: width: 400 }}" data-product-price="{{ p.price_min | money_without_trailing_zeros }}" data-product-compare-price="{% if p.compare_at_price_min > p.price_min %}{{ p.compare_at_price_min | money_without_trailing_zeros }}{% endif %}" data-product-url="{{ p.url }}" data-has-variants="{% if p.variants.size > 1 %}true{% else %}false{% endif %}" {% unless p.first_available_variant.available %}disabled{% endunless %}>{{ 'quickcart.add_to_cart' | t }}</button>
                   </div>
                 </article>
                 {% endunless %}
@@ -427,7 +441,7 @@
     </div>
 
 
-<div class="mobile-upsell-btn" style="display:none;">Upsell Products  <span>View</span></div>
+<div class="mobile-upsell-btn" style="display:none;">{{ 'quickcart.upsell_products' | t }}  <span>{{ 'quickcart.view' | t }}</span></div>
 
 <!-- Gift Wrap Section -->
 <div class="cdp-gift-wrap-section">
@@ -442,17 +456,17 @@
 
 <div class="mini-cart-order-summary-content">
               <!-- Offer Badge -->
-              <div class="combined-offer-badge" id="summary-combined-offer-badge">🎉 Continue to safe checkout 🎉!</div>
+              <div class="combined-offer-badge" id="summary-combined-offer-badge">{{ 'quickcart.safe_checkout_banner' | t }}</div>
               <div class="mini-cart-order-summary" style="display: block;">
                 <div class="summary-heading">
-                  <span class="summary-heading-text">Bill Summary</span>
-                  <button class="summary-close-btn" data-close-summary aria-label="Close">
+                  <span class="summary-heading-text">{{ 'quickcart.bill_summary' | t }}</span>
+                  <button class="summary-close-btn" data-close-summary aria-label="{{ 'quickcart.close' | t }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
                 </div>
                 
                 <p class="bill-subtotal-row">
-                  Subtotal
+                  {{ 'quickcart.subtotal' | t }}
                   <span class="sr-sub-total" data-subtotal>{{ cart.original_total_price | money_without_trailing_zeros }}</span>
                 </p>
                 <p class="discount-applied-at-cartdrawer" id="discount-applied-row" style="{% if cart.total_discount > 0 %}display: flex;{% else %}display: none;{% endif %}" data-discount-wrapper>Discount applied sdsd
@@ -460,11 +474,11 @@
                 </p>
 
                 <p class="" id="sr-cart-shipping-charges-container">
-                  Shipping Charges
-                  <span class="sr-cart-shipping-charges">Calculated on checkout</span>
+                  {{ 'quickcart.shipping_charges' | t }}
+                  <span class="sr-cart-shipping-charges">{{ 'quickcart.calculated_on_checkout' | t }}</span>
                 </p>
                 <p class="bill-grandtotal-row">
-                  Grand Total
+                  {{ 'quickcart.grand_total' | t }}
                   <span class="sr-cart-total" data-total>{{ cart.total_price | money_without_trailing_zeros }}</span>
                 </p>
                 
@@ -483,8 +497,8 @@
 
         <div class="cdp-coupon-row">
           <div class="cdp-coupon">
-            <input type="text" placeholder="Discount code" maxlength="40" data-coupon>
-            <button class="cdp-apply" data-apply-coupon>Apply</button>
+            <input type="text" placeholder="{{ 'quickcart.discount_code' | t }}" maxlength="40" data-coupon>
+            <button class="cdp-apply" data-apply-coupon>{{ 'quickcart.apply' | t }}</button>
           </div>
 
 
@@ -493,21 +507,21 @@
             <div class="cdp-discount-chip">
               <span class="cdp-discount-badge">Code</span>
               <span class="cdp-discount-code" data-discount-code></span>
-              <span class="cdp-discount-note">will apply at checkout</span>
+              <span class="cdp-discount-note">{{ 'quickcart.will_apply_at_checkout' | t }}</span>
               <button class="cdp-discount-clear" data-discount-clear aria-label="Remove discount">×</button>
             </div>
           </div>
           <div class="cdp-offers" data-offers>
             {% if cart.total_discount > 0 %}
               <div class="cdp-offer-row">
-                <span class="cdp-offer-chip">Offer</span>
-                <span class="cdp-offer-text">Discounts applied</span>
+                <span class="cdp-offer-chip">{{ 'quickcart.offer' | t }}</span>
+                <span class="cdp-offer-text">{{ 'quickcart.discounts_applied' | t }}</span>
                 <span class="cdp-offer-val">-{{ cart.total_discount | money }}</span>
               </div>
             {% else %}
               {% if block.settings.offer_text != blank %}
                 <div class="cdp-offer-row">
-                  <span class="cdp-offer-chip">Offer</span>
+                  <span class="cdp-offer-chip">{{ 'quickcart.offer' | t }}</span>
                   <span class="cdp-offer-text">{{ block.settings.offer_text }}</span>
                 </div>
               {% endif %}
@@ -523,12 +537,12 @@
        <div class="left-checkout">
 
         <div class="cdp-subrow" style="display:none;">
-          <span>Subtotal</span>
+          <span>{{ 'quickcart.subtotal' | t }}</span>
           <strong data-subtotal>{{ cart.total_price | money }}</strong>
         </div>
 
         <div class="cdp-total">
-          <span id="ds-checkout-btn" class="cdp-total-lbl">Estimated Total <img src="https://pickrr.s3.amazonaws.com/2025-07-28T06:04:01.669652_arrow.png" id="checkout-arrow-image"></span>
+          <span id="ds-checkout-btn" class="cdp-total-lbl">{{ 'quickcart.estimated_total' | t }} <img src="https://pickrr.s3.amazonaws.com/2025-07-28T06:04:01.669652_arrow.png" id="checkout-arrow-image"></span>
           <span class="cdp-total-val" data-total>{{ cart.total_price | money_without_trailing_zeros }}</span>
         </div>
 
@@ -551,14 +565,14 @@
     href="/checkout"
     class="cdp-checkout"
     data-checkout
-    aria-label="Proceed to checkout"
+    aria-label="{{ 'quickcart.proceed_to_checkout' | t }}"
   >
-    Checkout
-  </a>
+    {{ 'quickcart.proceed_to_checkout' | t }} 
+  </a> 
 
 
 
-
+ 
      
     </footer>
 
@@ -571,10 +585,10 @@
   <div class="cdp-upsell-popup" id="upsellPopup" style="display: none;">
     <div class="cdp-popup-overlay" data-close-popup></div>
     <div class="cdp-popup-content">
-      <button class="cdp-popup-close" data-close-popup aria-label="Close">×</button>
+      <button class="cdp-popup-close" data-close-popup aria-label="{{ 'quickcart.close' | t }}">×</button>
       <div class="cdp-popup-images">
-        <img id="popupProductImage" class="cdp-popup-img" src="" alt="Product Image" width="200px" height="400px">
-        <img id="popupProductImage2" class="cdp-popup-img" src="" alt="Product Image 2" width="200px" height="400px">
+        <img id="popupProductImage" class="cdp-popup-img" src="" alt="{{ 'quickcart.product_image' | t }}" width="200px" height="400px">
+        <img id="popupProductImage2" class="cdp-popup-img" src="" alt="{{ 'quickcart.product_image_2' | t }}" width="200px" height="400px">
       </div>
       <div class="cdp-popup-info">
         <h3 class="cdp-popup-title" id="popupProductTitle"></h3>
@@ -592,10 +606,10 @@
           <button class="cdp-popup-qty-btn" data-popup-qty-down>−</button>
           <input type="number" class="cdp-popup-qty-input" id="popupQty" value="1" min="1">
           <button class="cdp-popup-qty-btn" data-popup-qty-up>+</button>
-          <button class="cdp-popup-add-btn" id="popupAddBtn" data-variant-id="">Add to Cart</button>
+          <button class="cdp-popup-add-btn" id="popupAddBtn" data-variant-id="">{{ 'quickcart.add_to_cart' | t }}</button>
         </div>
         <button class="cdp-popup-view-btn" id="popupViewBtn">
-          <span>View Details</span>
+          <span>{{ 'quickcart.view_details' | t }}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
       </div>
@@ -608,6 +622,7 @@
 <script src="{{ 'progress-bar.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progressbar_qty_condition.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'bxfreeproduct.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'shippingbar.js' | asset_url }}" defer="defer"></script>
 
 
 {% schema %}
@@ -615,117 +630,117 @@
   "name": "Premium Cart Drawer",
   "target":"body",
   "settings": [
-    { "type": "checkbox", "id": "show_countdown", "label": "Show countdown", "default": false },
+    { "type": "checkbox", "id": "show_countdown", "label": "t:quickcart.show_countdown", "default": false },
     {
       "type": "color",
       "id": "count_down_bg",
-      "label": "Countdown Background",
+      "label": "t:quickcart.countdown_background",
       "default": "#5B9BD5",
-      "info": "Timer background color"
+      "info": "t:quickcart.countdown_background_info"
     },
     {
       "type": "color",
       "id": "countdown_text_color",
-      "label": "Countdown Text Color",
+      "label": "t:quickcart.countdown_text_color",
       "default": "#ffffff",
-      "info": "Timer label text color"
+      "info": "t:quickcart.countdown_text_color_info"
     },
     {
       "type": "color",
       "id": "countdown_chip_bg",
-      "label": "Countdown Chip Background",
+      "label": "t:quickcart.countdown_chip_background",
       "default": "#ffffff",
-      "info": "Timer number chip background"
+      "info": "t:quickcart.countdown_chip_background_info"
     },
     {
       "type": "color",
       "id": "countdown_chip_text",
-      "label": "Countdown Chip Text",
+      "label": "t:quickcart.countdown_chip_text",
       "default": "#2c3e50",
-      "info": "Timer number text color"
+      "info": "t:quickcart.countdown_chip_text_info"
     },
     {
       "type": "range",
       "id": "countdown_border_radius",
-      "label": "Countdown Border Radius",
+      "label": "t:quickcart.countdown_border_radius",
       "min": 0,
       "max": 50,
       "step": 1,
       "default": 50,
       "unit": "px",
-      "info": "Roundness of timer container"
+      "info": "t:quickcart.countdown_border_radius_info"
     },
     {
       "type": "range",
       "id": "countdown_chip_radius",
-      "label": "Countdown Chip Radius",
+      "label": "t:quickcart.countdown_chip_radius",
       "min": 0,
       "max": 20,
       "step": 1,
       "default": 10,
       "unit": "px",
-      "info": "Roundness of number chips"
+      "info": "t:quickcart.countdown_chip_radius_info"
     },
-    { "type": "collection", "id": "upsell_collection", "label": "Upsell collection", "info":"Chnage Upsell Collection" },
+    { "type": "collection", "id": "upsell_collection", "label": "t:quickcart.upsell_collection", "info":"t:quickcart.upsell_collection_info" },
     {
       "type": "color",
       "id": "primary_color",
-      "label": "Button Background ",
+      "label": "t:quickcart.button_background",
       "default": "#7c3444",
-      "info":"Buttons + Prices Color Change"
+      "info":"t:quickcart.button_background_info"
     },
    {
       "type": "color",
       "id": "body_color",
-      "label": "Body Color ",
+      "label": "t:quickcart.body_color",
       "default": "#f0e5e7",
-      "info":"Body Color Change"
+      "info":"t:quickcart.body_color_info"
     },
        {
       "type": "color",
       "id": "text_color",
-      "label": "Content Color ",
+      "label": "t:quickcart.content_color",
       "default": "#000",
-      "info":"Text Color Change"
+      "info":"t:quickcart.content_color_info"
     },
      {
       "type": "range",
       "id": "border_radius",
-      "label": "Border Radius",
+      "label": "t:quickcart.border_radius",
       "min": 1,
       "max": 100,
       "step": 1,
       "default": 10
     },
-     { "type": "checkbox", "id": "show_announcementbar_text", "label": "Show Announcement Bar", "default": false },
-    { "type": "textarea", "id": "announcementbar_text", "label": "Announcement Text", "default": "Welcome to my shop!" },
+     { "type": "checkbox", "id": "show_announcementbar_text", "label": "t:quickcart.show_announcement_bar", "default": false },
+    { "type": "textarea", "id": "announcementbar_text", "label": "t:quickcart.announcement_text", "default": "Welcome to my shop!" },
     { 
       "type": "checkbox",
       "id": "show_gift_product", 
-      "label": "Show Gift Product", 
+      "label": "t:quickcart.show_gift_product", 
       "default": false 
     },
    {
     "type": "product",
     "id": "gift_wrap_product",
-    "label": "Select  Gift  product"
+    "label": "t:quickcart.select_gift_product"
   },
   { 
       "type": "checkbox",
       "id": "show-checkout-field", 
-      "label": "Enable Third-party Integretion", 
+      "label": "t:quickcart.enable_third_party", 
       "default": false 
     },
   {
     "type":"liquid",
     "id":"checkout-integration-code",
-    "label":"Third-Party integration code Paste Here"
+    "label":"t:quickcart.third_party_code"
   },
   {
     "type":"liquid",
     "id":"custom-css-code",
-    "label":"Custom Css Write here..",
-    "info":"Custom Css"
+    "label":"t:quickcart.custom_css",
+    "info":"t:quickcart.custom_css_info"
   }
  
 

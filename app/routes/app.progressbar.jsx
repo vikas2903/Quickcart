@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Page,
   Layout,
@@ -16,6 +16,10 @@ import { TitleBar } from "@shopify/app-bridge-react";
 import { useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server.js";
+import { ToastContainer, toast, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { useTranslation } from "react-i18next";
 
 // must match the API route file above
 const API_URL = "/app/quickcart/unlockprice";
@@ -23,34 +27,102 @@ const API_URL = "/app/quickcart/unlockprice";
 /** Loader: get shop from admin session */
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
-  return json({ shop: session.shop }); // e.g. "d2c-apps.myshopify.com"
+  const url = new URL(request.url);
+  const requestLocale = url.searchParams.get("locale");
+  // const primaryLocale = requestLocale || session?.primaryLocale || "en-US";
+  const accessToken = session.accessToken; 
+
+  const API_VERSION = "2025-07";
+  const shopRes = await fetch(`https://${session.shop}/admin/api/${API_VERSION}/shop.json`, {
+      method: "GET",
+      headers: {
+        "X-Shopify-Access-Token": accessToken,
+        "Content-Type": "application/json",
+      },
+    });
+  
+    const shopData = await shopRes.json();
+    console.log("shopData", shopData);
+    const currency = shopData?.shop?.currency || "USD";
+    const primaryLocale = shopData?.shop?.primary_locale || "en";
+
+  return json({ shop: session.shop, primaryLocale: primaryLocale }); 
 };
 
 export default function ProgressBar() {
-  const { shop } = useLoaderData();
-  const storeShort = (shop || "").replace(".myshopify.com", "");
-  console.log("vikasStoreShort",storeShort);
+  const { shop, primaryLocale } = useLoaderData();
+ 
+  console.log("vss_primaryLocale", primaryLocale);
+
+  const { t, i18n: reactI18n } = useTranslation();
+  const defaultTextsRef = useRef([]);
+
+  const targetLanguage = useMemo(() => {
+    if (!primaryLocale) return "en";
+
+    const normalizedLocale = primaryLocale.replace("_", "-");
+    const availableLanguages = Object.keys(reactI18n?.options?.resources || {});
+
+    if (availableLanguages.includes(normalizedLocale)) {
+      return normalizedLocale;
+    }
+
+    const baseLanguage = normalizedLocale.split("-")[0];
+    if (availableLanguages.includes(baseLanguage)) {
+      return baseLanguage;
+    }
+
+    return "en";
+  }, [primaryLocale, reactI18n]);
+
+  useEffect(() => {
+    if (targetLanguage && reactI18n) {
+      if (reactI18n.language !== targetLanguage) {
+        reactI18n.changeLanguage(targetLanguage);
+      }
+    }
+  }, [targetLanguage, reactI18n]);
+
+  const defaultTexts = useMemo(
+    () => [
+      t("settings.default-milestone-text-1"),
+      t("settings.default-milestone-text-2"),
+      t("settings.default-milestone-text-3"),
+    ],
+    [t, reactI18n.resolvedLanguage]
+  );
 
   /* ---------- FORM STATE ---------- */
   const [enabled, setEnabled] = useState(true);
   const [prices, setPrices] = useState(["799", "1499", "2499"]);
-  const [texts, setTexts] = useState([
-    "Extra 5% off on ₹{{price}}",
-    "Extra 10% off on ₹{{price}}",
-    "Extra 15% off on ₹{{price}}",
-  ]);
+  const [texts, setTexts] = useState(defaultTexts);
   const [progressBarColor, setProgressBarColor] = useState("#000000");
 
   const [previewTotal, setPreviewTotal] = useState("999");
   const [tab, setTab] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
-  
+
   const [savedata, setsaveddata] = useState({
-    enabled : '',
+    enabled: "",
     milestones: [],
-    progressBarColor: '#000000'
-  })
+    progressBarColor: "#000000"
+  });
+
+  useEffect(() => {
+    const previousDefaultTexts = defaultTextsRef.current;
+
+    setTexts((currentTexts) => {
+      const shouldRefreshDefaults =
+        !currentTexts.some(Boolean) ||
+        currentTexts.every((text, index) => text === previousDefaultTexts[index]);
+
+      return shouldRefreshDefaults ? defaultTexts : currentTexts;
+    });
+
+    defaultTextsRef.current = defaultTexts;
+  }, [defaultTexts]);
+
   const nf = useMemo(
     () =>
       new Intl.NumberFormat("en-IN", {
@@ -60,24 +132,23 @@ export default function ProgressBar() {
       }),
     []
   );
- 
 
-  const saveddata_progressbar  = async () =>{
-
-    const retrive_saved_data = await  fetch(`https://quickcart-vf8k.onrender.com/app/quickcart/unlockprice?shop=${encodeURIComponent(shop)}`,
-  {
-    method:"GET",
-    headers:{
-      "Content-Type": "application/json",
-      "X-Shopify-Shop-Domain": shop,
-      Accept: "application/json",
-    },
-  })
+  const saveddata_progressbar = async () => {
+    const retrive_saved_data = await fetch(
+      `https://quickcart-vf8k.onrender.com/app/quickcart/unlockprice?shop=${encodeURIComponent(shop)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Shop-Domain": shop,
+          Accept: "application/json",
+        },
+      }
+    );
     const getapidata = await retrive_saved_data.json();
-    const getted_data = getapidata?.data
+    const getted_data = getapidata?.data;
     return getted_data;
-  
-  }
+  };
 
   const pNums = useMemo(
     () => prices.map((v) => Math.max(0, Number(v) || 0)),
@@ -111,14 +182,15 @@ export default function ProgressBar() {
   }, [milestones, cartTotal]);
 
   const awayText = useMemo(() => {
-    if (!enabled) return "Progress bar is disabled";
-    if (!nextMilestone) return "🎉 You’ve unlocked the highest offer!";
+    if (!enabled) return t("settings.progress-disabled-message");
+    if (!nextMilestone) return t("settings.highest-offer-unlocked-message");
     const diff = Math.max(0, nextMilestone.price - cartTotal);
-    return `You are ${nf.format(diff)} away from ${nextMilestone.text.replace(
-      "{{price}}",
-      String(nextMilestone.price)
-    )} on ${nf.format(nextMilestone.price)}`;
-  }, [enabled, nextMilestone, cartTotal, nf]);
+    return t("settings.away-from-milestone-message", {
+      amount: nf.format(diff),
+      milestone: nextMilestone.text.replace("{{price}}", String(nextMilestone.price)),
+      price: nf.format(nextMilestone.price),
+    });
+  }, [enabled, nextMilestone, cartTotal, nf, t]);
 
   /* ---------- LOAD EXISTING (by shopName via header) ---------- */
   useEffect(() => {
@@ -150,20 +222,21 @@ export default function ProgressBar() {
         console.warn("Failed to load unlock price config:", e);
       }
     })();
-      async function fetchData() {
+
+    async function fetchData() {
       const progressbardata = await saveddata_progressbar();
 
-      console.log("progressbardata", progressbardata)
+      console.log("progressbardata", progressbardata);
 
-      let milestones  = progressbardata?.milestones
-      let enalbled = progressbardata?.enabled
-    
-       const savedColor = progressbardata?.progressBarColor || '#000000';
-       setsaveddata({enalbled, milestones, progressBarColor: savedColor});
+      let milestones = progressbardata?.milestones;
+      let enalbled = progressbardata?.enabled;
+
+      const savedColor = progressbardata?.progressBarColor || "#000000";
+      setsaveddata({ enalbled, milestones, progressBarColor: savedColor });
     }
+
     fetchData();
-    
-  }, [shop, submitStatus]);
+  }, [shop]);
 
   /* ---------- INPUT HANDLERS ---------- */
   const onPriceChange = (i) => (val) =>
@@ -174,10 +247,12 @@ export default function ProgressBar() {
   /* ---------- SAVE ---------- */
   const handleSubmit = async () => {
     if (!shop) {
+      const message = t("settings.shop-domain-missing-error");
       setSubmitStatus({
         type: "error",
-        message: "Shop domain missing. Cannot save.",
+        message,
       });
+      toast.error(message);
       return;
     }
 
@@ -208,18 +283,26 @@ export default function ProgressBar() {
 
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        throw new Error(`HTTP ${res.status} ${res.statusText}${txt ? ` — ${txt}` : ""}`);
+        throw new Error(`HTTP ${res.status} ${res.statusText}${txt ? ` - ${txt}` : ""}`);
       }
 
       setSubmitStatus({
         type: "success",
-        message: "Configuration saved successfully.",
+        message: t("settings.save-success-message"),
       });
+      setsaveddata({
+        enalbled: enabled,
+        milestones: payload.milestones,
+        progressBarColor,
+      });
+      toast.success(t("settings.save-success-message"));
     } catch (err) {
+      const message = err?.message || t("settings.save-error-message");
       setSubmitStatus({
         type: "error",
-        message: err?.message || "Failed to save configuration.",
+        message,
       });
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -227,274 +310,210 @@ export default function ProgressBar() {
 
   /* ---------- RENDER ---------- */
   return (
-    <Page fullWidth>
-      <TitleBar title="Discount Offers Progress Bar" />
+    <>
+      <ToastContainer position="top-right" autoClose={3000} transition={Slide} />
+      <Page fullWidth>
+        <TitleBar title={t("settings.page-title")} />
 
-      <Layout>
-        <Layout.Section>
-          <Grid>
-            {/* LEFT: Form */}
-            <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
-              <LegacyCard sectioned>
-                <BlockStack gap="500">
-                  {submitStatus && (
-                    <Banner
-                      tone={submitStatus.type === "success" ? "success" : "critical"}
-                    >
-                      {submitStatus.message}
-                    </Banner>
-                  )}
+        <Layout>
+          <Layout.Section>
+            <Grid>
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
+                <LegacyCard sectioned>
+                  <BlockStack gap="500">
+                    {submitStatus && (
+                      <Banner
+                        tone={submitStatus.type === "success" ? "success" : "critical"}
+                      >
+                        {submitStatus.message}
+                      </Banner>
+                    )}
 
-                  <Banner tone="info">
-                    Update Milestones to see the progress bar (IMPORTANT : Create Disount as per the Milestones in Shopify Discounts)
-                  </Banner>
+                    <Banner tone="info">{t("settings.main-message")}</Banner>
 
-                  <Checkbox
-                    label="Enable progress bar"
-                    checked={enabled}
-                    onChange={setEnabled}
-                  />
+                    <Checkbox
+                      label={t("settings.enable-pricebased-app-progressbar")}
+                      checked={enabled}
+                      onChange={setEnabled}
+                    />
 
-                  {/* Progress Bar Color Picker */}
-                  {/* <div style={{ marginTop: '10px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                      Progress Bar Color
-                    </label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <input
-                        type="color"
-                        value={progressBarColor}
-                        onChange={(e) => setProgressBarColor(e.target.value)}
-                        style={{
-                          width: '50px',
-                          height: '40px',
-                          border: '1px solid #ccc',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          padding: '2px'
-                        }}
-                      />
-                      <TextField
-                        value={progressBarColor}
-                        onChange={setProgressBarColor}
-                        autoComplete="off"
-                        placeholder="#000000"
-                        maxLength={7}
-                      />
-                      <div style={{
-                        display: 'flex',
-                        gap: '6px'
-                      }}>
-                        {['#000000', '#2e7d32', '#1565d8', '#d32f2f', '#7b1fa2', '#ff6f00'].map((color) => (
-                          <button
-                            key={color}
-                            type="button"
-                            onClick={() => setProgressBarColor(color)}
-                            style={{
-                              width: '28px',
-                              height: '28px',
-                              borderRadius: '50%',
-                              backgroundColor: color,
-                              border: progressBarColor === color ? '3px solid #333' : '2px solid #ddd',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            title={color}
+                    {[0, 1, 2].map((i) => (
+                      <LegacyCard key={i} sectioned>
+                        <BlockStack gap="300">
+                          <strong>
+                            {t("settings.pricebased-app-progressbar-title-milestone")} {i + 1}
+                          </strong>
+                          <TextField
+                            label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-price")} ${i + 1}`}
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            value={prices[i]}
+                            onChange={onPriceChange(i)}
+                            autoComplete="off"
                           />
-                        ))}
-                      </div>
-                    </div>
-                  </div> */}
+                          <TextField
+                            label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-text")} ${i + 1}`}
+                            value={texts[i]}
+                            onChange={onTextChange(i)}
+                            autoComplete="off"
+                          />
+                        </BlockStack>
+                      </LegacyCard>
+                    ))}
 
-                
-
-                  {[0, 1, 2].map((i) => (
-                    <LegacyCard key={i} sectioned>
-                      <BlockStack gap="300">
-                        <strong>Milestone {i + 1}</strong>
-                        <TextField
-                          label={`Price ${i + 1} (₹)`}
-                          type="number"
-                          inputMode="numeric"
-                          min={0}
-                          value={prices[i]}
-                          onChange={onPriceChange(i)}
-                          autoComplete="off"
-                        />
-                        <TextField
-                          label={`Text ${i + 1}`}
-                          value={texts[i]}
-                          onChange={onTextChange(i)}
-                          autoComplete="off"
-                          // helpText='Example: "Extra 10% off on ₹{{price}}"'
-                        />
-                      </BlockStack>
-                    </LegacyCard>
-                  ))}
-
-                  <InlineStack gap="300"></InlineStack>
-                  <Button variant="primary" onClick={handleSubmit} loading={isSubmitting}>
-                    Submit
-                  </Button>
-                </BlockStack>
-              </LegacyCard>
-            </Grid.Cell>
-
-            {/* RIGHT: Preview */}
-            <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
-
-
-              <div className="" style={{ marginBottom: "20px" }}>
-              <Banner
-  tone="info"
-  title="Create Discount"
-  action={{
-    content: "Create discount",
-    onAction: () => {
-      // Use the store's myshopify.com domain format for admin access
-      const discountUrl = `https://${shop}/admin/discounts/`;
-      window.open(discountUrl, '_blank', 'noopener,noreferrer');
-    }
-  }}
->
-  <p>Create discount in your store for the working of this progress bar</p>
-</Banner>
- 
-
-              </div>
-
-
-
-
-              <LegacyCard>
-                <LegacyCard.Section>
-                  <Tabs
-                    tabs={[
-                      { id: "desktop", content: "Desktop" },
-                      { id: "mobile", content: "Mobile" },
-                    ]}
-                    selected={tab}
-                    onSelect={setTab}
-                  />
-                </LegacyCard.Section>
-
-                <LegacyCard.Section>
-                  <BlockStack gap="400">
-                    <TextField
-                      label="Preview cart total (₹)"
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      value={previewTotal}
-                      onChange={setPreviewTotal}
-                      autoComplete="off"
-                    />
-                    <Preview
-                      mode={tab === 0 ? "desktop" : "mobile"}
-                      enabled={enabled}
-                      milestones={milestones}
-                      fillPercent={fillPercent}
-                      awayText={awayText}
-                      nf={nf}
-                      maxPrice={maxPrice}
-                      progressBarColor={progressBarColor}
-                    />
+                    <InlineStack gap="300" />
+                    <Button variant="primary" onClick={handleSubmit} loading={isSubmitting}>
+                      {t("settings.pricebased-app-progressbar-submit-btn")}
+                    </Button>
                   </BlockStack>
-                </LegacyCard.Section>
-              </LegacyCard>
+                </LegacyCard>
+              </Grid.Cell>
 
-              <LegacyCard>
-                <LegacyCard.Section>
-                   <Banner tone="info">
-                    Discount applied at order value previous saved configuration
+              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
+                <div className="" style={{ marginBottom: "20px" }}>
+                  <Banner
+                    tone="info"
+                    title={t("settings.create-discount-info-title")}
+                    action={{
+                      content: t("settings.create-discount-info-link"),
+                      onAction: () => {
+                        const discountUrl = `https://${shop}/admin/discounts/`;
+                        window.open(discountUrl, "_blank", "noopener,noreferrer");
+                      }
+                    }}
+                  >
+                    <p>{t("settings.create-discount-info-text")}</p>
                   </Banner>
+                </div>
 
+                <LegacyCard>
+                  <LegacyCard.Section>
+                    <Tabs
+                      tabs={[
+                        { id: "desktop", content: t("settings.tab-1-title") },
+                        { id: "mobile", content: t("settings.tab-2-title") },
+                      ]}
+                      selected={tab}
+                      onSelect={setTab}
+                    />
+                  </LegacyCard.Section>
 
-                  {
+                  <LegacyCard.Section>
+                    <BlockStack gap="400">
+                      <TextField
+                        label={t("settings.tab-info")}
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        value={previewTotal}
+                        onChange={setPreviewTotal}
+                        autoComplete="off"
+                      />
+                      <Preview
+                        mode={tab === 0 ? "desktop" : "mobile"}
+                        enabled={enabled}
+                        milestones={milestones}
+                        fillPercent={fillPercent}
+                        awayText={awayText}
+                        nf={nf}
+                        maxPrice={maxPrice}
+                        progressBarColor={progressBarColor}
+                      />
+                    </BlockStack>
+                  </LegacyCard.Section>
+                </LegacyCard>
+
+                <LegacyCard>
+                  <LegacyCard.Section>
+                    <Banner tone="info">{t("settings.info-baner")}</Banner>
+
                     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <h2>Progress Bar Data</h2>
+                      <h2>{t("settings.info-baner-title")}</h2>
 
-      {/* General Info Table */}
-      <table
-        border="1"
-        cellPadding="8"
-        cellSpacing="0"
-        style={{
-          borderCollapse: "collapse",
-          width: "100%",
-          marginBottom: "20px",
-          backgroundColor: "#f9f9f9",
-        }}
-      >
-        <tbody>
-          <tr>
-            <th align="left">Shop Name</th>
-            <td>{shop}</td>
-          </tr>
-          <tr>
-            <th align="left">Enabled</th>
-            <td>{savedata.enalbled ? "✅ Yes" : "❌ No"}</td>
-          </tr>
-          <tr>
-            <th align="left">Progress Bar Color</th>
-            <td>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '4px',
-                  backgroundColor: savedata.progressBarColor || '#000000',
-                  border: '1px solid #ddd'
-                }} />
-                <span>{savedata.progressBarColor || '#000000'}</span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                      <table
+                        border="1"
+                        cellPadding="8"
+                        cellSpacing="0"
+                        style={{
+                          borderCollapse: "collapse",
+                          width: "100%",
+                          marginBottom: "20px",
+                          backgroundColor: "#f9f9f9",
+                        }}
+                      >
+                        <tbody>
+                          <tr>
+                            <th align="left">{t("settings.shop-name")}</th>
+                            <td>{shop}</td>
+                          </tr>
+                          <tr>
+                            <th align="left">{t("settings.enable")}</th>
+                            <td>{savedata.enalbled ? t("settings.yes") : t("settings.no")}</td>
+                          </tr>
+                          {/* <tr>
+                          <th align="left">{t("settings.progress-bar-color")}</th>
+                          <td>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <div
+                                style={{
+                                  width: "24px",
+                                  height: "24px",
+                                  borderRadius: "4px",
+                                  backgroundColor: savedata.progressBarColor || "#000000",
+                                  border: "1px solid #ddd"
+                                }}
+                              />
+                              <span>{savedata.progressBarColor || "#000000"}</span>
+                            </div>
+                          </td>
+                          </tr> */}
+                        </tbody>
+                      </table>
 
-      {/* Milestones Table */}
-{savedata.enalbled ?
-<div>
-      <h3>Milestones</h3>
-      <table
-        border="1"
-        cellPadding="8"
-        cellSpacing="0"
-        style={{ borderCollapse: "collapse", width: "100%" }}
-      >
-        <thead style={{ backgroundColor: "#eee" }}>
-          <tr>
-            <th>Price (₹)</th>
-            <th>Text</th>
-          </tr>
-        </thead>
-        <tbody>
-          {savedata.milestones.map((item, index) => (
-            <tr key={index}>
-              <td>{item.price}</td>
-              <td>{item.text}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
-      : ''}
-    </div>
-                  }
-                   
-                </LegacyCard.Section>
-              </LegacyCard>
-            </Grid.Cell>
-          </Grid>    
-        </Layout.Section>
-      </Layout>
-    </Page>
+                      {savedata.enalbled ? (
+                        <div>
+                          <h3>{t("settings.milestones-heading")}</h3>
+                          <table
+                            border="1"
+                            cellPadding="8"
+                            cellSpacing="0"
+                            style={{ borderCollapse: "collapse", width: "100%" }}
+                          >
+                            <thead style={{ backgroundColor: "#eee" }}>
+                              <tr>
+                                <th>{t("settings.price-column")}</th>
+                                <th>{t("settings.text-column")}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {savedata.milestones.map((item, index) => (
+                                <tr key={index}>
+                                  <td>{item.price}</td>
+                                  <td>{item.text}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </LegacyCard.Section>
+                </LegacyCard>
+              </Grid.Cell>
+            </Grid>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    </>
   );
 }
 
 /* ---------- PREVIEW ---------- */
 function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPrice, progressBarColor }) {
+  const { t } = useTranslation();
   const isMobile = mode === "mobile";
   const frame = {
     width: isMobile ? 360 : "100%",
@@ -511,7 +530,6 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
     height: 8,
     background: "#EEEFF3",
     borderRadius: 999,
-    // position: "relative",
     overflow: "hidden",
     marginTop: 6,
   };
@@ -539,14 +557,9 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
       label: m.text.replace("{{price}}", String(m.price)),
       price: m.price,
       key: idx,
-      emoji: idx === 0 ? "🥳" : "😺",
     }));
 
- 
-
   return (
-    <>
-   
     <div style={frame}>
       <div style={{ textAlign: "center", fontSize: 14, marginBottom: 6 }}>
         {awayText}
@@ -572,13 +585,13 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
             >
               <img
                 src="https://pickrr.s3.amazonaws.com/2025-08-01T06:57:59.706663_party_icon_colored.png"
-                alt="party"
+                alt={t("settings.party-icon-alt")}
                 style={{
                   width: "24px",
                   height: "24px",
                   objectFit: "contain",
                 }}
-              /> 
+              />
             </div>
           ))}
         </div>
@@ -593,6 +606,6 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
         </div>
       </div>
     </div>
-    </>
   );
 }
+ 

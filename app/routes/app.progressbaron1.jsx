@@ -1,4 +1,3 @@
-// app/routes/app.bxgy.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -7,27 +6,22 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server.js";
+import { useTranslation } from "react-i18next";
 
 const API_URL = "/app/quickcart/bxgy";
 
-/** Gate the page by Shopify admin session; also pass shop in case you want it */
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
-  
   return json({ shop: session.shop });
 };
 
 export default function BuyXGetYPage() {
   const { shop } = useLoaderData();
-
-
-  
-  
-
-
+  const { t } = useTranslation();
+ 
   return (
     <Page fullWidth>
-      <TitleBar title="Buy X Get Y Progress Bar" />
+      <TitleBar title={t("progressbaron1.page-title")} />
       <Layout>
         <Layout.Section>
           <BuyXGetYSection shop={shop} />
@@ -38,40 +32,48 @@ export default function BuyXGetYPage() {
 }
 
 function BuyXGetYSection({ shop }) {
+  const { t } = useTranslation();
 
   const [savedata, setsavedata] = useState({
-    enabled:'',
-    offer:[]
-  })
+    enabled: "",
+    offer: []
+  });
 
+  const defaultMessages = useMemo(
+    () => ({
+      many: t("progressbaron1.remaining-many-message"),
+      one: t("progressbaron1.remaining-one-message"),
+      unlocked: t("progressbaron1.offer-unlocked-message"),
+    }),
+    [t]
+  );
 
-  // ############ READ BXGYCONFIG ############
-
-  
-  // ############ READ BXGYCONFIG ############
-  
-  // ---------- FORM STATE ----------
   const [enabled, setEnabled] = useState(true);
   const [buyQty, setBuyQty] = useState("2");
   const [getQty, setGetQty] = useState("1");
-
-  const [msgMany, setMsgMany] = useState("Add {{remaining}} more item(s) to unlock B{{buy}}G{{get}}");
-  const [msgOne, setMsgOne] = useState("Add 1 more item to unlock B{{buy}}G{{get}}");
-  const [msgUnlocked, setMsgUnlocked] = useState("🎁 Offer unlocked! B{{buy}}G{{get}} applied at checkout");
-
+  const [msgMany, setMsgMany] = useState(defaultMessages.many);
+  const [msgOne, setMsgOne] = useState(defaultMessages.one);
+  const [msgUnlocked, setMsgUnlocked] = useState(defaultMessages.unlocked);
   const [previewQty, setPreviewQty] = useState("1");
   const [tab, setTab] = useState(0);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [note, setNote] = useState(null); // {type:"success"|"critical", msg:string}
+  const [note, setNote] = useState(null);
 
-  // ---------- DERIVED ----------
+  useEffect(() => {
+    setMsgMany((current) => (current === defaultMessages.many ? defaultMessages.many : current));
+    setMsgOne((current) => (current === defaultMessages.one ? defaultMessages.one : current));
+    setMsgUnlocked((current) => (current === defaultMessages.unlocked ? defaultMessages.unlocked : current));
+  }, [defaultMessages]);
+
   const buy = useMemo(() => Math.max(0, parseInt(buyQty || "0", 10)), [buyQty]);
   const get = useMemo(() => Math.max(0, parseInt(getQty || "0", 10)), [getQty]);
   const qty = useMemo(() => Math.max(0, parseInt(previewQty || "0", 10)), [previewQty]);
 
   const remaining = useMemo(() => Math.max(0, buy - qty), [buy, qty]);
-  const fillPercent = useMemo(() => (buy ? Math.min(100, Math.round((qty / buy) * 100)) : 0), [qty, buy]);
+  const fillPercent = useMemo(
+    () => (buy ? Math.min(100, Math.round((qty / buy) * 100)) : 0),
+    [qty, buy]
+  );
 
   const tmpl = (s) =>
     (s || "")
@@ -80,17 +82,15 @@ function BuyXGetYSection({ shop }) {
       .replace(/{{\s*get\s*}}/gi, String(get));
 
   const bannerText = useMemo(() => {
-    if (!enabled) return "Offer is disabled";
-    if (!buy) return "Set Buy quantity to start the preview";
+    if (!enabled) return t("progressbaron1.offer-disabled");
+    if (!buy) return t("progressbaron1.set-buy-quantity-message");
     if (remaining <= 0) return tmpl(msgUnlocked);
     if (remaining === 1) return tmpl(msgOne);
     return tmpl(msgMany);
-  }, [enabled, buy, remaining, tmpl, msgUnlocked, msgOne, msgMany]);
+  }, [enabled, buy, remaining, msgUnlocked, msgOne, msgMany, t]);
 
   const payload = useMemo(
     () => ({
-      // shop optional; server infers from session, but you can include it
-      // shop,
       enabled,
       offer: { buyQty: buy, getQty: get },
       messages: {
@@ -102,10 +102,9 @@ function BuyXGetYSection({ shop }) {
     [enabled, buy, get, msgMany, msgOne, msgUnlocked]
   );
 
-  // ---------- HANDLERS ----------
   const handleSubmit = async () => {
     if (!Number.isFinite(buy) || buy < 1 || !Number.isFinite(get) || get < 1) {
-      setNote({ type: "critical", msg: "Buy and Get must be numbers ≥ 1." });
+      setNote({ type: "critical", msg: t("progressbaron1.invalid-quantity-message") });
       return;
     }
 
@@ -124,69 +123,66 @@ function BuyXGetYSection({ shop }) {
         throw new Error(out?.error || `HTTP ${res.status} ${res.statusText}`);
       }
 
-      setNote({ type: "success", msg: "BxGy configuration saved." });
-      console.log("Saved:", out.data);
+      setNote({ type: "success", msg: t("progressbaron1.save-success-message") });
+      setsavedata({
+        enabled,
+        offer: { buyQty: buy, getQty: get },
+      });
     } catch (e) {
-      setNote({ type: "critical", msg: e?.message || "Failed to save configuration." });
+      setNote({ type: "critical", msg: e?.message || t("progressbaron1.save-error-message") });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-
-   const saveddata_progressbar  = async () =>{
-  
-      const retrive_saved_data = await  fetch(`https://quickcart-vf8k.onrender.com/app/quickcart/bxgy`,
-    {
-      method:"GET",
-      headers:{
+  const saveddata_progressbar = async () => {
+    const retrive_saved_data = await fetch("https://quickcart-vf8k.onrender.com/app/quickcart/bxgy", {
+      method: "GET",
+      headers: {
         "Content-Type": "application/json",
         "X-Shopify-Shop-Domain": shop,
         Accept: "application/json",
       },
-    })
-      const getapidata = await retrive_saved_data.json();
-      const getted_data = getapidata?.data
-      return getted_data;
-    
-    }
+    });
+    const getapidata = await retrive_saved_data.json();
+    return getapidata?.data;
+  };
 
   useEffect(() => {
     let getdata = async () => {
       let data = await saveddata_progressbar();
-      let enabled = data?.enabled;
+      let nextEnabled = data?.enabled;
       let offer = data?.offer;
 
       setsavedata({
-        enabled: enabled,
+        enabled: nextEnabled,
         offer: offer,
       });
 
-      setEnabled(enabled);
-      setBuyQty(offer?.buyQty);
-      setGetQty(offer?.getQty);
+      setEnabled(!!nextEnabled);
+      setBuyQty(String(offer?.buyQty ?? 2));
+      setGetQty(String(offer?.getQty ?? 1));
     };
 
     getdata();
   }, [shop]);
-  // ---------- RENDER ----------
+
   return (
     <Grid>
-      {/* LEFT: form */}
       <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
         <LegacyCard sectioned>
           <BlockStack gap="500">
             {note && <Banner tone={note.type === "success" ? "success" : "critical"}>{note.msg}</Banner>}
 
-            <Checkbox label="Enable Buy X Get Y" checked={enabled} onChange={setEnabled} />
+            <Checkbox label={t("progressbaron1.enable-label")} checked={enabled} onChange={setEnabled} />
 
             <Banner tone="info">
-             Update Buy Quantity and Get Quantity to see the progress bar (IMPORTANT : Create Disount as per the Buy Quantity and Get Quantity in Shopify Discounts)
+              {t("progressbaron1.main-message")}
             </Banner>
 
             <InlineStack gap="300">
               <TextField
-                label="Buy quantity (X)"
+                label={t("progressbaron1.buy-quantity-label")}
                 type="number"
                 inputMode="numeric"
                 min={0}
@@ -195,7 +191,7 @@ function BuyXGetYSection({ shop }) {
                 autoComplete="off"
               />
               <TextField
-                label="Free quantity (Y)"
+                label={t("progressbaron1.free-quantity-label")}
                 type="number"
                 inputMode="numeric"
                 min={0}
@@ -204,46 +200,39 @@ function BuyXGetYSection({ shop }) {
                 autoComplete="off"
               />
             </InlineStack>
-            {/* <LegacyCard sectioned>
-              <BlockStack gap="300">
-                <strong>Messages</strong>
-                <TextField label="When 2+ remaining" value={msgMany} onChange={setMsgMany} autoComplete="off" />
-                <TextField label="When 1 remaining" value={msgOne} onChange={setMsgOne} autoComplete="off" />
-                <TextField label="When unlocked" value={msgUnlocked} onChange={setMsgUnlocked} autoComplete="off" />
-              </BlockStack>
-            </LegacyCard> */}
 
             <Button variant="primary" onClick={handleSubmit} loading={isSubmitting}>
-              Submit
+              {t("progressbaron1.submit-button")}
             </Button>
           </BlockStack>
         </LegacyCard>
       </Grid.Cell>
 
-      {/* RIGHT: preview */}
       <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
         <div className="" style={{ marginBottom: "20px" }}>
           <Banner
             tone="info"
-            title="Create Discount"
+            title={t("progressbaron1.create-discount-title")}
             action={{
-              content: "Create discount",
+              content: t("progressbaron1.create-discount-action"),
               onAction: () => {
-                // Use the store's myshopify.com domain format for admin access
                 const discountUrl = `https://${shop}/admin/discounts/`;
-                window.open(discountUrl, '_blank', 'noopener,noreferrer');
+                window.open(discountUrl, "_blank", "noopener,noreferrer");
               }
             }}
             onDismiss={() => {}}
           >
-            <p>Create discount in your store for the working of this Progress Bar</p>
+            <p>{t("progressbaron1.create-discount-text")}</p>
           </Banner>
         </div>
 
         <LegacyCard>
           <LegacyCard.Section>
             <Tabs
-              tabs={[{ id: "desktop", content: "Desktop" }, { id: "mobile", content: "Mobile" }]}
+              tabs={[
+                { id: "desktop", content: t("progressbaron1.tab-desktop") },
+                { id: "mobile", content: t("progressbaron1.tab-mobile") }
+              ]}
               selected={tab}
               onSelect={setTab}
             />
@@ -252,7 +241,7 @@ function BuyXGetYSection({ shop }) {
           <LegacyCard.Section>
             <BlockStack gap="400">
               <TextField
-                label="Preview cart quantity (X)"
+                label={t("progressbaron1.preview-quantity-label")}
                 type="number"
                 inputMode="numeric"
                 min={1}
@@ -272,18 +261,15 @@ function BuyXGetYSection({ shop }) {
           </LegacyCard.Section>
         </LegacyCard>
 
-            <LegacyCard>
-                        <LegacyCard.Section>
-                           <Banner tone="info">
-                           Buy X Get Y Saved Configuration 
-                          </Banner>
-        
-        
-                          {
-                            <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-              <h2>Progress Bar Data</h2>
-        
-              {/* General Info Table */}
+        <LegacyCard>
+          <LegacyCard.Section>
+            <Banner tone="info">
+              {t("progressbaron1.saved-config-banner")}
+            </Banner>
+
+            <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+              <h2>{t("progressbaron1.data-title")}</h2>
+
               <table
                 border="1"
                 cellPadding="8"
@@ -297,41 +283,40 @@ function BuyXGetYSection({ shop }) {
               >
                 <tbody>
                   <tr>
-                    <th align="left">Shop Name</th>
+                    <th align="left">{t("progressbaron1.shop-name")}</th>
                     <td>{shop}</td>
                   </tr>
                   <tr>
-                    <th align="left">Enabled</th>
-                    <td>{savedata.enabled ? "✅ Yes" : "❌ No"}</td>
+                    <th align="left">{t("progressbaron1.enabled")}</th>
+                    <td>{savedata.enabled ? t("progressbaron1.yes") : t("progressbaron1.no")}</td>
                   </tr>
-                  
-                  {savedata.enabled ? <>
-                  
-                     <tr>
-                    <th align="left">Buy Quantity </th>
-                    <td>{savedata?.offer?.buyQty}</td>
-                  </tr>
-                   <tr>
-                    <th align="left">Get Quantity </th>
-                     <td>{savedata?.offer?.getQty}</td>
-                  </tr>
-                  </> : '' }
-                
 
+                  {savedata.enabled ? (
+                    <>
+                      <tr>
+                        <th align="left">{t("progressbaron1.buy-quantity-row")}</th>
+                        <td>{savedata?.offer?.buyQty}</td>
+                      </tr>
+                      <tr>
+                        <th align="left">{t("progressbaron1.get-quantity-row")}</th>
+                        <td>{savedata?.offer?.getQty}</td>
+                      </tr>
+                    </>
+                  ) : (
+                    ""
+                  )}
                 </tbody>
               </table>
-        
             </div>
-                          }
-                           
-                        </LegacyCard.Section>
-                      </LegacyCard>
+          </LegacyCard.Section>
+        </LegacyCard>
       </Grid.Cell>
     </Grid>
   );
 }
 
 function PreviewBxGy({ mode, enabled, buy, get, fillPercent, bannerText }) {
+  const { t } = useTranslation();
   const isMobile = mode === "mobile";
 
   const frame = {
@@ -365,13 +350,14 @@ function PreviewBxGy({ mode, enabled, buy, get, fillPercent, bannerText }) {
     <div style={frame}>
       <div style={{ textAlign: "center", fontSize: 14, marginBottom: 6 }}>{bannerText}</div>
       <div style={{ textAlign: "center", fontSize: 13, color: "#6B7280", marginBottom: 8 }}>
-        {enabled ? `Buy ${buy || 0} Get ${get || 0}` : "Offer disabled"}
+        {enabled
+          ? t("progressbaron1.preview-offer-label", { buy: buy || 0, get: get || 0 })
+          : t("progressbaron1.preview-offer-disabled-label")}
       </div>
 
       <div style={{ position: "relative" }}>
         <div style={barTrack}>
           <div style={barFill} />
-          {/* end marker dot */}
           <div
             style={{
               position: "absolute",
@@ -387,14 +373,14 @@ function PreviewBxGy({ mode, enabled, buy, get, fillPercent, bannerText }) {
 
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 12, color: "#6B7280" }}>
           <div>0</div>
-          <div>Target: {buy} item{buy === 1 ? "" : "s"}</div>
+          <div>{t("progressbaron1.target-label", { count: buy, buy })}</div>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 12 }}>
           <div style={{ width: "33.33%", textAlign: "center" }} />
           <div style={{ width: "33.33%", textAlign: "center" }}>
-            <div style={{ fontSize: 16 }}>🎁</div>
-            <div>Unlock: B{buy}G{get}</div>
+            <div style={{ fontSize: 16 }}>*</div>
+            <div>{t("progressbaron1.unlock-label", { buy, get })}</div>
           </div>
           <div style={{ width: "33.33%", textAlign: "center" }} />
         </div>

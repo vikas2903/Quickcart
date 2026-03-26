@@ -1,35 +1,33 @@
-{{ 'progressbar_qty_condition.css' | asset_url  | stylesheet_tag }}
+{{ 'progressbar_qty_condition.css' | asset_url | stylesheet_tag }}
 
-<input type="hidden" value={{shop.permanent_domain}} id="shop-primary-url" >
+<input type="hidden" value={{ shop.permanent_domain }} id="shop-primary-url">
 
 <div class="reward-progress">
-  <p class="reward-progress-text">
-    You are <strong>1 item</strong> away from getting Free gift
-  </p>
+  <p class="reward-progress-text">{{ 'quickcart.bxgy_item_away_gift' | t: count: 1 }}</p>
 
   <div class="reward-progress-bar">
     <div class="reward-progress-step active">
       <span class="icon">🎁</span>
-      <p>Free shipping</p>
+      <p>{{ 'quickcart.free_product' | t }}</p>
     </div>
     <div class="reward-progress-step">
       <span class="icon">🎁</span>
-      <p class="p_buy1get1 p_freeproduct">Free Product</p>
+      <p class="p_buy1get1 p_freeproduct">{{ 'quickcart.free_product' | t }}</p>
     </div>
-    <div class="reward-progress-step last-step">
+    <div class="reward-progress-step last-step"> 
       <span class="icon">🎁</span>
-      <p class="p_buy2get1 p_freeproduct">Free Product</p>
+      <p class="p_buy2get1 p_freeproduct">{{ 'quickcart.free_product' | t }}</p>
     </div>
-     <div class="reward-progress-step last-step buy3get1">
+    <div class="reward-progress-step last-step buy3get1">
       <span class="icon">🎁</span>
-      <p class="p_buy3get1 p_freeproduct">Free Product</p>
+      <p class="p_buy3get1 p_freeproduct">{{ 'quickcart.free_product' | t }}</p>
     </div>
-      <div class="reward-progress-step last-step buy3get2">
+    <div class="reward-progress-step last-step buy3get2">
       <span class="icon">🎁</span>
-      <p class="p_buy3get2 p_freeproduct">Free Product</p>
+      <p class="p_buy3get2 p_freeproduct">{{ 'quickcart.free_product' | t }}</p>
     </div>
     <div class="reward-progress-line">
-  <span class="fill"></span>
-</div>
+      <span class="fill"></span> 
+    </div>
   </div>
 </div>

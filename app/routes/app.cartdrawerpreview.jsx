@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const UNIT_PRICE = 1498;
 const GIFT_PRICE = 799;
 
-/* -------------------- STYLES -------------------- */
 const Body = styled.div`
   font-family: "Helvetica Neue", Arial, sans-serif;
-  background: transparent;           /* was #f2f2f2 */
+  background: transparent;
   display: flex;
   justify-content: center;
-  min-height: auto;                  /* was 100vh */
+  min-height: auto;
 `;
-
 
 const CartWrapper = styled.div`
   width: 100%;
   max-width: 480px;
-  min-height: auto;                  
+  min-height: auto;
   position: relative;
-  padding-bottom: 0;                
-  background: ${({ $background }) => $background || "#fff"};     
-  border-radius: 12px;              
-  overflow: hidden;             
+  padding-bottom: 0;
+  background: ${({ $background }) => $background || "#fff"};
+  border-radius: 12px;
+  overflow: hidden;
 `;
 
 const CartHeader = styled.div`
@@ -31,8 +30,7 @@ const CartHeader = styled.div`
   align-items: center;
   padding: 16px 18px;
   border-bottom: 1px solid #eee;
-background:#fff;
-
+  background: #fff;
 `;
 
 const CloseBtn = styled.button`
@@ -43,13 +41,13 @@ const CloseBtn = styled.button`
 `;
 
 const CountdownBanner = styled.div`
-  background:${({ $countdownbg }) => $countdownbg || "#000"};
+  background: ${({ $countdownbg }) => $countdownbg || "#000"};
   color: #fff;
   display: flex;
   justify-content: space-between;
   padding: 10px 18px;
-  border-radius:${({ $timerborderradius }) => $timerborderradius + 'px' || "0px"};
-  display:${({ $timereanble }) => $timereanble ? 'flex' : 'none'};
+  border-radius: ${({ $timerborderradius }) => $timerborderradius + "px" || "0px"};
+  display: ${({ $timereanble }) => ($timereanble ? "flex" : "none")};
 `;
 
 const CountdownLeft = styled.div`
@@ -65,33 +63,30 @@ const Timer = styled.div`
 `;
 
 const TimeBox = styled.span`
-  background: ${({ $countchipbg }) => $countchipbg || '#fff'};
-  color: ${({ $countchiptext }) => $countchiptext || '#000'};
-  border-radius:${({ $timerborderradius }) => $timerborderradius + 'px' || '0px'};
+  background: ${({ $countchipbg }) => $countchipbg || "#fff"};
+  color: ${({ $countchiptext }) => $countchiptext || "#000"};
+  border-radius: ${({ $timerborderradius }) => $timerborderradius + "px" || "0px"};
   font-weight: 800;
   padding: 3px 8px;
   min-width: 34px;
   text-align: center;
- 
 `;
 
 const ShippingBanner = styled.div`
-  background: #8b1a1a;
-  color: #fff;
   text-align: center;
   padding: 9px 18px;
-  display:${({ $carouselEnable }) => $carouselEnable ? 'block' : "none"};
-  background:${({ $carouselbg }) => $carouselbg || "#000"};
-  color:${({ $carouselTextcolor }) => $carouselTextcolor || "#fff"};  
+  display: ${({ $carouselEnable }) => ($carouselEnable ? "block" : "none")};
+  background: ${({ $carouselbg }) => $carouselbg || "#000"};
+  color: ${({ $carouselTextcolor }) => $carouselTextcolor || "#fff"};
 `;
 
 const CartItem = styled.div`
   padding: 16px 18px;
   border-bottom: 1px solid #f0f0f0;
-  background:#fff;
-  margin-top:10px;
-  border-radius:${({ $itemborderradius }) => $itemborderradius + 'px' || "10px"}; 
-  margin:10px;
+  background: #fff;
+  margin-top: 10px;
+  border-radius: ${({ $itemborderradius }) => $itemborderradius + "px" || "10px"};
+  margin: 10px;
 `;
 
 const ItemInner = styled.div`
@@ -112,26 +107,25 @@ const ItemDetails = styled.div`
 const ItemName = styled.div`
   font-weight: 700;
   font-size: 15px;
-  color: ${({ $itemcolor }) => $itemcolor || '#000'}
+  color: ${({ $itemcolor }) => $itemcolor || "#000"};
 `;
 
 const ItemVariant = styled.div`
   opacity: .6;
   font-size: 13px;
   margin-bottom: 10px;
-   color: ${({ $itemcolor }) => $itemcolor || '#000'}
+  color: ${({ $itemcolor }) => $itemcolor || "#000"};
 `;
 
 const Pricing = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  
 `;
 
 const Price = styled.span`
   font-weight: 700;
-  color: ${({ $itemcolor }) => $itemcolor || '#000'}
+  color: ${({ $itemcolor }) => $itemcolor || "#000"};
 `;
 
 const Mrp = styled.span`
@@ -177,8 +171,7 @@ const QtyValue = styled.div`
 
 const RecsSection = styled.div`
   padding: 20px 18px;
-  display:${({ $collectionenablee }) => $collectionenablee ? 'block' : 'none'};
- 
+  display: ${({ $collectionenablee }) => ($collectionenablee ? "block" : "none")};
 `;
 
 const RecTitle = styled.div`
@@ -228,25 +221,24 @@ const RecInfo = styled.div`
 const GiftWrapRow = styled.div`
   padding: 14px 18px;
   border-top: 1px solid #eee;
-  background:#fff;
-  display:${({ $gifteanble }) => $gifteanble ? 'block' : 'none'};
+  background: #fff;
+  display: ${({ $gifteanble }) => ($gifteanble ? "block" : "none")};
 `;
 
 const CheckoutBar = styled.div`
-  position: sticky;                  /* was fixed */
+  position: sticky;
   bottom: 0;
   width: 100%;
-  max-width: none;                   /* was 480px */
+  max-width: none;
   background: white;
   border-top: 1px solid #ddd;
   display: flex;
   padding: 10px;
-  z-index: 5;                        /* ensures it stays above content */
+  z-index: 5;
 `;
 
 const TotalBlock = styled.div`
   padding: 10px 18px;
- 
 `;
 
 const TotalAmount = styled.div`
@@ -266,8 +258,6 @@ const CheckoutBtn = styled.button`
     $check_btn_rad != null ? `${$check_btn_rad}px` : "10px"};
 `;
 
-/* -------------------- COMPONENT -------------------- */
-
 function Cart({
   cartDrawerBackgroundColor,
   cartDrawerItemBorderRadius,
@@ -275,33 +265,26 @@ function Cart({
   CheckoutButtonColor,
   checkoutButtonBackground,
   CheckoutButtonBorderRadius,
-
   countdownEnable,
   countdownBackgroundColor,
   countdownChipBackgroundColor,
   countdownTextColor,
   countdownChipTextColor,
   countdownBorderRadius,
-
   productInfo,
-
   productEnable,
   collectionEnable,
-
   announcementBarEnablee,
   announcementBartext,
   announcementBarbg,
   announcementBartextcolor
-
 }) {
-
+  const { t } = useTranslation();
   const [qty, setQty] = useState(2);
   const [giftWrap, setGiftWrap] = useState(false);
   const [seconds, setSeconds] = useState(11 * 3600 + 7 * 60 + 13);
 
-
-  let announcement_bat_text = announcementBartext.split(',')
-
+  let announcement_bat_text = announcementBartext.split(",");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -314,24 +297,19 @@ function Cart({
   const hrs = String(Math.floor(seconds / 3600)).padStart(2, "0");
   const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
   const secs = String(seconds % 60).padStart(2, "0");
-
   const total = UNIT_PRICE * qty + (giftWrap ? GIFT_PRICE : 0);
 
   return (
     <Body>
-
       <CartWrapper $background={cartDrawerBackgroundColor}>
-
         <CartHeader>
-          <h2>Your Cart ({qty})</h2>
-          <CloseBtn>✕</CloseBtn>
+          <h2>{t("cartPreview.your-cart", { qty })}</h2>
+          <CloseBtn aria-label={t("cartPreview.close")}>x</CloseBtn>
         </CartHeader>
 
-
         <CountdownBanner $timereanble={countdownEnable} $countdownbg={countdownBackgroundColor} $timerborderradius={countdownBorderRadius}>
-
           <CountdownLeft>
-            <span style={{ color: `${countdownTextColor}`, fontSize: '1rem' }}>Hurry ! Offer ends in</span>
+            <span style={{ color: `${countdownTextColor}`, fontSize: "1rem" }}>{t("cartPreview.countdown-message")}</span>
           </CountdownLeft>
 
           <Timer>
@@ -339,11 +317,9 @@ function Cart({
             <TimeBox $timerborderradius={countdownBorderRadius} $countchipbg={countdownChipBackgroundColor} $countchiptext={countdownChipTextColor}>{mins}</TimeBox> :
             <TimeBox $timerborderradius={countdownBorderRadius} $countchipbg={countdownChipBackgroundColor} $countchiptext={countdownChipTextColor}>{secs}</TimeBox>
           </Timer>
-
         </CountdownBanner>
 
-
-        <hr style={{ margin: "0", background: "#fff", height: "14px", outline: 'none', border: 'none' }} />
+        <hr style={{ margin: "0", background: "#fff", height: "14px", outline: "none", border: "none" }} />
 
         <ShippingBanner
           $carouselEnable={announcementBarEnablee}
@@ -351,79 +327,45 @@ function Cart({
           $carouselbg={announcementBarbg}
           $carouselTextcolor={announcementBartextcolor}
         >
-          {
-
-            // announcement_bat_text.map((item, index)=>{ return(
-            //         <>
-            //          {index=0? ( <div class="ann_item">{item}</div>): ''}
-            //         </>
-
-            // );})
-            announcement_bat_text[0]
-          }
+          {announcement_bat_text[0]}
         </ShippingBanner>
 
-
-
-        {/* announcementBarEnablee,
-    announcementBartext,
-    announcementBartextcolor,
-    announcementBarbg */}
         <CartItem $itemborderradius={cartDrawerItemBorderRadius}>
-
           <ItemInner>
-
             <ItemImage src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=300&q=80" />
-
-            <ItemDetails >
-
-              <ItemName $itemcolor={cartDrawerItemTextColor}>Elaia 3/4 Sleeve Top Grey Marle</ItemName>
-              <ItemVariant $itemcolor={cartDrawerItemTextColor} >US 0 / Grey Marle</ItemVariant>
+            <ItemDetails>
+              <ItemName $itemcolor={cartDrawerItemTextColor}>{t("cartPreview.product-name")}</ItemName>
+              <ItemVariant $itemcolor={cartDrawerItemTextColor}>{t("cartPreview.product-variant")}</ItemVariant>
 
               <Pricing>
-                <Price $itemcolor={cartDrawerItemTextColor}>₹1,498</Price>
-                <Mrp>₹1,598</Mrp>
-                <Coupon>FIXED100</Coupon>
+                <Price $itemcolor={cartDrawerItemTextColor}>Rs.1,498</Price>
+                <Mrp>Rs.1,598</Mrp>
+                <Coupon>{t("cartPreview.coupon-code")}</Coupon>
               </Pricing>
 
               <QtyRow>
-
                 <QtyControl>
-
-                  <QtyBtn onClick={() => qty > 1 && setQty(qty - 1)}>
-                    −
-                  </QtyBtn>
-
+                  <QtyBtn onClick={() => qty > 1 && setQty(qty - 1)}>-</QtyBtn>
                   <QtyValue>{qty}</QtyValue>
-
-                  <QtyBtn onClick={() => setQty(qty + 1)}>
-                    +
-                  </QtyBtn>
-
+                  <QtyBtn onClick={() => setQty(qty + 1)}>+</QtyBtn>
                 </QtyControl>
-
               </QtyRow>
-
             </ItemDetails>
-
           </ItemInner>
-
         </CartItem>
 
         <RecsSection $collectionenablee={collectionEnable}>
-
-          <RecTitle>You May Also Like</RecTitle>
+          <RecTitle>{t("cartPreview.you-may-also-like")}</RecTitle>
 
           <RecScroll>
-
             <RecCard>
               <RecImageWrap>
                 <RecImage src="https://images.unsplash.com/photo-1772442088712-df1780cbb709?q=80&w=870" />
-                <RecAddBtn>Add</RecAddBtn>
+                <RecAddBtn>{t("cartPreview.add-button")}</RecAddBtn>
               </RecImageWrap>
 
               <RecInfo>
-                Here One Moment 3/4... <br />
+                {t("cartPreview.rec-product-1")} <br />
                 <strong>Rs. 899</strong>
               </RecInfo>
             </RecCard>
@@ -431,21 +373,18 @@ function Cart({
             <RecCard>
               <RecImageWrap>
                 <RecImage src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80" />
-                <RecAddBtn>Add</RecAddBtn>
+                <RecAddBtn>{t("cartPreview.add-button")}</RecAddBtn>
               </RecImageWrap>
 
               <RecInfo>
-                Elaia 3/4 Sleeve To... <br />
+                {t("cartPreview.rec-product-2")} <br />
                 <strong>Rs. 599</strong>
               </RecInfo>
             </RecCard>
-
           </RecScroll>
-
         </RecsSection>
 
         <GiftWrapRow $gifteanble={productEnable}>
-
           <label>
             <input
               type="checkbox"
@@ -453,35 +392,26 @@ function Cart({
               onChange={(e) => setGiftWrap(e.target.checked)}
             />
             {productInfo}
-
           </label>
-
         </GiftWrapRow>
 
         <CheckoutBar>
-
           <TotalBlock>
-            Estimated Total
+            {t("cartPreview.estimated-total")}
             <TotalAmount>
-              ₹{total.toLocaleString("en-IN")}.00
+              Rs.{total.toLocaleString("en-IN")}.00
             </TotalAmount>
           </TotalBlock>
-
-
 
           <CheckoutBtn
             $check_btn_color={CheckoutButtonColor}
             $check_btn_bg={checkoutButtonBackground}
             $check_btn_rad={CheckoutButtonBorderRadius}
-
           >
-            CHECKOUT
+            {t("cartPreview.checkout")}
           </CheckoutBtn>
-
         </CheckoutBar>
-
       </CartWrapper>
-
     </Body>
   );
 }

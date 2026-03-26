@@ -21,18 +21,13 @@ import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
 
-// ---------------------------------------------
-// 1️⃣ Loader: authenticate + provide shop info
-// ---------------------------------------------
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   return json({ shop: session.shop });
 };
 
-// ---------------------------------------------
-// 2️⃣ Action: handle product search via GraphQL
-// ---------------------------------------------
 export const action = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
   const formData = await request.formData();
@@ -65,39 +60,34 @@ export const action = async ({ request }) => {
 
   const response = await admin.graphql(gqlQuery, { variables: { query: queryText } });
   const result = await response.json();
-
   const products = result?.data?.products?.edges?.map((edge) => edge.node) || [];
   return json({ products });
 };
 
-// ---------------------------------------------
-// 3️⃣ React Component: Gift Product Page
-// ---------------------------------------------
 export default function GiftProductPage() {
   const { shop } = useLoaderData();
   const fetcher = useFetcher();
+  const { t } = useTranslation();
 
   const [enabled, setEnabled] = useState(false);
   const [price, setPrice] = useState("");
   const [search, setSearch] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [submitted, setSubmitted] = useState(false);
   const [loadingSavedData, setLoadingSavedData] = useState(true);
 
   const [savedata, setsavedata] = useState({
     enabled: false,
-    price: '',
-    product_title: ''
-  })
+    price: "",
+    product_title: ""
+  });
 
-  const apiurl = `/app/api/giftproduct`;
+  const apiurl = "/app/api/giftproduct";
 
-  // Load saved data on component mount
   useEffect(() => {
     async function loadSavedData() {
       try {
         setLoadingSavedData(true);
-        const response = await fetch(`/app/api/giftproduct`, {
+        const response = await fetch("/app/api/giftproduct", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -105,15 +95,14 @@ export default function GiftProductPage() {
             Accept: "application/json",
           },
         });
-        
+
         const result = await response.json();
         const savedData = result?.data;
-        
+
         if (savedData) {
-          // Initialize form fields with saved data
           setEnabled(savedData.enabled || false);
           setPrice(savedData.price ? String(savedData.price) : "");
-          
+
           if (savedData.selectedProduct) {
             setSelectedProduct({
               id: savedData.selectedProduct.id,
@@ -123,12 +112,11 @@ export default function GiftProductPage() {
               image: savedData.selectedProduct.featuredImageUrl || "",
             });
           }
-          
-          // Update savedata for display
+
           setsavedata({
             enabled: savedData.enabled || false,
-            price: savedData.price || '',
-            product_title: savedData.selectedProduct?.title || ''
+            price: savedData.price || "",
+            product_title: savedData.selectedProduct?.title || ""
           });
         }
       } catch (error) {
@@ -137,11 +125,10 @@ export default function GiftProductPage() {
         setLoadingSavedData(false);
       }
     }
-    
+
     loadSavedData();
   }, [shop]);
 
-  // 🧠 Debounced search trigger
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (search.trim()) {
@@ -154,8 +141,7 @@ export default function GiftProductPage() {
   const products = fetcher.data?.products || [];
   const loading = fetcher.state === "submitting";
 
-  // 🧾 When product clicked
-  const handleSelect =  (product) => {
+  const handleSelect = (product) => {
     const productData = {
       id: product.id,
       title: product.title,
@@ -166,13 +152,7 @@ export default function GiftProductPage() {
     setSelectedProduct(productData);
   };
 
-  // ✅ Submit handler
-  const handleSubmit =  async() => {
-    // if (!selectedProduct || !price) {
-    //   alert("Please select a product and enter price.");
-    //   return;
-    // }
-
+  const handleSubmit = async () => {
     const payload = {
       enabled,
       price,
@@ -180,234 +160,203 @@ export default function GiftProductPage() {
       shop,
     };
 
-    console.log("Form Submitted ✅", payload);
-    setSubmitted(true);
+    try {
+      const res = await fetch(apiurl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const out = await res.json();
+      if (!res.ok || !out?.ok) {
+        throw new Error(out?.error || "Failed to save Gift Product settings");
+      }
 
+      const reloadResponse = await fetch("/app/api/giftproduct", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Shop-Domain": shop,
+          Accept: "application/json",
+        },
+      });
+      const reloadResult = await reloadResponse.json();
+      const reloadedData = reloadResult?.data;
 
-      try{
-        const res = await fetch(apiurl, {
-            method: "POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(payload),
+      if (reloadedData) {
+        setsavedata({
+          enabled: reloadedData.enabled || false,
+          price: reloadedData.price || "",
+          product_title: reloadedData.selectedProduct?.title || ""
         });
-        const out = await res.json();
-        if(!res.ok || !out?.ok){
-            throw new Error(out?.error || 'Failed to save Gift Product settings');
-        }
-        console.log("Saved:", out.data);
-        
-        // Reload saved data after successful save
-        const reloadResponse = await fetch(`/app/api/giftproduct`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Shopify-Shop-Domain": shop,
-            Accept: "application/json",
-          },
-        });
-        const reloadResult = await reloadResponse.json();
-        const reloadedData = reloadResult?.data;
-        
-        if (reloadedData) {
-          setsavedata({
-            enabled: reloadedData.enabled || false,
-            price: reloadedData.price || '',
-            product_title: reloadedData.selectedProduct?.title || ''
-          });
-        }
-        
-        toast.success(`🎁 Gift Product Changes Saved`);
+      }
 
-    }catch(error){
-        console.log("Error to send data to backend", error.message);
-        toast.error(`Failed to save: ${error.message}`);
+      toast.success(t("giftproductPage.save-success"));
+    } catch (error) {
+      toast.error(`${t("giftproductPage.save-error-prefix")} ${error.message}`);
     }
   };
 
   return (
-    <> 
-    
-  
-    <Page>
-      <TitleBar title="Gift Product Configuration" />
-      <Layout fullWidth>
-        <Layout.Section>
-          <Grid>
-            <Grid.Cell  columnSpan={{ xs: 7, sm: 7, md: 7, lg: 7, xl: 7 }}>
-              <LegacyCard sectioned>
-                <BlockStack gap="500">
-                  <Checkbox
-                    label="Enable Gift Product"
-                    checked={enabled}
-                    onChange={(newChecked) => setEnabled(newChecked)}
-                  />
+    <>
+      <Page>
+        <TitleBar title={t("giftproductPage.page-title")} />
+        <Layout fullWidth>
+          <Layout.Section>
+            <Grid>
+              <Grid.Cell columnSpan={{ xs: 7, sm: 7, md: 7, lg: 7, xl: 7 }}>
+                <LegacyCard sectioned>
+                  <BlockStack gap="500">
+                    <Checkbox
+                      label={t("giftproductPage.enable-label")}
+                      checked={enabled}
+                      onChange={(newChecked) => setEnabled(newChecked)}
+                    />
 
-                  <TextField
-                    label="Set Order Minimum Price to Enable Gift Product"
-                    value={price}
-                    onChange={setPrice}
-                    type="number"
-                    placeholder="Enter minimum order amount"
-                    autoComplete="off"
-                  />
-                  <Banner tone="info">
-                    <p>
-                      <strong>Important:</strong>Update the price here once the total price of the product added to the cart exceeds the set price.
-                    </p>
-                    </Banner>
-
-                  <TextField
-                    label="Search Product to Gift (by title)"
-                    value={search}
-                    onChange={setSearch}
-                    placeholder="Type product name..."
-                    autoComplete="off"
-                  />
-
-                 
-
-                  {loading && <Spinner accessibilityLabel="Loading products" size="large" />}
-
-                  {!loading && products.length > 0 && ( 
-                    <div style={{ maxHeight: 250, overflowY: "auto" }}>
-                      <ResourceList 
-                        resourceName={{ singular: "product", plural: "products" }}
-                        items={products}
-                        renderItem={(item) => (
-                          <ResourceItem
-                            id={item.id}
-                            onClick={() => handleSelect(item)}
-                            media={
-                              <Thumbnail
-                                source={item.featuredImage?.url || ""}
-                                alt={item.title}
-                              />
-                            }
-                          >
-                            <Text variant="bodyMd" fontWeight="semibold">
-                              {item.title}
-                            </Text>
-                            <Text variant="bodySm" color="subdued">
-                              {item.handle} — ₹{item.priceRange?.minVariantPrice?.amount / 100}
-                            </Text>
-                          </ResourceItem>
-                        )}
-                      />
-                    </div>
-                  )}
-
-                  {!loading && search && products.length === 0 && (
-                    <Text>No products found</Text>
-                  )}
-                  {selectedProduct && (
-                    <LegacyCard title="Selected Product" sectioned>
-                      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                        <img src={selectedProduct.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw_HeSzHfBorKS4muw4IIeVvvRgnhyO8Gn8w&s"} alt={selectedProduct.title} style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "4px", objectPosition: "top" }} />
-                        <div>
-                          <p><b>Product Title:</b> {selectedProduct.title}</p>
-                          <p><b>Product Price:</b> {selectedProduct.price}</p>
-                        </div>
-                      </div>
-                    </LegacyCard>
-                  )} 
-
-                  <Button
-                    variant="primary"
-                    onClick={handleSubmit}
-                    // disabled={!price || !selectedProduct}
-                  >
-                    Save Gift Product Settings
-                  </Button>
-{/* 
-                  {submitted && (
-                    <Banner
-                      title="Gift Product Settings Saved!"
-                      status="success"
-                      onDismiss={() => setSubmitted(false)}
-                    >
+                    <TextField
+                      label={t("giftproductPage.minimum-price-label")}
+                      value={price}
+                      onChange={setPrice}
+                      type="number"
+                      placeholder={t("giftproductPage.minimum-price-placeholder")}
+                      autoComplete="off"
+                    />
+                    <Banner tone="info">
                       <p>
-                        Enabled: <b>{enabled ? "Yes" : "No"}</b> <br />
-                        Price Threshold: ₹{price} <br />
-                        Product: <b>{selectedProduct?.title}</b>
+                        <strong>{t("giftproductPage.important-title")}</strong>{t("giftproductPage.price-info")}
                       </p>
                     </Banner>
-                  )} */}
-                </BlockStack>
-              </LegacyCard>
-            </Grid.Cell>
 
-            <Grid.Cell columnSpan={{xs:5, md:5, lg:5, xl:5, sm:5}}>
-              <LegacyCard fullWidth>
-                <LegacyCard.Section>
-                     <Banner tone="info">Gift Product Saved Configuration</Banner>
+                    <TextField
+                      label={t("giftproductPage.search-label")}
+                      value={search}
+                      onChange={setSearch}
+                      placeholder={t("giftproductPage.search-placeholder")}
+                      autoComplete="off"
+                    />
 
+                    {loading && <Spinner accessibilityLabel={t("giftproductPage.loading-products")} size="large" />}
 
-                                {
-                            <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-              <h2>Progress Bar Data</h2>
-        
-              {/* General Info Table */}
-              <table
-                border="1"
-                cellPadding="8"
-                cellSpacing="0"
-                style={{
-                  borderCollapse: "collapse",
-                  width: "100%",
-                  marginBottom: "20px",
-                  backgroundColor: "#f9f9f9",
-                }}
-              >
-                <tbody>
-                  <tr>
-                    <th align="left">Shop Name</th>
-                    <td>{shop}</td>
-                  </tr>
-                  <tr>
-                    <th align="left">Enabled</th>
-                    <td>{savedata.enabled ? "✅ Yes" : "❌ No"}</td>
-                  </tr>
-                  
-                  {savedata.enabled ? <>
-                  
-                     <tr>
-                    <th align="left">Set Price </th>
-                    <td>{savedata?.price}</td>
-                  </tr>
-                   <tr>
-                    <th align="left">Product Title </th>
-                     <td>{savedata?.product_title}</td>
-                  </tr>
-                  </> : '' }
-                
+                    {!loading && products.length > 0 && (
+                      <div style={{ maxHeight: 250, overflowY: "auto" }}>
+                        <ResourceList
+                          resourceName={{ singular: "product", plural: "products" }}
+                          items={products}
+                          renderItem={(item) => (
+                            <ResourceItem
+                              id={item.id}
+                              onClick={() => handleSelect(item)}
+                              media={
+                                <Thumbnail
+                                  source={item.featuredImage?.url || ""}
+                                  alt={item.title}
+                                />
+                              }
+                            >
+                              <Text variant="bodyMd" fontWeight="semibold">
+                                {item.title}
+                              </Text>
+                              <Text variant="bodySm" color="subdued">
+                                {item.handle} - Rs.{item.priceRange?.minVariantPrice?.amount / 100}
+                              </Text>
+                            </ResourceItem>
+                          )}
+                        />
+                      </div>
+                    )}
 
-                </tbody>
-              </table>
-        
-            </div>
-                          }
-                           
-                </LegacyCard.Section>
+                    {!loading && search && products.length === 0 && (
+                      <Text>{t("giftproductPage.no-products-found")}</Text>
+                    )}
+                    {selectedProduct && (
+                      <LegacyCard title={t("giftproductPage.selected-product-card-title")} sectioned>
+                        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                          <img
+                            src={selectedProduct.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw_HeSzHfBorKS4muw4IIeVvvRgnhyO8Gn8w&s"}
+                            alt={selectedProduct.title}
+                            style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "4px", objectPosition: "top" }}
+                          />
+                          <div>
+                            <p><b>{t("giftproductPage.product-title-label")}</b> {selectedProduct.title}</p>
+                            <p><b>{t("giftproductPage.product-price-label")}</b> {selectedProduct.price}</p>
+                          </div>
+                        </div>
+                      </LegacyCard>
+                    )}
+
+                    <Button
+                      variant="primary"
+                      onClick={handleSubmit}
+                    >
+                      {t("giftproductPage.save-button")}
+                    </Button>
+                  </BlockStack>
+                </LegacyCard>
+              </Grid.Cell>
+
+              <Grid.Cell columnSpan={{ xs: 5, md: 5, lg: 5, xl: 5, sm: 5 }}>
+                <LegacyCard fullWidth>
+                  <LegacyCard.Section>
+                    <Banner tone="info">{t("giftproductPage.saved-config-banner")}</Banner>
+
+                    <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+                      <h2>{t("giftproductPage.data-title")}</h2>
+
+                      <table
+                        border="1"
+                        cellPadding="8"
+                        cellSpacing="0"
+                        style={{
+                          borderCollapse: "collapse",
+                          width: "100%",
+                          marginBottom: "20px",
+                          backgroundColor: "#f9f9f9",
+                        }}
+                      >
+                        <tbody>
+                          <tr>
+                            <th align="left">{t("giftproductPage.shop-name")}</th>
+                            <td>{shop}</td>
+                          </tr>
+                          <tr>
+                            <th align="left">{t("giftproductPage.enabled")}</th>
+                            <td>{savedata.enabled ? t("giftproductPage.yes") : t("giftproductPage.no")}</td>
+                          </tr>
+
+                          {savedata.enabled ? (
+                            <>
+                              <tr>
+                                <th align="left">{t("giftproductPage.set-price-row")}</th>
+                                <td>{savedata?.price}</td>
+                              </tr>
+                              <tr>
+                                <th align="left">{t("giftproductPage.product-title-row")}</th>
+                                <td>{savedata?.product_title}</td>
+                              </tr>
+                            </>
+                          ) : (
+                            ""
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </LegacyCard.Section>
 
                   <Banner tone="info">
                     <p>
-                      <strong>Important:</strong>  Also make sure the price of this product is set to 0 from the Shopify dashboard the product will be added as a free gift, so you need to manually set the price of this product from Shopify to 0.
+                      <strong>{t("giftproductPage.important-title")}</strong> {t("giftproductPage.zero-price-info")}
                     </p>
-                    </Banner>
+                  </Banner>
                   <Banner tone="info">
                     <p>
-                      <strong>Important:</strong> Select the product to gift from the list of products.
+                      <strong>{t("giftproductPage.important-title")}</strong> {t("giftproductPage.select-product-info")}
                     </p>
-                    </Banner>
-
-              </LegacyCard>
-
-            </Grid.Cell>
-          </Grid>
-        </Layout.Section>
-      </Layout>
-     
-    </Page>
+                  </Banner>
+                </LegacyCard>
+              </Grid.Cell>
+            </Grid>
+          </Layout.Section>
+        </Layout>
+      </Page>
 
       <ToastContainer
         position="top-right"
