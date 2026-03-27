@@ -6,7 +6,7 @@
     "home": {
       "recommendationText": "Recommended Product!"
     }
-  }, 
+  },
   "quickcart": {
     "your_cart": "Your Cart",
     "close": "Close",
@@ -32,7 +32,7 @@
     "discounts_applied": "Discounts applied",
     "will_apply_at_checkout": "will apply at checkout",
     "estimated_total": "Estimated Total",
-    "proceed_to_checkout": "Proceed to checkout",
+    "proceed_to_checkout": "Checkout",
     "checkout": "Checkout",
     "product_image": "Product image",
     "product_image_2": "Product image 2",

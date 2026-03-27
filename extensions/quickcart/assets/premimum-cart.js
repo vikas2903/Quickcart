@@ -2437,6 +2437,29 @@
   }
 
   console.log("Upcart: Progressbar + Upsell Products Initialized");
+
+
+  (() => {
+    const themes = ["Horizon", "Tinker", "Savor", "Atelier", "Heritage", "Fabric", "Ritual"];
+    if (!themes.includes(Shopify?.theme?.schema_name)) return;
+
+    let lock = false;
+
+    new MutationObserver(() => {
+      if (lock) return;
+
+      const drawer = document.querySelector('.cart-drawer__dialog[open]');
+      if (!drawer) return;
+
+      const btn = document.querySelector('.cart-drawer__close-button');
+      if (!btn) return;
+
+      lock = true;
+      btn.click();
+      setTimeout(() => lock = false, 400);
+    }).observe(document.body, { childList: true, subtree: true });
+  })();
+
 })();
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -2445,4 +2468,7 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.href = "/cart";
     }
   });
-}); 
+});
+
+
+

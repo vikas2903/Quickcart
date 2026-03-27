@@ -1152,6 +1152,7 @@ button.cdp-qty-btn[data-qty-up] {
   gap: 3px;
   line-height: 1.4;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .cdp-total-header {
@@ -1471,7 +1472,7 @@ aside.cdp-upsell.active {
 
   .cdp-panel {
     width: 100%;
-    max-width: 98%;
+    max-width: 370px;
     height: 100dvh;
     max-height: 100dvh;
 

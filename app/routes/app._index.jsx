@@ -85,6 +85,9 @@ export const loader = async ({ request }) => {
   });
 
   const payload = await res.json();
+
+  console.log("payload", payload);
+
   if (payload.errors) {
     return new Response(
       JSON.stringify({ error: payload.errors, sinceISO }),
@@ -192,7 +195,8 @@ export const loader = async ({ request }) => {
     sinceISO,
     currency,
     currencySymbol,
-    primaryLocale
+    primaryLocale,
+    payload
   });
 
 };
@@ -200,6 +204,7 @@ export const loader = async ({ request }) => {
 
 export default function Dashboard() {
   const data = useLoaderData();
+  const { payload } = data;
   const navigation = useNavigation();
   const { t, i18n: reactI18n } = useTranslation();
 
@@ -594,7 +599,7 @@ export default function Dashboard() {
                     onDismiss={() => { setDismiss(false) }}
                     action={{
                       content: t("dashboard.help-title-button"),
-                      url: withParams(`/app/help`), 
+                      url: withParams(`/app/help`),
                       external: true, // opens in new tab
                     }}
                     secondaryAction={{
@@ -615,6 +620,8 @@ export default function Dashboard() {
 
 
           </Layout.Section>
+
+
 
         </Layout>
       </BlockStack>
