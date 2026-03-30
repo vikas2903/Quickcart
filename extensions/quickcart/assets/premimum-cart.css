@@ -1281,7 +1281,7 @@ button#third-party-integration::after {
 #CartDrawerPremium .cdp-footer #third-party-integration-wrapper,
 #CartDrawerPremium .cdp-footer-right #third-party-integration-wrapper {
   z-index: 9999 !important;
-  position: relative !important;
+  /* position: relative !important; */
   pointer-events: auto !important;
 }
 
