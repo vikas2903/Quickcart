@@ -22,6 +22,7 @@
   upcart_loader(false);
 
 
+
   // Store settings globally for access
   window.QuickCartSettings = window.QuickCartSettings || {};
 
@@ -59,9 +60,18 @@
     return null;
   }
 
+
+
   // Apply settings to the page dynamically
   function applySettings(settings) {
-    if (!settings) return;
+
+    console.log('gggggggg' + settings.thirdPartyIntegration.enabled);
+    if (settings.thirdPartyIntegration.enabled == true) {
+      document.querySelector(".cdp-footer-right").classList.add("thirdPartyIntegration_true");
+    } else {
+      document.querySelector(".cdp-footer-right").classList.remove("thirdPartyIntegration_true");
+    }
+
 
     const root = document.documentElement;
     const drawer = document.getElementById("CartDrawerPremium");
@@ -207,9 +217,6 @@
       }
 
 
-
-
-
       if (settings.cartDrawer.button_color) {
 
         document.querySelector(".cdp-checkout").style.backgroundColor =
@@ -229,6 +236,7 @@
             settings.cartDrawer.button_color;
         })
       }
+
       if (settings.cartDrawer.button_text_color) {
         root.style.setProperty(
           "--checkout_text_color",
@@ -237,13 +245,17 @@
         document.querySelector(".combined-offer-badge").style.color =
           settings.cartDrawer.button_text_color;
       }
+
       if (settings.cartDrawer.button_border_radius !== undefined) {
         root.style.setProperty(
           "--checkout_border_radius",
           settings.cartDrawer.button_border_radius + "px",
         );
       }
+
     }
+
+
 
     // Apply announcement bar settings
     if (settings.announcementBar) {
@@ -306,7 +318,10 @@
           announcementBarElement.innerHTML = "";
         }
       }
+
+
     }
+    console.log('111111111111111111111');
 
     // Apply collection (upsell) settings
     if (settings.collection) {
@@ -334,32 +349,46 @@
       }
     }
 
+    console.log('2222222222222222222');
+
     // Apply gift product settings
     if (settings.product) {
-      const giftSection =
-        drawer.querySelector(".cdp-gift-wrap-section") ||
-        drawer.querySelector("[data-gift-product]");
+      try {
+        const giftSection =
+          drawer.querySelector(".cdp-gift-wrap-section") ||
+          drawer.querySelector("[data-gift-product]");
 
-      if (giftSection) {
-        giftSection.style.display = settings.product.enabled ? "" : "none";
-        const giftBoxInfo = giftSection.querySelector(".gift-box-info");
-        if (settings.product.enabled && settings.product.selectedProduct?.handle) {
-          giftBoxInfo.innerHTML = settings.product.productInfo;
+        if (giftSection) {
+          giftSection.style.display = settings.product.enabled ? "" : "none";
+          const giftBoxInfo = giftSection.querySelector(".gift-box-info");
+          if (settings.product.enabled && settings.product.selectedProduct?.handle) {
+            giftBoxInfo.innerHTML = settings.product.productInfo;
+          }
+          // You may want to dynamically load the gift product here
+          if (
+            settings.product.enabled &&
+            settings.product.selectedProduct?.handle
+          ) {
+            console.log(
+              "Gift product enabled:",
+              settings.product.selectedProduct.handle,
+            );
+          }
         }
-        // You may want to dynamically load the gift product here
-        if (
-          settings.product.enabled &&
-          settings.product.selectedProduct?.handle
-        ) {
-          console.log(
-            "Gift product enabled:",
-            settings.product.selectedProduct.handle,
-          );
-        }
+      } catch (err) {
+        console.log("erorererererer " + err.message);
       }
+
+
     }
 
+    console.log('3333333333333333333');
+
     // Apply third-party integration
+
+    console.log("third party integration", settings.thirdPartyIntegration);
+
+
     if (settings.thirdPartyIntegration) {
       const existingCheckout = document.querySelector(".cdp-checkout");
       const footerRight = document.querySelector(".cdp-footer-right");
@@ -439,7 +468,7 @@
 
 
       if (settings.collection.enabled == true) {
-        document.querySelector('.mob_upsell').style.display = ' ';
+        document.querySelector('.mob_upsell').style.display = '';
 
       } else {
         document.querySelector('.mob_upsell').style.display = 'none';
@@ -456,6 +485,7 @@
       }),
     );
   }
+
 
   // Fetch cart drawer settings separately (for quickview button, etc.)
   async function fetchCartDrawerSettings() {
@@ -506,6 +536,7 @@
       console.error("Cart Drawer Settings: Failed to load settings", error);
     }
   }
+
 
   // Fetch settings from API
   async function fetchSettingsData() {
@@ -568,12 +599,15 @@
             settings?.thirdPartyIntegration?.htmlContent,
         };
 
+
+
         return settings;
       }
     } catch (error) {
       console.error("Settings: Failed to load settings", error);
     }
   }
+
 
   // Load settings when DOM is ready
   function init() {
@@ -609,6 +643,8 @@
       fetchCartDrawerSettings();
     });
   }
+
+
 
   init();
 })();

@@ -78,7 +78,7 @@
       margin: 0 auto;
   }
 
-  .cdp-empty .cdp-body {
+  .cart-empty .cdp-body {
     justify-content: center;
   }
 </style>
@@ -112,7 +112,7 @@
 
   <div class="cdp-overlay" data-close></div>
 
-  <div class="cdp-panel color-{{ settings.cart_color_scheme | default: 'background-1' }}">
+  <div class="cdp-panel color-{{ settings.cart_color_scheme | default: 'background-1' }}" data-cdp-panel>
     <div id="upcart_loader">
       <div class="loader-wrapper">
         <div class="loader">
@@ -304,11 +304,12 @@
           {% endfor %}
           {% if cart.item_count == 0 %}
             <img
-              style="width: 100%; height: 100%; display: block;"
+              class="empty-cart-img"
+              style="width: 80px; height: 80px; display: block;"
               src="https://cdn.shopify.com/s/files/1/0796/7847/2226/files/289-2892204_your-cart-is-empty-empty-cart-icon-png_1.png"
               alt="Empty Cart"
-              width="100px"
-              height="100px"
+              width="80px"
+              height="80px"
             >
             <div class="cdp-empty-msg">{{ 'quickcart.your_cart_empty' | t }}</div>
           {% endif %}
@@ -409,7 +410,7 @@
     <div class="cdp-gift-wrap-section">
       {% if shop.metafields.custom.gift_product_handle != blank %}
         {% assign gift_product = shop.metafields.custom.gift_product_handle %}
-        {% render 'gift', giftproduct: gift_product, show_gift_Card: block.settings.show_gift_product %}
+        {% render 'gift', giftproduct: gift_product %}
       {% endif %}
     </div>
 

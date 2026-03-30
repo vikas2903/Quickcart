@@ -1142,6 +1142,28 @@ button.cdp-qty-btn[data-qty-up] {
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
 }
 
+
+
+.cart-empty :is(.mob_upsell, .sr-cart-banner-container, .cdp-footer, .sr-countdown, .reward-progress, #mini-cart-progress-section) {
+  display: none !important;
+}
+
+.cdp-footer-right #third-party-integration-wrapper {
+  display: none;
+}
+
+.cdp-footer-right .cdp-checkout {
+  display: block;
+}
+
+.cdp-footer-right.thirdPartyIntegration_true #third-party-integration-wrapper {
+  display: block;
+}
+
+.cdp-footer-right.thirdPartyIntegration_true .cdp-checkout {
+  display: none;
+}
+
 .cdp-total-lbl {
   opacity: 1;
   margin-right: 6px;
