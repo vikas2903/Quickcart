@@ -78,6 +78,19 @@
       margin: 0 auto;
   }
 
+  .bill-mrp-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+  }
+  .bill-mrp-row [data-mrp-total] {
+    text-decoration: line-through;
+    color: #999;
+  }
+
   .cart-empty .cdp-body {
     justify-content: center;
   }
@@ -141,7 +154,7 @@
 
       {% render 'progress-bar' %}
       {% render 'progressbar_qty_condition' %}
-      {% # render 'shipping-bar1' %}
+      {% comment %} {% render 'shipping-bar1' %} {% endcomment %}
     </div>
     <div class="cdp-body">
       <!-- Left rail: vertical upsell slider with VARIANT PICKER -->
@@ -175,6 +188,10 @@
                     {% if item.original_line_price > item.final_line_price %}
                       <span class="cdp-line-compare">
                         {{- item.original_line_price | money_without_trailing_zeros -}}
+                      </span>
+                    {% elsif item.variant.compare_at_price > item.variant.price %}
+                      <span class="cdp-line-compare">
+                        {{- item.variant.compare_at_price | times: item.quantity | money_without_trailing_zeros -}}
                       </span>
                     {% endif %}
                   </div>
@@ -416,6 +433,7 @@
 
     <div class="mini-cart-order-summary-content">
       <!-- Offer Badge -->
+
       <div class="combined-offer-badge" id="summary-combined-offer-badge">
         {{ 'quickcart.safe_checkout_banner' | t }}
       </div>
@@ -439,6 +457,24 @@
           </button>
         </div>
 
+        {% assign mrp_total = 0 %}
+        {% for item in cart.items %}
+          {% if item.variant.compare_at_price > item.variant.price %}
+            {% assign item_mrp = item.variant.compare_at_price | times: item.quantity %}
+          {% else %}
+            {% assign item_mrp = item.original_line_price %}
+          {% endif %}
+          {% assign mrp_total = mrp_total | plus: item_mrp %}
+        {% endfor %}
+
+        <p
+          class="bill-mrp-row"
+          data-mrp-row
+          style="{% if mrp_total > cart.original_total_price %}display: flex;{% else %}display: none;{% endif %}"
+        >
+          Total MRP
+          <span data-mrp-total>{{ mrp_total | money_without_trailing_zeros }}</span>
+        </p>
         <p class="bill-subtotal-row">
           {{ 'quickcart.subtotal' | t }}
           <span class="sr-sub-total" data-subtotal>{{ cart.original_total_price | money_without_trailing_zeros }}</span>
@@ -605,7 +641,7 @@
 <script src="{{ 'progress-bar.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progressbar_qty_condition.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'bxfreeproduct.js' | asset_url }}" defer="defer"></script>
-<script src="{{ 'shippingbar.js' | asset_url }}" defer="defer"></script>
+{% comment %} <script src="{{ 'shippingbar.js' | asset_url }}" defer="defer"></script> {% endcomment %}
 
 {% schema %}
 {

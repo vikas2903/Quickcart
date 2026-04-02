@@ -351,6 +351,37 @@
     });
   };
 
+  /* ============ PRODUCT DATA CACHE (for compare_at_price) ============ */
+  const productDataCache = {};
+
+  async function fetchProductCompareData(cart) {
+    if (!cart.items || cart.items.length === 0) return;
+    const uniqueHandles = [...new Set(cart.items.map(item => item.handle).filter(Boolean))];
+    const newHandles = uniqueHandles.filter(h => !productDataCache[h]);
+    if (newHandles.length === 0) return;
+
+    await Promise.all(newHandles.map(async (handle) => {
+      try {
+        const res = await fetch(`/products/${handle}.js`, {
+          headers: { Accept: "application/json" }
+        });
+        const data = await res.json();
+        productDataCache[handle] = data;
+      } catch (e) {
+        console.log("Error fetching product data for", handle, e.message);
+      }
+    }));
+  }
+
+  function getCompareAtPrice(item) {
+    const productData = productDataCache[item.handle];
+    if (!productData) return null;
+    const variant = productData.variants.find(v => v.id === item.variant_id);
+    if (!variant || !variant.compare_at_price) return null;
+    // compare_at_price is in cents from /products/{handle}.js
+    return variant.compare_at_price;
+  }
+
   /* ============ RENDERING ============ */
   function truncate(str, n = 30) {
     if (!str) return "";
@@ -427,11 +458,19 @@
             }
               <span class="cdp-line-prices">
                 <span class="cdp-line-final">${isFreeGift ? 'FREE' : fmtMoney(item.final_line_price)}</span>
-                ${item.original_line_price > item.final_line_price && !isFreeGift
-              ? `<span class="cdp-line-compare">${fmtMoney(
-                item.original_line_price
-              )}</span>`
-              : ""
+                ${(() => {
+              if (isFreeGift) return '';
+              // Case 1: Discount applied (original_line_price > final_line_price)
+              if (item.original_line_price > item.final_line_price) {
+                return `<span class="cdp-line-compare">${fmtMoney(item.original_line_price)}</span>`;
+              }
+              // Case 2: Product has compare_at_price set on variant
+              const compareAt = getCompareAtPrice(item);
+              if (compareAt && compareAt > item.price) {
+                return `<span class="cdp-line-compare">${fmtMoney(compareAt * item.quantity)}</span>`;
+              }
+              return '';
+            })()
             }
               </span>  ${item.discounts?.length && !isFreeGift
               ? `<span class="discount" style="display:inline-flex; align-items:center; gap:4px;  letter-spacing: .4px;   font-weight: 100; padding:3px 6px; border-radius:4px; font-size:12px; font-weight:600; background:#197935; color:#fff; vertical-align: text-top;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="xb-fill-current"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.32921 2.18655C8.80696 1.04894 7.19044 1.04894 6.66819 2.18655C6.34869 2.88251 5.54682 3.21466 4.82877 2.94846C3.65507 2.51334 2.51203 3.65639 2.94715 4.83009C3.21335 5.54813 2.8812 6.35 2.18524 6.6695C1.04763 7.19175 1.04763 8.80827 2.18524 9.33052C2.8812 9.65002 3.21335 10.4519 2.94715 11.1699C2.51203 12.3436 3.65507 13.4867 4.82877 13.0516C5.54682 12.7854 6.34869 13.1175 6.66819 13.8135C7.19044 14.9511 8.80696 14.9511 9.32921 13.8135C9.64871 13.1175 10.4506 12.7854 11.1686 13.0516C12.3423 13.4867 13.4854 12.3436 13.0502 11.1699C12.784 10.4519 13.1162 9.65002 13.8122 9.33052C14.9498 8.80827 14.9498 7.19175 13.8122 6.6695C13.1162 6.35 12.784 5.54813 13.0502 4.83009C13.4854 3.65639 12.3423 2.51334 11.1686 2.94846C10.4506 3.21466 9.64871 2.88251 9.32921 2.18655ZM7.12753 6.47547C7.12753 6.9566 6.7375 7.34663 6.25636 7.34663C5.77523 7.34663 5.3852 6.9566 5.3852 6.47547C5.3852 5.99433 5.77523 5.6043 6.25636 5.6043C6.7375 5.6043 7.12753 5.99433 7.12753 6.47547ZM10.203 6.93747L6.71837 10.4221C6.46321 10.6773 6.04952 10.6773 5.79436 10.4221C5.5392 10.167 5.5392 9.75329 5.79436 9.49813L9.27903 6.01346C9.53419 5.7583 9.94788 5.7583 10.203 6.01346C10.4582 6.26862 10.4582 6.68231 10.203 6.93747ZM10.6122 9.96014C10.6122 10.4413 10.2222 10.8313 9.74103 10.8313C9.2599 10.8313 8.86987 10.4413 8.86987 9.96014C8.86987 9.479 9.2599 9.08897 9.74103 9.08897C10.2222 9.08897 10.6122 9.479 10.6122 9.96014Z" fill="white"></path></svg> ${item.discounts[0]?.title || ""}</span>`
@@ -488,11 +527,36 @@
       totalEls.forEach(el => el.textContent = fmtMoney(totalCents));
     }
 
+    // Bill summary: MRP total (sum of compare_at_price * qty, or original_line_price if no compare_at)
+    let mrpTotalCents = 0;
+    if (Array.isArray(cart.items)) {
+      cart.items.forEach(item => {
+        const compareAt = getCompareAtPrice(item);
+        if (compareAt && compareAt > item.price) {
+          mrpTotalCents += compareAt * item.quantity;
+        } else {
+          mrpTotalCents += item.original_line_price || item.price * item.quantity;
+        }
+      });
+    }
+    const mrpRow = drawer.querySelector("[data-mrp-row]");
+    const mrpTotalEl = drawer.querySelector("[data-mrp-total]");
+    if (mrpRow && mrpTotalEl) {
+      if (mrpTotalCents > subtotalCents) {
+        mrpTotalEl.textContent = fmtMoney(mrpTotalCents);
+        mrpRow.style.display = "flex";
+      } else {
+        mrpRow.style.display = "none";
+      }
+    }
+
     // Bill summary: subtotal display 
     const billSubtotalEl = drawer.querySelector(".bill-subtotal-row [data-subtotal]");
     if (billSubtotalEl) {
       billSubtotalEl.textContent = fmtMoney(subtotalCents);
     }
+
+
 
     // Bill summary: grand total 
     const billGrandTotalEl = drawer.querySelector(".bill-grandtotal-row [data-total]");
@@ -688,6 +752,8 @@
     if (window.upcart_loader) window.upcart_loader(true);
 
     return fetchCart().then(async (cart) => {
+      // Fetch product data for compare_at_price before rendering
+      await fetchProductCompareData(cart);
       renderLines(cart);
       renderTotals(cart);
       handleCartDiscountRow(cart);
@@ -1374,11 +1440,10 @@
             });
           }
 
-          // Group variants by option values
+          // Group variants by option values (include ALL variants, not just available)
           productData.options.forEach((option, optionIndex) => {
             const optionName = option.name;
             const uniqueValues = [...new Set(productData.variants
-              .filter(v => v.available)
               .map(v => v.options[optionIndex])
             )];
 
@@ -1403,20 +1468,25 @@
             `;
 
             optionGroup.values.forEach(value => {
-              // Find a variant with this option value to get price info
+              // Find a variant with this option value (prefer available, fallback to any)
               const sampleVariant = productData.variants.find(v =>
                 v.options[optionGroup.index] === value && v.available
+              ) || productData.variants.find(v =>
+                v.options[optionGroup.index] === value
               );
 
+              const isAvailable = sampleVariant ? sampleVariant.available : false;
               const isSelected = value === selectedValue;
 
               variantOptionsHTML += `
                 <button 
                   type="button"
-                  class="cdp-variant-option-btn ${isSelected ? 'active' : ''}" 
+                  class="vv cdp-variant-option-btn ${isSelected ? 'active' : ''} ${!isAvailable ? 'cdp-variant-unavailable' : ''}" 
                   data-option-name="${optionName}"
                   data-option-value="${value}"
                   data-option-index="${optionGroup.index}"
+                  data-option-available="${isAvailable}"
+                  ${!isAvailable ? 'disabled' : ''}
                 >${value}</button>
               `;
             });

@@ -136,6 +136,17 @@ const ThirdPartyIntegrationSchema = new mongoose.Schema({
   htmlContent: { type: String, default: '' }
 }, { _id: false })
 
+
+
+const shippingBarSchema = new mongoose.Schema({
+  enabled: { type: Boolean, default: false },
+  threshold: { type: Number, default: 0 },
+  fillColor: { type: String, default: '' },
+  bgColor: { type: String, default: '' },
+  textColor: { type: String, default: '' },
+  message: { type: String, default: '' }
+}, { _id: false })
+
 /**
  * ============================================================================
  * MAIN SETTINGS SCHEMA
@@ -173,8 +184,10 @@ const SettingsSchema = new mongoose.Schema(
     announcementBar: AnnouncementBarSchema,
     collection: CollectionSchema,
     product: ProductSchema,
-    thirdPartyIntegration: ThirdPartyIntegrationSchema
+    thirdPartyIntegration: ThirdPartyIntegrationSchema,
+    shippingBar: shippingBarSchema
   },
+
   {
     // Enable automatic timestamps
     // Mongoose will automatically add createdAt and updatedAt fields

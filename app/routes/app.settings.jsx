@@ -352,6 +352,14 @@ function Settings() {
     useState(false);
   const [thirdPartyHtmlContent, setThirdPartyHtmlContent] = useState("");
 
+  // Shipping bar settings
+  const [shippingBarEnable, setShippingBarEnable] = useState(false);
+  const [shippingBarThreshold, setShippingBarThreshold] = useState(999);
+  const [shippingBarFillColor, setShippingBarFillColor] = useState("#104cc1");
+  const [shippingBarBgColor, setShippingBarBgColor] = useState("#d6dde7");
+  const [shippingBarTextColor, setShippingBarTextColor] = useState("#000000");
+  const [shippingBarMessage, setShippingBarMessage] = useState("Free shipping on orders above {{threshold}}");
+
   const [buttonColor, setButtonColor] = useState("#000000");
   const [buttonTextColor, setButtonTextColor] = useState("#fff");
   const [buttonBorderRadius, setButtonBorderRadius] = useState(10);
@@ -390,6 +398,20 @@ function Settings() {
   };
   const handleThirdPartyHtmlContent = (e) => {
     setThirdPartyHtmlContent(e.target.value);
+  };
+
+  // Shipping bar handlers
+  const handleShippingBarEnable = (e) => {
+    setShippingBarEnable(e.target.checked);
+  };
+  const handleShippingBarFillColor = (color) => {
+    setShippingBarFillColor(color.toHexString());
+  };
+  const handleShippingBarBgColor = (color) => {
+    setShippingBarBgColor(color.toHexString());
+  };
+  const handleShippingBarTextColor = (color) => {
+    setShippingBarTextColor(color.toHexString());
   };
 
   const handleCollectionEnable = (e) => {
@@ -530,6 +552,8 @@ function Settings() {
             "#000",
           );
 
+
+
           // Collection settings
           const collection = data.collection || {};
           setCollectionEnable(collection.enabled ?? false);
@@ -552,6 +576,17 @@ function Settings() {
             thirdPartyIntegration.enabled ?? false,
           );
           setThirdPartyHtmlContent(thirdPartyIntegration.htmlContent || "");
+
+          // Shipping Bar settings
+          console.log("Shipping Bar settings:", data);
+
+          const shippingBar = data.shippingBar || {};
+          setShippingBarEnable(shippingBar.enabled ?? false);
+          setShippingBarThreshold(shippingBar.threshold ?? 999);
+          setShippingBarFillColor(shippingBar.fillColor || "#104cc1");
+          setShippingBarBgColor(shippingBar.bgColor || "#d6dde7");
+          setShippingBarTextColor(shippingBar.textColor || "#000000");
+          setShippingBarMessage(shippingBar.message || "Free shipping on orders above {{threshold}}");
         }
       } catch (error) {
         // Step 4: Handle errors gracefully
@@ -590,6 +625,12 @@ function Settings() {
       announcementBarTextColor,
       announcementBarBackgroundColor,
       productInfo,
+      shippingBarEnable,
+      shippingBarThreshold,
+      shippingBarFillColor,
+      shippingBarBgColor,
+      shippingBarTextColor,
+      shippingBarMessage,
     }),
     [
       countdownBackgroundColor,
@@ -615,6 +656,12 @@ function Settings() {
       announcementBarTextColor,
       announcementBarBackgroundColor,
       productInfo,
+      shippingBarEnable,
+      shippingBarThreshold,
+      shippingBarFillColor,
+      shippingBarBgColor,
+      shippingBarTextColor,
+      shippingBarMessage,
     ],
   );
 
@@ -681,6 +728,16 @@ function Settings() {
       thirdPartyIntegration: {
         enabled: thirdPartyIntegrationEnable,
         htmlContent: thirdPartyHtmlContent,
+      },
+
+      // Shipping Bar settings - send as nested object
+      shippingBar: {
+        enabled: shippingBarEnable,
+        threshold: shippingBarThreshold,
+        fillColor: shippingBarFillColor,
+        bgColor: shippingBarBgColor,
+        textColor: shippingBarTextColor,
+        message: shippingBarMessage,
       },
     };
 
@@ -839,6 +896,15 @@ function Settings() {
                     {" "}
                     {t("settingsPage.tab-announcement")}
                   </Button>
+                  {/* <Button
+                    primary
+                    style={{ marginRight: "5px", marginTop: "5px" }}
+                    variant={tabsbutton === 6 ? "primary" : "secondary"}
+                    onClick={() => settabsbutton(6)}
+                  >
+                    {" "}
+                    {t("shipping bar")}
+                  </Button> */}
                 </Grid.Cell>
               </Grid>
             </Layout.Section>
@@ -1443,6 +1509,118 @@ function Settings() {
                               rows={8}
                               value={thirdPartyHtmlContent}
                               onChange={handleThirdPartyHtmlContent}
+                              className=""
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+                    </BlockStack>
+                  </Grid.Cell>
+                </Grid>
+              </Layout.Section>
+            )}
+
+            {tabsbutton === 6 && (
+              <Layout.Section>
+                <Grid>
+                  <Grid.Cell
+                    columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                    gap="small"
+                  >
+                    <BlockStack gap="200">
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Enable Shipping Bar</div>
+                          <InfoBanner text="Enable or disable the free shipping progress bar in the cart drawer." />
+                          <div className="color-picker-container">
+                            <Checkbox
+                              checked={shippingBarEnable}
+                              onChange={handleShippingBarEnable}
+                            >
+                              {" "}
+                              Enable
+                            </Checkbox>
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Free Shipping Threshold</div>
+                          <InfoBanner text="Set the minimum order amount required to qualify for free shipping." />
+                          <div className="color-picker-container">
+                            <InputNumber
+                              value={shippingBarThreshold}
+                              onChange={(value) => setShippingBarThreshold(value || 0)}
+                              min={0}
+                              max={99999}
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Bar Fill Color</div>
+                          <InfoBanner text="Choose the gradient fill color of the shipping progress bar." />
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={shippingBarFillColor}
+                              onChange={handleShippingBarFillColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Bar Background Color</div>
+                          <InfoBanner text="Choose the background (track) color of the shipping progress bar." />
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={shippingBarBgColor}
+                              onChange={handleShippingBarBgColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Text Color</div>
+                          <InfoBanner text="Choose the text color for the shipping bar message." />
+                          <div className="color-picker-container">
+                            <ColorPicker
+                              value={shippingBarTextColor}
+                              onChange={handleShippingBarTextColor}
+                              size="large"
+                              showText
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div
+                          className="grid-item"
+                          style={{
+                            gridColumnStart: 2,
+                            gridColumnEnd: 4,
+                            width: "100%",
+                          }}
+                        >
+                          <div className="column-title">Shipping Message</div>
+                          <InfoBanner text="Customize the message shown on the shipping bar. Use {{threshold}} to insert the free shipping amount." />
+                          <div className="custom-antd-textarea">
+                            <TextArea
+                              placeholder="Free shipping on orders above {{threshold}}"
+                              rows={3}
+                              value={shippingBarMessage}
+                              onChange={(e) => setShippingBarMessage(e.target.value)}
                               className=""
                             />
                           </div>

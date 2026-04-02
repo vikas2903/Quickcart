@@ -178,6 +178,15 @@ export const loader = async ({ request }) => {
       thirdPartyIntegration: {
         enabled: false,
         htmlContent: thirdPartyHtmlContent || ""
+      },
+      // Shipping Bar settings
+      shippingBar: {
+        enabled: false,
+        threshold: 999,
+        fillColor: "",
+        bgColor: "",
+        textColor: "",
+        message: ""
       }
     };
 
@@ -365,7 +374,17 @@ export const action = async ({ request }) => {
             thirdPartyIntegration: {
               enabled: body.thirdPartyIntegration?.enabled ?? existing?.thirdPartyIntegration?.enabled ?? false,
               htmlContent: "" // Will be stored in metafield separately
+            },
+            // Shipping Bar settings
+            shippingBar: {
+              enabled: body.shippingBar?.enabled ?? existing?.shippingBar?.enabled ?? false,
+              threshold: body.shippingBar?.threshold ?? existing?.shippingBar?.threshold ?? 999,
+              fillColor: body.shippingBar?.fillColor ?? existing?.shippingBar?.fillColor ?? "#104cc1",
+              bgColor: body.shippingBar?.bgColor ?? existing?.shippingBar?.bgColor ?? "#d6dde7",
+              textColor: body.shippingBar?.textColor ?? existing?.shippingBar?.textColor ?? "#000000",
+              message: body.shippingBar?.message ?? existing?.shippingBar?.message ?? "Free shipping on orders above {{threshold}}"
             }
+
           },
           // Only set shop field when creating new document (not on updates)
           $setOnInsert: { shop }

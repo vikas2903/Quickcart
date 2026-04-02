@@ -18,8 +18,8 @@
     }
 
     const CONFIG = {
-        mode: "quantity", // "price" OR "quantity"
-        targetPrice: 1000, // main currency (e.g. ₹1000)
+        mode: "price", // "price" OR "quantity"
+        targetPrice: 999, // main currency (e.g. ₹1000)
         targetQty: 3
     };
 
@@ -52,7 +52,7 @@
             });
 
             const cart = await res.json();
-
+            console.log("cartjjjj", cart)
             const cartTotalPriceCents = cart?.total_price || 0;
             const cartTotalQty = cart?.item_count || 0;
             const currency = cart?.currency || "INR";

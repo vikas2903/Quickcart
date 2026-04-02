@@ -21,8 +21,6 @@
   // Initialize loader as hidden
   upcart_loader(false);
 
-
-
   // Store settings globally for access
   window.QuickCartSettings = window.QuickCartSettings || {};
 
@@ -60,12 +58,9 @@
     return null;
   }
 
-
-
   // Apply settings to the page dynamically
   function applySettings(settings) {
 
-    console.log('gggggggg' + settings.thirdPartyIntegration.enabled);
     if (settings.thirdPartyIntegration.enabled == true) {
       document.querySelector(".cdp-footer-right").classList.add("thirdPartyIntegration_true");
     } else {
@@ -321,7 +316,6 @@
 
 
     }
-    console.log('111111111111111111111');
 
     // Apply collection (upsell) settings
     if (settings.collection) {
@@ -349,7 +343,19 @@
       }
     }
 
-    console.log('2222222222222222222');
+    // =======================================
+    // if (settings.shippingBar.enabled == true) {
+    //   const shippingBarElement = drawer.querySelector("[data-shipping-progress]");
+    //   shippingBarElement.querySelector(".shipping-progress__fill-icon").style.backgroundColor = settings.shippingBar.fillColor;
+    //   shippingBarElement.querySelector(".shipping-progress__fill").style.backgroundColor = settings.shippingBar.fillColor;
+    //   shippingBarElement.querySelector(".shipping-progress__bar").style.backgroundColor = settings.shippingBar.bgColor;
+
+    // } else {
+    //   const shippingBarElement = drawer.querySelector("[data-shipping-progress]");
+    //   shippingBarElement.remove()
+    // }
+
+    // ==============================================
 
     // Apply gift product settings
     if (settings.product) {
@@ -382,11 +388,11 @@
 
     }
 
-    console.log('3333333333333333333');
+    // console.log('3333333333333333333');
 
     // Apply third-party integration
 
-    console.log("third party integration", settings.thirdPartyIntegration);
+    // console.log("third party integration", settings.thirdPartyIntegration);
 
 
     if (settings.thirdPartyIntegration) {
@@ -567,7 +573,7 @@
       }
 
       const data = await response.json();
-      console.log("Settings data:", data);
+      // console.log("Settings data:", data);
 
       if (data.ok && data.data) {
         const settings = data.data;

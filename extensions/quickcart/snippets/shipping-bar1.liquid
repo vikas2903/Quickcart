@@ -14,7 +14,7 @@
   /* BAR */
   .shipping-progress__bar {
     width: 100%;
-    height: 10px;
+    height: 8px;
     margin-bottom: 8px;
     border-radius: 999px;
     {% comment %} overflow: hidden; {% endcomment %}
@@ -32,15 +32,9 @@
     background: linear-gradient(90deg, #104cc1, #3b82f6);
 
     /* Moving stripes */
-    background-image: repeating-linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.08) 0px,
-      rgba(255, 255, 255, 0.08) 10px,
-      transparent 10px,
-      transparent 20px
-    );
+    background-image: repeating-linear-gradient(45deg, #ffffeea6 0px, #ffffeea6 10px, transparent 10px, transparent 20px);
 
-    background-size: 30px 30px;
+    background-size: 30px 40px;
 
     /* Animation */
     animation: moveStripes 2s linear infinite;
@@ -71,17 +65,17 @@
     border-radius: 50%;
     transform: translateY(-50%);
     background: #fff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
 
   /* TEXT */
   .shipping-progress__text {
     margin: 0;
     color: #000;
-    font-size: 14px;
+    font-size: var(--font-size-1);
     line-height: 1.75;
     text-align: center;
-    font-family: 'Montserrat';
+    font-family: var(--font-family-one);
+    font-weight: 500;
   }
 
   .shipping-progress__text strong {
@@ -92,10 +86,11 @@
     line-height: 1.1;
     font-weight: 800;
     letter-spacing: -0.02em;
+
   }
 </style>
 
-<div class="shipping-progress" aria-label="Free shipping progress">
+<div class="shipping-progress" aria-label="Free shipping progress" data-shipping-progress>
   <div class="shipping-progress__top">
     <div class="shipping-progress__bar">
       <div class="shipping-progress__fill">
