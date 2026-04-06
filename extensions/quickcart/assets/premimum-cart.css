@@ -805,7 +805,7 @@ img#popupProductImage2 {
   border-radius: 0;
 }
 
-.discount-badge-text {
+.cdp-drawer .cdp-panel .cdp-body .cdp-content .cdp-lines .cdp-line-media .discount-badge-text {
   line-height: 1.1;
   font-size: 8px;
   color: #fff;
@@ -821,11 +821,11 @@ img#popupProductImage2 {
   flex-direction: column;
 }
 
-.discount-badge-text span {
+.cdp-drawer .cdp-panel .cdp-body .cdp-content .cdp-lines .cdp-line-media .discount-badge-text span {
   font-size: 6px;
 }
 
-.discount-badge img {
+.cdp-drawer .cdp-panel .cdp-body .cdp-content .cdp-lines .cdp-line-media .discount-badge img {
   border-radius: 0 !important;
 }
 
