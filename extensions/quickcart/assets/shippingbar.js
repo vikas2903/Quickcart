@@ -1,5 +1,6 @@
 (async function () {
 
+    const shippingBarWrapper = document.querySelector(".shipping-progress");
     const shippingBarFill = document.querySelector(".shipping-progress__fill");
     const shippingBarText = document.querySelector(".shipping-progress__text");
     const shippingBarIcon = document.querySelector(".shipping-progress__fill-icon");
@@ -48,6 +49,10 @@
             const shippingBar = settingsData?.data?.shippingBar;
 
             if (shippingBar) {
+                if (shippingBar.enabled == true) {
+                    shippingBarWrapper.style.display = "block";
+                }
+
                 if (shippingBar.threshold) CONFIG.targetPrice = Number(shippingBar.threshold);
 
                 if (shippingBar.fillColor) {
@@ -61,6 +66,7 @@
                 if (shippingBar.textColor) {
                     if (shippingBarText) shippingBarText.style.color = shippingBar.textColor;
                 }
+
 
                 applyColors();
             }
