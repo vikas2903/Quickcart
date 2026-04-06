@@ -373,7 +373,7 @@ export default function Dashboard() {
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
                 <LegacyCard sectioned>
                   <div className="order-analytics-wrapper">
-                    <h5>{(Number(totalOrders) || 0).toLocaleString()}</h5>
+                    <h5>{(Number(totalOrders) >= 10000 ? '999+' : totalOrders) || 0}</h5>
                     <p>{t("dashboard.grid-total-orders")}</p>
                   </div>
                 </LegacyCard>
@@ -405,6 +405,7 @@ export default function Dashboard() {
             </Grid>
           </Layout.Section>
 
+          {/* 
           <Layout.Section>
             <h4 className="i-gs-section-title" style={{ textTransform: "uppercase" }}>{t("dashboard.progressbar-section-title")}  </h4>
 
@@ -535,6 +536,9 @@ export default function Dashboard() {
               </Grid.Cell>
             </Grid>
           </Layout.Section>
+            */}
+
+
 
           {/* <Layout.Section>
             <h4 className="i-gs-section-title">Integrate with theme</h4>

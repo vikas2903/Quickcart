@@ -13,8 +13,8 @@ export const loader = async ({ request }) => {
     shop = session.shop;
   } catch (e) {
     // If not authenticated, get shop from header (for extension access)
-    shop = request.headers.get("X-Shopify-Shop-Domain") || 
-           request.headers.get("x-shopify-shop-domain");
+    shop = request.headers.get("X-Shopify-Shop-Domain") ||
+      request.headers.get("x-shopify-shop-domain");
   }
 
   if (!shop) {
@@ -34,7 +34,7 @@ export const loader = async ({ request }) => {
 
   try {
     const settings = await CartDrawerSettings.findOne({ shop }).lean();
-    
+
     if (!settings) {
       // Return defaults if no settings exist
       return json(
@@ -90,7 +90,7 @@ export const action = async ({ request }) => {
 
     // Build settings object with only provided fields to avoid overwriting existing values
     const settingsData = { shop };
-    
+
     if (body.show_countdown !== undefined) settingsData.show_countdown = body.show_countdown;
     if (body.count_down_bg !== undefined) settingsData.count_down_bg = body.count_down_bg;
     if (body.countdown_text_color !== undefined) settingsData.countdown_text_color = body.countdown_text_color;

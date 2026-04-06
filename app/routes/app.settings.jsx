@@ -810,9 +810,30 @@ function Settings() {
   if (isLoading) {
     return (
       <Page fullWidth>
+        <TitleBar title={t("settingsPage.page-title")} />
         <Layout>
           <Layout.Section>
-            <Banner tone="info">{t("settingsPage.loading-settings")}</Banner>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "60px 20px",
+              gap: 16,
+            }}>
+              <div style={{
+                width: 40,
+                height: 40,
+                border: "3px solid #e5e7eb",
+                borderTopColor: "#6366f1",
+                borderRadius: "50%",
+                animation: "spin 0.8s linear infinite",
+              }} />
+              <Text as="p" variant="bodyMd" tone="subdued">
+                {t("settingsPage.loading-settings")}
+              </Text>
+            </div>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </Layout.Section>
         </Layout>
       </Page>
@@ -838,75 +859,57 @@ function Settings() {
           <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 8, lg: 8, xl: 8 }} gap="small">
 
             <Layout.Section>
-              <Grid>
-                <Grid.Cell
-                  columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-                  gap="small"
+              <div className="settings-tab-bar">
+                <button
+                  className={`settings-tab-btn ${tabsbutton === 1 ? "active" : ""}`}
+                  onClick={() => settabsbutton(1)}
                 >
-                  <Button
-                    primary
-                    onClick={() => settabsbutton(1)}
-                    variant={tabsbutton === 1 ? "primary" : "secondary"}
-                    style={{ marginRight: "5px" }}
-                  >
-                    {" "}
-                    {t("settingsPage.tab-cart-settings")}{" "}
-                  </Button>
-                  <Button
-                    primary
-                    onClick={() => settabsbutton(0)}
-                    variant={tabsbutton === 0 ? "primary" : "secondary"}
-                    style={{ marginRight: "5px" }}
-                  >
-                    {" "}
-                    {t("settingsPage.tab-countdown-block")}{" "}
-                  </Button>
-                  <Button
-                    primary
-                    onClick={() => settabsbutton(2)}
-                    variant={tabsbutton === 2 ? "primary" : "secondary"}
-                    style={{ marginRight: "5px" }}
-                  >
-                    {" "}
-                    {t("settingsPage.tab-upsell-collection")}{" "}
-                  </Button>
-                  <Button
-                    primary
-                    onClick={() => settabsbutton(3)}
-                    variant={tabsbutton === 3 ? "primary" : "secondary"}
-                    style={{ marginRight: "5px" }}
-                  >
-                    {" "}
-                    {t("settingsPage.tab-mystery-box")}{" "}
-                  </Button>
-                  <Button
-                    primary
-                    variant={tabsbutton === 4 ? "primary" : "secondary"}
-                    onClick={() => settabsbutton(4)}
-                  >
-                    {" "}
-                    {t("settingsPage.tab-third-party")}{" "}
-                  </Button>
-                  <Button
-                    primary
-                    style={{ marginRight: "5px", marginTop: "5px" }}
-                    variant={tabsbutton === 5 ? "primary" : "secondary"}
-                    onClick={() => settabsbutton(5)}
-                  >
-                    {" "}
-                    {t("settingsPage.tab-announcement")}
-                  </Button>
-                  {/* <Button
-                    primary
-                    style={{ marginRight: "5px", marginTop: "5px" }}
-                    variant={tabsbutton === 6 ? "primary" : "secondary"}
-                    onClick={() => settabsbutton(6)}
-                  >
-                    {" "}
-                    {t("shipping bar")}
-                  </Button> */}
-                </Grid.Cell>
-              </Grid>
+                  <span className="tab-icon">🎨</span>
+                  {t("settingsPage.tab-cart-settings")}
+                </button>
+                <button
+                  className={`settings-tab-btn ${tabsbutton === 0 ? "active" : ""}`}
+                  onClick={() => settabsbutton(0)}
+                >
+                  <span className="tab-icon">⏱️</span>
+                  {t("settingsPage.tab-countdown-block")}
+                </button>
+                <button
+                  className={`settings-tab-btn ${tabsbutton === 2 ? "active" : ""}`}
+                  onClick={() => settabsbutton(2)}
+                >
+                  <span className="tab-icon">🛍️</span>
+                  {t("settingsPage.tab-upsell-collection")}
+                </button>
+                <button
+                  className={`settings-tab-btn ${tabsbutton === 3 ? "active" : ""}`}
+                  onClick={() => settabsbutton(3)}
+                >
+                  <span className="tab-icon">🎁</span>
+                  {t("settingsPage.tab-mystery-box")}
+                </button>
+                <button
+                  className={`settings-tab-btn ${tabsbutton === 4 ? "active" : ""}`}
+                  onClick={() => settabsbutton(4)}
+                >
+                  <span className="tab-icon">🔌</span>
+                  {t("settingsPage.tab-third-party")}
+                </button>
+                <button
+                  className={`settings-tab-btn ${tabsbutton === 5 ? "active" : ""}`}
+                  onClick={() => settabsbutton(5)}
+                >
+                  <span className="tab-icon">📢</span>
+                  {t("settingsPage.tab-announcement")}
+                </button>
+                <button
+                  className={`settings-tab-btn ${tabsbutton === 6 ? "active" : ""}`}
+                  onClick={() => settabsbutton(6)}
+                >
+                  <span className="tab-icon">🚚</span>
+                  {t("Free Shipping Bar")}
+                </button>
+              </div>
             </Layout.Section>
 
             {tabsbutton === 0 && (
@@ -1633,33 +1636,35 @@ function Settings() {
             )}
 
             <Layout.Section fullWidth>
-              <Grid>
-                <Grid.Cell
-                  columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
-                  gap="small"
-                >
-                  <Button
-                    style={{
-                      backgroundColor: "#0755d2ff",
-                      color: "#ffffff",
-                      fontWeight: "bold",
-                      display: "block",
-
-                      width: "100%",
-                    }}
-                    primary
-                    onClick={handleSave}
-                    loading={isSaving}
-                    disabled={isSaving}
-                    tone="submit"
-                    type="submit"
-                    width="full"
-                    variant="primary"
+              <div className="settings-save-wrap">
+                <Grid>
+                  <Grid.Cell
+                    columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                    gap="small"
                   >
-                    {isSaving ? t("settingsPage.saving") : t("settingsPage.save-settings")}
-                  </Button>
-                </Grid.Cell>
-              </Grid>
+                    <Button
+                      style={{
+                        backgroundColor: "#0755d2ff",
+                        color: "#ffffff",
+                        fontWeight: "bold",
+                        display: "block",
+
+                        width: "100%",
+                      }}
+                      primary
+                      onClick={handleSave}
+                      loading={isSaving}
+                      disabled={isSaving}
+                      tone="submit"
+                      type="submit"
+                      width="full"
+                      variant="primary"
+                    >
+                      {isSaving ? t("settingsPage.saving") : t("settingsPage.save-settings")}
+                    </Button>
+                  </Grid.Cell>
+                </Grid>
+              </div>
             </Layout.Section>
 
           </Grid.Cell>

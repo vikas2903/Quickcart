@@ -4,24 +4,72 @@
     const shippingBarText = document.querySelector(".shipping-progress__text");
     const shippingBarIcon = document.querySelector(".shipping-progress__fill-icon");
 
-    const shippingBarFillColor = "#548fc5";
-    const shippingBarIconColor = "#548fc5";
+    const COLORS = {
+        fill: "#548fc5",
+        iconBg: "#548fc5",
+        iconColor: "#fff"
+    };
 
-
-    if (shippingBarFill) {
-        shippingBarFill.style.backgroundColor = shippingBarFillColor;
-    }
-
-    if (shippingBarIcon) {
-        shippingBarIcon.style.backgroundColor = shippingBarIconColor;
-        shippingBarIcon.style.color = "#fff";
-    }
 
     const CONFIG = {
-        mode: "price", // "price" OR "quantity"
-        targetPrice: 999, // main currency (e.g. ₹1000)
+        mode: "price",
+        targetPrice: 999,
         targetQty: 3
     };
+
+
+    function applyColors() {
+        if (shippingBarFill) {
+            shippingBarFill.style.backgroundColor = COLORS.fill;
+        }
+        if (shippingBarIcon) {
+            shippingBarIcon.style.backgroundColor = COLORS.iconBg;
+            shippingBarIcon.style.color = COLORS.iconColor;
+        }
+    }
+
+    applyColors();
+
+
+    const appUrl = "https://quickcart-vf8k.onrender.com";
+    const settingPageEndpoint = `${appUrl}/app/api/settings`;
+
+    try {
+        const response = await fetch(settingPageEndpoint, {
+            method: "GET",
+            headers: {
+                "X-Shopify-Shop-Domain": window.Shopify?.shop || "",
+                Accept: "application/json",
+            },
+        });
+
+        if (response.ok) {
+            const settingsData = await response.json();
+            const shippingBar = settingsData?.data?.shippingBar;
+
+            if (shippingBar) {
+                if (shippingBar.threshold) CONFIG.targetPrice = Number(shippingBar.threshold);
+
+                if (shippingBar.fillColor) {
+                    COLORS.fill = shippingBar.fillColor;
+                    COLORS.iconBg = shippingBar.fillColor;
+                }
+                if (shippingBar.bgColor) {
+                    const barBg = document.querySelector(".shipping-progress__bar");
+                    if (barBg) barBg.style.backgroundColor = shippingBar.bgColor;
+                }
+                if (shippingBar.textColor) {
+                    if (shippingBarText) shippingBarText.style.color = shippingBar.textColor;
+                }
+
+                applyColors();
+            }
+        } else {
+            console.warn("Settings API error:", response.status);
+        }
+    } catch (err) {
+        console.warn("Settings fetch failed, using fallback config");
+    }
 
     const TEXT = {
         free: "🎉 You got Free Shipping!",
@@ -30,19 +78,22 @@
     };
 
     function formatText(template, data) {
-        return template.replace(/{{(.*?)}}/g, (_, key) => data[key.trim()]);
+        return template.replace(/{{(.*?)}}/g, (_, key) => data[key.trim()] ?? "");
     }
 
-    // ✅ Correct currency formatter (cents → formatted money)
     function toMoney(cents, currency = "INR", locale = undefined) {
         const amount = Math.max(0, (Number(cents) || 0) / 100);
 
         return new Intl.NumberFormat(locale || navigator.language, {
             style: "currency",
             currency: currency,
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 1
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
         }).format(amount);
+    }
+
+    function clamp(num, min, max) {
+        return Math.max(min, Math.min(num, max));
     }
 
     async function onCartUpdate() {
@@ -51,44 +102,46 @@
                 headers: { Accept: "application/json" }
             });
 
+            if (!res.ok) return;
+
             const cart = await res.json();
-            console.log("cartjjjj", cart)
+
             const cartTotalPriceCents = cart?.total_price || 0;
             const cartTotalQty = cart?.item_count || 0;
             const currency = cart?.currency || "INR";
 
-            const targetPriceCents = CONFIG.targetPrice * 100;
-
             let progress = 0;
             let message = "";
 
-            // ✅ PRICE MODE
+
             if (CONFIG.mode === "price") {
+                const targetPriceCents = Math.max(1, CONFIG.targetPrice * 100);
 
                 progress = (cartTotalPriceCents / targetPriceCents) * 100;
 
                 if (cartTotalPriceCents >= targetPriceCents) {
-                    message = TEXT.free;
                     progress = 100;
+                    message = TEXT.free;
                 } else {
-                    const remainingCents = targetPriceCents - cartTotalPriceCents;
+                    const remaining = targetPriceCents - cartTotalPriceCents;
 
                     message = formatText(TEXT.remaining_price, {
-                        amount: toMoney(remainingCents, currency)
+                        amount: toMoney(remaining, currency)
                     });
                 }
             }
 
-            // ✅ QUANTITY MODE
+
             if (CONFIG.mode === "quantity") {
+                const targetQty = Math.max(1, CONFIG.targetQty);
 
-                progress = (cartTotalQty / CONFIG.targetQty) * 100;
+                progress = (cartTotalQty / targetQty) * 100;
 
-                if (cartTotalQty >= CONFIG.targetQty) {
-                    message = TEXT.free;
+                if (cartTotalQty >= targetQty) {
                     progress = 100;
+                    message = TEXT.free;
                 } else {
-                    const remaining = CONFIG.targetQty - cartTotalQty;
+                    const remaining = targetQty - cartTotalQty;
 
                     message = formatText(TEXT.remaining_qty, {
                         qty: remaining
@@ -96,62 +149,66 @@
                 }
             }
 
-            // ✅ Apply UI safely
+            progress = clamp(progress, 0, 100);
+
             if (shippingBarFill) {
-                shippingBarFill.style.width = `${Math.min(progress, 100)}%`;
+                shippingBarFill.style.width = `${progress}%`;
             }
 
             if (shippingBarText) {
-                shippingBarText.innerHTML = message;
+                shippingBarText.textContent = message;
             }
 
         } catch (err) {
-            console.error("Error fetching cart", err);
+            console.error("Cart update failed:", err);
         }
     }
 
-    // Initial load
+    let updateTimeout;
+
+    function triggerCartUpdate() {
+        clearTimeout(updateTimeout);
+        updateTimeout = setTimeout(onCartUpdate, 150);
+    }
+
     onCartUpdate();
 
-    // Listen for cart updates
-    document.addEventListener("cart:updated", onCartUpdate);
+    document.addEventListener("cart:updated", triggerCartUpdate);
 
-    // Prevent duplicate patching
-    if (!window.__pbWrapped) {
-        window.__pbWrapped = true;
+    if (!window.__shippingBarPatched) {
+        window.__shippingBarPatched = true;
 
         const originalFetch = window.fetch;
+
         window.fetch = async (...args) => {
             const response = await originalFetch(...args);
-            const url = typeof args[0] === "string" ? args[0] : args[0]?.url || "";
 
-            if (
-                url.includes("/cart/add") ||
-                url.includes("/cart/change") ||
-                url.includes("/cart/update")
-            ) {
-                document.dispatchEvent(new Event("cart:updated"));
-            }
+            try {
+                const url = typeof args[0] === "string"
+                    ? args[0]
+                    : args[0]?.url || "";
+
+                if (/\/cart\/(add|change|update)/.test(url)) {
+                    triggerCartUpdate();
+                }
+            } catch (e) { }
 
             return response;
         };
 
         const originalOpen = XMLHttpRequest.prototype.open;
+
         XMLHttpRequest.prototype.open = function (...args) {
             this.addEventListener("load", () => {
                 const url = typeof args[1] === "string" ? args[1] : "";
 
-                if (
-                    url.includes("/cart/add") ||
-                    url.includes("/cart/change") ||
-                    url.includes("/cart/update")
-                ) {
-                    document.dispatchEvent(new Event("cart:updated"));
+                if (/\/cart\/(add|change|update)/.test(url)) {
+                    triggerCartUpdate();
                 }
             });
 
             return originalOpen.apply(this, args);
         };
     }
-
 })();
+

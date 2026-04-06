@@ -410,6 +410,18 @@
           return `
       <article class="cdp-line" data-line-key="${item.key}" ${isFreeGift ? 'data-free-gift="true"' : ''}>
         <div ss class="cdp-line-media">
+          ${(() => {
+              const compareAt = getCompareAtPrice(item);
+              if (compareAt && compareAt > item.price) {
+                const discountPct = Math.round(((compareAt - item.price) / compareAt) * 100);
+                return `<span class="discount-badge">
+                <span class="discount-badge-text">${discountPct}% <span>OFF</span></span>
+                <img src="https://cdn.shopify.com/extensions/019d4e63-bdb6-722d-831a-e798e137ea08/shiprocket-smart-cart-211/assets/discount_badge.svg">
+              </span>`;
+              }
+              return '';
+            })()}
+          
           <img src="${item.image ? item.image.replace(/\.(jpg|png|jpeg)/, "_140x.$1") : ""
             }" alt="${item.product_title}" width="90" height="90" loading="lazy">
         </div>

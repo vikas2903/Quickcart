@@ -154,7 +154,7 @@
 
       {% render 'progress-bar' %}
       {% render 'progressbar_qty_condition' %}
-      {% comment %} {% render 'shipping-bar1' %} {% endcomment %}
+      {% render 'shipping-bar1' %}
     </div>
     <div class="cdp-body">
       <!-- Left rail: vertical upsell slider with VARIANT PICKER -->
@@ -166,6 +166,10 @@
           {% for item in cart.items %}
             <article class="cdp-line" data-line-key="{{ item.key }}">
               <div ss class="cdp-line-media">
+                <img
+                  class="discount-badge"
+                  src="https://cdn.shopify.com/extensions/019d4e63-bdb6-722d-831a-e798e137ea08/shiprocket-smart-cart-211/assets/discount_badge.svg"
+                >
                 <img
                   src="{{ item.image | image_url: width: 140 }}"
                   alt="{{ item.product.title | escape }}"
@@ -641,7 +645,7 @@
 <script src="{{ 'progress-bar.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'progressbar_qty_condition.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'bxfreeproduct.js' | asset_url }}" defer="defer"></script>
-{% comment %} <script src="{{ 'shippingbar.js' | asset_url }}" defer="defer"></script> {% endcomment %}
+<script src="{{ 'shippingbar.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {

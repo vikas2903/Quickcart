@@ -34,6 +34,7 @@ export default function App() {
         <Link to="/app/progressbaron1">BxGy-ProgressBar</Link>
         <Link to="/app/giftproduct">Free Gift Product</Link>
         <Link to="/app/help">Support</Link>
+        <Link to="/app/documentation">Documentation</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

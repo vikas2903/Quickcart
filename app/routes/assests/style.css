@@ -50,99 +50,6 @@ span.curecnySymbol {
 .custom-antd-textarea{width: 100%;}
 
 
-/* ------------------------------------ */
-
-
-/* Grid Container */
-/* .grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); 
-    grid-template-rows: repeat(2, auto); 
-    column-gap: 24px; 
-    padding: 20px;
-    row-gap: 18px;
-    background: #fff;
-    padding: 16px;
-    border-radius: 6px;
-  } */
-  /* .column-title {
-    font-size: .9rem;
-    text-transform: capitalize;
-    margin-bottom: 10px;
-    opacity: .8;
-}
-  
-  
-  .grid-item {
-    background: #fff; 
-    padding: 15px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid #e4e4e4; 
-  }
-   */
- 
-  /* .column-title {
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 10px;
-    color: #333;
-    text-align: center;
-  }
-  
- 
-  .color-picker-container {
-    max-width: 300px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-  } */
-  
-
-  /* .ant-color-picker-trigger {
-    width: 100%;
-
-  }
-  
-  .grid-item {
-    padding: 15px;
-}
-
-.column-title {
-    font-size: .9rem;
-    text-transform: capitalize;
-    margin-bottom: 10px;
-    opacity: .8;
-}
-.grid-items {
-    padding: 2rem;
-    border: 1px solid #eee;
-} */
-
-/* .color-picker-container > div {
-    width: auto;
-    border: 1px solid #eee;
-    padding: 4px 8px;
-}
-
-  @media (max-width: 768px) {
-    .grid-container {
-      grid-template-columns: 1fr 1fr; 
-    }
-  } */
-   
-
-/* 
-  .custom-product-search, .custom-collection  {
-    width: 70%;
-    margin: auto;
-} */
-
-
 .Polaris-Button--textAlignCenter{margin: 2px !important;}
 .column-title {
     font-size: .9rem;
@@ -158,4 +65,246 @@ span.curecnySymbol {
   position: absolute;
   top: -29px;
   right: 12px;
+}
+
+
+/* ═══════════════════════════════════════════
+   SETTINGS PAGE — Premium UI Styles
+   ═══════════════════════════════════════════ */
+
+/* Tab Navigation Bar */
+.settings-tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px;
+  background: #f6f6f7;
+  border-radius: 12px;
+  margin-bottom: 4px;
+}
+
+.settings-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #6b7280;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.settings-tab-btn:hover {
+  background: #e8e8ea;
+  color: #374151;
+}
+
+.settings-tab-btn.active {
+  background: #fff;
+  color: #1a1a2e;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.settings-tab-btn .tab-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* Section Title inside tabs */
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.settings-section-header .section-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.settings-section-header .section-title {
+  font-size: 16px;
+  font-weight: 650;
+  color: #1e293b;
+}
+
+.settings-section-header .section-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+/* Cards inside each tab */
+.Polaris-LegacyCard {
+  border-radius: 12px !important;
+  border: 1px solid #e8eaed !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.Polaris-LegacyCard:hover {
+  border-color: #c7d2fe !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.06) !important;
+}
+
+/* Setting row — title + control grouped */
+.setting-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.setting-row .setting-label-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.setting-row .setting-control {
+  flex-shrink: 0;
+}
+
+/* column-title upgrade */
+.column-title {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  opacity: 1 !important;
+  padding-bottom: 4px !important;
+  text-transform: none !important;
+  letter-spacing: -0.1px;
+}
+
+/* Info banner upgrade */
+.Polaris-Banner--toneInfo {
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
+}
+
+/* Color picker container */
+.color-picker-container {
+  margin-top: 6px;
+}
+
+.color-picker-container .ant-color-picker-trigger {
+  border-radius: 8px !important;
+  border: 1px solid #d1d5db !important;
+  padding: 4px 10px !important;
+  transition: border-color 0.2s;
+}
+
+.color-picker-container .ant-color-picker-trigger:hover {
+  border-color: #6366f1 !important;
+}
+
+/* Input number styling */
+.color-picker-container .ant-input-number {
+  border-radius: 8px !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.color-picker-container .ant-input-number:hover,
+.color-picker-container .ant-input-number:focus-within {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.1) !important;
+}
+
+/* TextArea styling */
+.custom-antd-textarea .ant-input {
+  border-radius: 10px !important;
+  border: 1px solid #d1d5db !important;
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  transition: border-color 0.2s;
+}
+
+.custom-antd-textarea .ant-input:hover {
+  border-color: #818cf8 !important;
+}
+
+.custom-antd-textarea .ant-input:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.1) !important;
+}
+
+/* Checkbox styling */
+.color-picker-container .ant-checkbox-wrapper {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Save Button upgrade */
+.settings-save-wrap {
+  margin-top: 8px;
+}
+
+.settings-save-wrap .Polaris-Button--primary {
+  border-radius: 12px !important;
+  font-weight: 650 !important;
+  font-size: 14px !important;
+  padding: 12px 0 !important;
+  letter-spacing: 0.2px;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.3) !important;
+  transition: transform 0.15s, box-shadow 0.15s !important;
+}
+
+.settings-save-wrap .Polaris-Button--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(79,70,229,0.35) !important;
+}
+
+/* Cart preview sticky */
+.cart-preview-wrapper {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Selected info boxes */
+.selected-info-box {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: #f0f4ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+}
+
+/* Resource list hover */
+.Polaris-ResourceList .Polaris-ResourceItem:hover {
+  background-color: #f5f3ff !important;
+}
+
+/* Fix grid-item padding inside cards */
+.grid-item {
+  padding: 2px 0;
+}
+
+/* Responsive tab bar */
+@media (max-width: 640px) {
+  .settings-tab-bar {
+    gap: 4px;
+    padding: 4px;
+  }
+  .settings-tab-btn {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .settings-tab-btn .tab-icon {
+    display: none;
+  }
 }
