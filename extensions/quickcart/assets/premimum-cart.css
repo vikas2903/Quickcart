@@ -807,7 +807,7 @@ img#popupProductImage2 {
 
 .cdp-drawer .cdp-panel .cdp-body .cdp-content .cdp-lines .cdp-line-media .discount-badge-text {
   line-height: 1.1;
-  font-size: 8px;
+  font-size: 8px !important;
   color: #fff;
   font-weight: 500;
   display: flex;
@@ -822,7 +822,7 @@ img#popupProductImage2 {
 }
 
 .cdp-drawer .cdp-panel .cdp-body .cdp-content .cdp-lines .cdp-line-media .discount-badge-text span {
-  font-size: 6px;
+  font-size: 6px !important;
 }
 
 .cdp-drawer .cdp-panel .cdp-body .cdp-content .cdp-lines .cdp-line-media .discount-badge img {
