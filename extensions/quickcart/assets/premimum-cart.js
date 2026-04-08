@@ -1082,7 +1082,9 @@
       ".icon-cart",                            // Icon cart class
       ".cart-count-wrapper",                   // Cart count wrapper (often clickable)
       ".cart-bubble",                          // Cart bubble
-      ".cart-drawer-toggle"                    // Cart drawer toggle
+      ".cart-drawer-toggle",
+      "[aria-controls='CartDrawer']"  
+                        // Cart drawer toggle
     ].join(", ");
 
     const icon = e.target.closest(cartIconSelectors);
