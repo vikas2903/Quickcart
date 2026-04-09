@@ -1,4 +1,6 @@
 (async function () {
+    const quickCartI18n = window.QuickCartI18n || {};
+    const drawerEl = document.getElementById("CartDrawerPremium");
 
     const shippingBarWrapper = document.querySelector(".shipping-progress");
     const shippingBarFill = document.querySelector(".shipping-progress__fill");
@@ -83,19 +85,39 @@
         remaining_qty: "Add {{qty}} more items to get Free Shipping"
     };
 
+    const localizedText = {
+        free: quickCartI18n.shippingBarFree || "🎉 You got Free Shipping!",
+        remaining_price: quickCartI18n.shippingBarRemainingPrice || "Spend {{amount}} more to get Free Shipping",
+        remaining_qty: quickCartI18n.shippingBarRemainingQty || "Add {{qty}} more items to get Free Shipping"
+    };
+
     function formatText(template, data) {
         return template.replace(/{{(.*?)}}/g, (_, key) => data[key.trim()] ?? "");
     }
 
-    function toMoney(cents, currency = "INR", locale = undefined) {
-        const amount = Math.max(0, (Number(cents) || 0) / 100);
+    function getActiveCurrency(cartCurrency) {
+        return (
+            window.Shopify?.currency?.active ||
+            cartCurrency ||
+            drawerEl?.getAttribute("data-currency") ||
+            "INR"
+        );
+    }
+ 
+    function toMoney(cents, currency) {
+        const safeCents = Math.max(0, Number(cents) || 0);
+        const activeCurrency = getActiveCurrency(currency);
 
-        return new Intl.NumberFormat(locale || navigator.language, {
-            style: "currency",
-            currency: currency,
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
-        }).format(amount);
+        try {
+            return (safeCents / 100).toLocaleString(undefined, {
+                style: "currency",
+                currency: activeCurrency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        } catch (e) {
+            return (safeCents / 100).toFixed(2);
+        }
     }
 
     function clamp(num, min, max) {
@@ -127,11 +149,11 @@
 
                 if (cartTotalPriceCents >= targetPriceCents) {
                     progress = 100;
-                    message = TEXT.free;
+                    message = localizedText.free;
                 } else {
                     const remaining = targetPriceCents - cartTotalPriceCents;
 
-                    message = formatText(TEXT.remaining_price, {
+                    message = formatText(localizedText.remaining_price, {
                         amount: toMoney(remaining, currency)
                     });
                 }
@@ -145,11 +167,11 @@
 
                 if (cartTotalQty >= targetQty) {
                     progress = 100;
-                    message = TEXT.free;
+                    message = localizedText.free;
                 } else {
                     const remaining = targetQty - cartTotalQty;
 
-                    message = formatText(TEXT.remaining_qty, {
+                    message = formatText(localizedText.remaining_qty, {
                         qty: remaining
                     });
                 }

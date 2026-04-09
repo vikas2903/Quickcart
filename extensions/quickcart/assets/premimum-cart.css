@@ -69,7 +69,7 @@ body.gradient.overflow-hidden {
 .cdp-drawer {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 9999999;
   display: none;
   height: 100vh;
   height: 100dvh;
@@ -807,7 +807,7 @@ img#popupProductImage2 {
 
 .cdp-drawer .cdp-panel .cdp-body .cdp-content .cdp-lines .cdp-line-media .discount-badge-text {
   line-height: 1.1;
-  font-size: 8px !important;
+  font-size: 7px !important;
   color: #fff;
   font-weight: 500;
   display: flex;
@@ -816,7 +816,7 @@ img#popupProductImage2 {
   text-align: center;
   position: absolute;
   z-index: 1;
-  right: 4px;
+  right: 2px;
   top: 7px;
   flex-direction: column;
 }
@@ -1939,6 +1939,7 @@ body.no-scroll {
   align-items: baseline;
   gap: 4px;
   padding-left: 5px;
+  padding-bottom: 5px;
 }
 
 .mob_upsell .cdp-u-final {
@@ -2320,6 +2321,11 @@ span.summary-heading-text {
 }
 
 @media (max-width: 767px) {
+
+  .mob_upsell .cdp-u-add-btn {
+    line-height: normal;
+    font-size: 10px;
+  }
 
   /* Popup responsive */
   .cdp-popup-content {

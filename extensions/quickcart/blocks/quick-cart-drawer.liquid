@@ -119,7 +119,8 @@
       bxgyItemAwayGift: {{ 'quickcart.bxgy_item_away_gift' | t | json }},
       bxgyProductAway: {{ 'quickcart.bxgy_product_away' | t | json }},
       bxgyCongratulations: {{ 'quickcart.bxgy_congratulations' | t | json }},
-      contactSupport: {{ 'quickcart.contact_support' | t | json }}
+      contactSupport: {{ 'quickcart.contact_support' | t | json }},
+      discountOffLabel: {{ 'quickcart.discount_off_label' | t | json }}
     };
   </script>
 
@@ -476,7 +477,7 @@
           data-mrp-row
           style="{% if mrp_total > cart.original_total_price %}display: flex;{% else %}display: none;{% endif %}"
         >
-          Total MRP
+          {{ 'quickcart.total_mrp' | t }}
           <span data-mrp-total>{{ mrp_total | money_without_trailing_zeros }}</span>
         </p>
         <p class="bill-subtotal-row">

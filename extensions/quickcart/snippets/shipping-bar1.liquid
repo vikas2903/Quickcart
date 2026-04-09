@@ -1,7 +1,7 @@
 <style>
   /* SECTION */
   .shipping-progress {
-    padding: 16px 12px 12px 16px;
+    padding: 6px 3px 6px 7px;
     background: #ffffff;
     margin: 3px 1rem 0.2rem;
   }
@@ -72,7 +72,7 @@
     margin: 0;
     color: #000;
     font-size: var(--font-size-1);
-    line-height: 1.75;
+    line-height: normal;
     text-align: center;
     font-family: var(--font-family-one);
     font-weight: 500;
@@ -89,6 +89,14 @@
 
   }
 </style>
+
+<script>
+  window.QuickCartI18n = Object.assign(window.QuickCartI18n || {}, {
+    shippingBarFree: {{ 'quickcart.shipping_bar_free' | t | json }},
+    shippingBarRemainingPrice: {{ 'quickcart.shipping_bar_remaining_price' | t | json }},
+    shippingBarRemainingQty: {{ 'quickcart.shipping_bar_remaining_qty' | t | json }}
+  });
+</script>
 
 <div class="shipping-progress" aria-label="Free shipping progress" data-shipping-progress style="display: none;">
   <div class="shipping-progress__top">
@@ -107,6 +115,6 @@
       </div>
     </div>
 
-    <p class="shipping-progress__text">You got Free Shipping</p>
+    <p class="shipping-progress__text">{{ 'quickcart.shipping_bar_free' | t }}</p>
   </div>
 </div>

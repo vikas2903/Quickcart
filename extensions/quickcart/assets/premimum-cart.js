@@ -3,6 +3,8 @@
 (function () {
   if (window.upcartInitialized) return;
   window.upcartInitialized = true;
+  const quickCartI18n = window.QuickCartI18n || {};
+  const discountOffLabel = quickCartI18n.discountOffLabel || 'OFF';
 
   console.log("Upcart: Progressbar + Upsell products initialize...");
   function loadCDNScript(url, callback) {
@@ -415,7 +417,7 @@
               if (compareAt && compareAt > item.price) {
                 const discountPct = Math.round(((compareAt - item.price) / compareAt) * 100);
                 return `<span class="discount-badge">
-                <span class="discount-badge-text">${discountPct}% <span>OFF</span></span>
+                <span class="discount-badge-text">${discountPct}% <span>${escapeHtml(discountOffLabel)}</span></span>
                 <img src="https://cdn.shopify.com/extensions/019d4e63-bdb6-722d-831a-e798e137ea08/shiprocket-smart-cart-211/assets/discount_badge.svg">
               </span>`;
               }
