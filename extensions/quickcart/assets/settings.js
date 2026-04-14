@@ -335,10 +335,10 @@
         } else {
           // Collection is enabled - you may want to dynamically load products here
           // This would require an additional API call to fetch collection products
-          console.log(
-            "Upsell collection enabled:",
-            settings.collection.selectedCollection.handle,
-          );
+          // console.log(
+          //   "Upsell collection enabled:",
+          //   settings.collection.selectedCollection.handle,
+          // );
         }
       }
     }
@@ -501,46 +501,46 @@
       return;
     }
 
-    try {
-      const drawer = document.getElementById("CartDrawerPremium");
-      const appUrl =
-        drawer?.getAttribute("data-app-url") ||
-        "https://quickcart-vf8k.onrender.com";
-      const apiUrl = `${appUrl}/app/api/cartdrawer`;
+    // try {
+    //   const drawer = document.getElementById("CartDrawerPremium");
+    //   const appUrl =
+    //     drawer?.getAttribute("data-app-url") ||
+    //     "https://quickcart-vf8k.onrender.com";
+    //   const apiUrl = `${appUrl}/app/api/cartdrawer`;
 
-      const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "X-Shopify-Shop-Domain": shop,
-          Accept: "application/json",
-        },
-      });
+    //   const response = await fetch(apiUrl, {
+    //     method: "GET",
+    //     headers: {
+    //       "X-Shopify-Shop-Domain": shop,
+    //       Accept: "application/json",
+    //     },
+    //   });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+    //   if (!response.ok) {
+    //     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    //   }
 
-      const data = await response.json();
-      if (data.ok && data.data) {
-        const cartDrawerSettings = data.data;
-        const drawer = document.getElementById("CartDrawerPremium");
+    //   const data = await response.json();
+    //   if (data.ok && data.data) {
+    //     const cartDrawerSettings = data.data;
+    //     const drawer = document.getElementById("CartDrawerPremium");
 
-        if (drawer) {
-          // Apply quickview button visibility
-          if (cartDrawerSettings.enable_quickview_button !== undefined) {
-            const quickviewButtons = drawer.querySelectorAll("[data-quickview-button]");
-            quickviewButtons.forEach((btn) => {
-              btn.style.display = cartDrawerSettings.enable_quickview_button ? "" : "none";
-            });
-          }
-        }
+    //     if (drawer) {
+    //       // Apply quickview button visibility
+    //       if (cartDrawerSettings.enable_quickview_button !== undefined) {
+    //         const quickviewButtons = drawer.querySelectorAll("[data-quickview-button]");
+    //         quickviewButtons.forEach((btn) => {
+    //           btn.style.display = cartDrawerSettings.enable_quickview_button ? "" : "none";
+    //         });
+    //       }
+    //     }
 
-        // Store cart drawer settings globally
-        window.QuickCartSettings.cartDrawer = cartDrawerSettings;
-      }
-    } catch (error) {
-      console.error("Cart Drawer Settings: Failed to load settings", error);
-    }
+    //     // Store cart drawer settings globally
+    //     window.QuickCartSettings.cartDrawer = cartDrawerSettings;
+    //   }
+    // } catch (error) {
+    //   console.error("Cart Drawer Settings: Failed to load settings", error);
+    // }
   }
 
 

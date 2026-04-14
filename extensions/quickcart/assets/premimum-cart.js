@@ -6,7 +6,7 @@
   const quickCartI18n = window.QuickCartI18n || {};
   const discountOffLabel = quickCartI18n.discountOffLabel || 'OFF';
 
-  console.log("Upcart: Progressbar + Upsell products initialize...");
+  // console.log("Upcart: Progressbar + Upsell products initialize...");
   function loadCDNScript(url, callback) {
     const script = document.createElement('script');
     script.src = url;
@@ -19,7 +19,7 @@
   }
 
   loadCDNScript('https://cdn.jsdelivr.net/npm/@hiseb/confetti@2.1.0/dist/confetti.min.js', function () {
-    console.log('confetti loaded successfully!');
+    // console.log('confetti loaded successfully!'); 
   });
 
 
@@ -110,7 +110,9 @@
       const parentTag = parent?.tagName || parent?.className || "unknown";
       // Move drawer to body to ensure fixed positioning works correctly
       document.body.appendChild(drawer);
-      console.log("CartDrawerPremium moved from", parentTag, "to document.body for proper positioning");
+     
+      // console.log("CartDrawerPremium moved from", parentTag, "to document.body for proper positioning");
+      
       return true;
     }
     return false;
@@ -781,7 +783,7 @@
   // initial totals and hide upsell cards for products already in cart
   fetchCart().then((cart) => {
     renderTotals(cart);
-    hideUpsellCardsInCart(cart);
+    // hideUpsellCardsInCart(cart);
   });
 
   /* ============ LINE CONTROLS ============ */
@@ -1634,9 +1636,8 @@
       }
     });
   }
-
-  console.log("Upcart: Progressbar + Upsell Products Initialized");
-
+  // console.log("Upcart: Progressbar + Upsell App Initialized");
+  
 
   (() => {
     const themes = ["Horizon", "Tinker", "Savor", "Atelier", "Heritage", "Fabric", "Ritual"];
