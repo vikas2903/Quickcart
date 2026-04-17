@@ -2547,6 +2547,11 @@ span.delivery-icon {
   display: block !important;
 }
 
+div#deliveryInfoBox {
+    display: none;
+}
+
+.up-cart-note{display:none;}
 @keyframes bounce {
   from {
     transform: translateY(0);

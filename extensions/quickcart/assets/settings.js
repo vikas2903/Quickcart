@@ -61,23 +61,28 @@
   // Apply settings to the page dynamically
   function applySettings(settings) {
 
-    const cartnotenable = settings.cartNoteDeliveryEstimate.cartnoteenable;
+    const cartNoteSettings = settings.cartNoteDeliveryEstimate;
+    const cartNoteElement = document.querySelector("#upCartNote");
+    const deliveryInfoBox = document.querySelector("#deliveryInfoBox");
+    const cartnotenable = cartNoteSettings?.cartnoteenable;
 
-    if(!cartnotenable){
-      document.querySelector("#upCartNote").style.display = 'none';
-    }
+    if(cartNoteSettings){
 
-    if(settings.cartNoteDeliveryEstimate){
+        const deliveryDays = Number(cartNoteSettings.estimatedeliverydate ?? 7);
+        const deliverEnable = cartNoteSettings.estimatedeliveryenable;
 
-        const deliveryDays = settings.cartNoteDeliveryEstimate.estimatedeliverydate;
-        const deliverEnable = settings.cartNoteDeliveryEstimate.estimatedeliveryenable;
-
-        if(!deliverEnable){
-          document.querySelector("#deliveryInfoBox").style.display = 'none';
+        if (cartNoteElement) {
+          cartNoteElement.style.display = cartnotenable ? 'block' : 'none';
         }
 
+        if (deliveryInfoBox) {
+          deliveryInfoBox.style.display = deliverEnable ? 'block' : 'none';
+        }
+
+        
+
         const textEl = document.getElementById("deliveryText");
-        if (!textEl) return;
+        if (!textEl || !deliverEnable) return;
 
         function formatDate(date) {
           return date.toLocaleDateString('en-IN', {
@@ -107,6 +112,7 @@
 
     }
 
+    
     if (settings.thirdPartyIntegration.enabled == true) {
       document.querySelector(".cdp-footer-right").classList.add("thirdPartyIntegration_true");
     } else {
