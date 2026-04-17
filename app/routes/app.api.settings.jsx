@@ -187,6 +187,11 @@ export const loader = async ({ request }) => {
         bgColor: "",
         textColor: "",
         message: ""
+      },
+      cartNoteDeliveryEstimate:{
+        cartnoteenable: false,
+        estimatedeliveryenable: false,
+        estimatedeliverydate: 7
       }
     };
 
@@ -383,6 +388,11 @@ export const action = async ({ request }) => {
               bgColor: body.shippingBar?.bgColor ?? existing?.shippingBar?.bgColor ?? "#d6dde7",
               textColor: body.shippingBar?.textColor ?? existing?.shippingBar?.textColor ?? "#000000",
               message: body.shippingBar?.message ?? existing?.shippingBar?.message ?? "Free shipping on orders above {{threshold}}"
+            },
+            cartNoteDeliveryEstimate:{
+              cartnoteenable: body?.cartNoteDeliveryEstimate?.cartnoteenable ?? existing?.cartNoteDeliveryEstimate?.cartnoteenable ?? false,
+              estimatedeliveryenable: body?.cartNoteDeliveryEstimate?.estimatedeliveryenable ?? existing?.cartNoteDeliveryEstimate?.estimatedeliveryenable ?? false,
+              estimatedeliverydate: body?.cartNoteDeliveryEstimate?.estimatedeliverydate ?? existing?.cartNoteDeliveryEstimate?.estimatedeliverydate ?? 7
             }
 
           },

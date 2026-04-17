@@ -153,7 +153,7 @@
       // console.log("FreeProduct Database Api Data:", rule);
 
       if (!rule?.enabled) {
-        console.log("BxGF offer is disabled");
+        // console.log("BxGF offer is disabled");
         return;
       }
 

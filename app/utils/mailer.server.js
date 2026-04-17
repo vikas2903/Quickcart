@@ -31,9 +31,9 @@ export async function sendSupportEmail({ shop, name, email, description }) {
 
   // --- Admin notification
   const infoAdmin = await transporter.sendMail({
-    from: `"Digi Sidekick Support" <${process.env.MAIL_FROM || "no-reply@yourdomain.com"}>`,
+    from: `"Digi Sidekick Support" <${process.env.MAIL_FROM || "support@digisidekick.com"}>`,
     to: "vikasprasad@digisidekick.com",
-    cc: "vikasprasad2903@gmail.com, suraj@digisidekick.com, depeen@digisidekick.com,support@digisidekick.com",
+    cc: "support@digisidekick.com",
     subject: `New Support Request — ${shop}`,
     html: adminHtml,
     replyTo: email || undefined,
@@ -42,7 +42,7 @@ export async function sendSupportEmail({ shop, name, email, description }) {
   // --- User confirmation
   if (email) {
     await transporter.sendMail({
-      from: `"Digi Sidekick Support" <${process.env.MAIL_FROM || "no-reply@yourdomain.com"}>`,
+      from: `"Digi Sidekick Support" <${process.env.MAIL_FROM || "support@digisidekick.com"}>`,
       to: email,
       subject: `We received your support request`,
       html: userHtml,

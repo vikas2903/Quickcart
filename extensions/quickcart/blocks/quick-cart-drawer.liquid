@@ -428,6 +428,10 @@
       <span>{{ 'quickcart.view' | t }}</span>
     </div>
 
+  
+    {% render 'estimatedelivery' %}  
+    {% render 'cartnote' %}
+    
     <!-- Gift Wrap Section -->
     <div class="cdp-gift-wrap-section">
       {% if shop.metafields.custom.gift_product_handle != blank %}

@@ -1,0 +1,144 @@
+<div id="upCartNote" class="up-cart-note">
+
+  <!-- Header -->
+  <div class="up-cart-note__header" id="toggleNote">
+    <div class="up-cart-note__title">Add Your Note</div>
+    <div class="up-cart-note__icon">
+      <svg width="16" height="16" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M16 2 L16 30 M2 16 L30 16"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Expandable Content -->
+  <div class="up-cart-note__content">
+    <textarea id="CartNote" rows="3" placeholder="Write your note...">{{ cart.note }}</textarea>
+    
+    <button id="saveCartNote">ADD+</button>
+  </div>
+
+</div>
+
+<style>
+.up-cart-note {
+  border-top: 1px solid #e5e5e5;
+  background: transparent;
+}
+
+
+.up-cart-note__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.up-cart-note__title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+
+.up-cart-note__icon {
+  transition: transform 0.3s ease;
+}
+
+
+.up-cart-note.open .up-cart-note__icon {
+  transform: rotate(45deg);
+}
+
+
+.up-cart-note__content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  padding: 0 12px;
+}
+
+.up-cart-note.open .up-cart-note__content {
+  max-height: 200px;
+  padding:6px 12px;
+}
+
+
+#CartNote {
+  width: 100%;
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+/* Button */
+#saveCartNote {
+  width: 100%;
+  padding: 10px;
+  background: black;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#saveCartNote:hover {
+  opacity: 0.9;
+}
+</style>
+
+<script>
+(function () {
+  const wrapper = document.getElementById("upCartNote");
+  const toggle = document.getElementById("toggleNote");
+  const saveBtn = document.getElementById("saveCartNote");
+
+  if (!wrapper || !toggle || !saveBtn) return;
+
+
+  toggle.addEventListener("click", function () {
+    wrapper.classList.toggle("open");
+  });
+
+
+  function updateCartNote(note) {
+    fetch('/cart/update.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: note })
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Cart note saved:", data.note);
+
+      
+      saveBtn.innerText = "Saved ✓";
+
+     
+      wrapper.classList.remove("open");
+
+      setTimeout(() => {
+        saveBtn.innerText = "ADD ➕";
+      }, 1500);
+    })
+    .catch(err => console.error(err));
+  }
+
+
+  saveBtn.addEventListener("click", function () {
+    const note = document.getElementById("CartNote").value;
+    updateCartNote(note);
+  });
+
+  
+  document.addEventListener("cart:updated", function () {
+    const newNote = document.getElementById("CartNote");
+    if (newNote) {
+      newNote.value = newNote.value;
+    }
+  });
+
+})();
+</script>

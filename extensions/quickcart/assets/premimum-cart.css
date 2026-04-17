@@ -856,7 +856,7 @@ img#popupProductImage2 {
   -webkit-box-orient: vertical;
   overflow: hidden;
   padding-right: 5px;
-  padding-bottom: 5px;
+  padding-bottom: 8px;
 }
 
 .cdp-line-top {
@@ -982,7 +982,7 @@ button.cdp-line-remove {
   text-transform: inherit;
   font-weight: 600;
   color: #000;
-  line-height: 1.4;
+  line-height: 1.2;
   letter-spacing: 0;
   font-family: inherit;
   transition: color 0.2s ease;
@@ -2518,7 +2518,23 @@ div#third-party-integration-wrapper {
   animation-delay: 0s;
   display: block !important;
 }
-
+.gift-box-info {
+    font-size: 14px;
+}
+span.delivery-icon {
+    width: 0;
+}
+#gw-global {
+    background: #fff;
+    border-radius: 8px;
+    padding: 6px 10px !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 8px;
+    font: 600 14px / 1.2 system-ui, -apple-system, Segoe UI, Roboto;
+}
 .ball:nth-child(2) {
   /* background: linear-gradient(45deg, #6bb2f9, #05396d); */
   animation-delay: 0.2s;

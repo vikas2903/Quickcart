@@ -576,7 +576,9 @@
       // console.log("Settings data:", data);
 
       if (data.ok && data.data) {
-        const settings = data.data;
+        const settings = data.data; 
+
+        console.log("_UpcartData", settings)
 
         // Apply settings to the page
         applySettings(settings);

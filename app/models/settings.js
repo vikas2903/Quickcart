@@ -147,6 +147,14 @@ const shippingBarSchema = new mongoose.Schema({
   message: { type: String, default: '' }
 }, { _id: false })
 
+
+
+
+const cartNoteDeliveryEstimate = new mongoose.Schema({
+   cartnoteenable:{ type: Boolean, default: false },
+   estimatedeliveryenable: { type: Boolean, default : false },
+   estimatedeliverydate: { type: Number, default: 7}
+}, {_id:false})
 /**
  * ============================================================================
  * MAIN SETTINGS SCHEMA
@@ -185,7 +193,8 @@ const SettingsSchema = new mongoose.Schema(
     collection: CollectionSchema,
     product: ProductSchema,
     thirdPartyIntegration: ThirdPartyIntegrationSchema,
-    shippingBar: shippingBarSchema
+    shippingBar: shippingBarSchema,
+    cartNoteDeliveryEstimate:cartNoteDeliveryEstimate
   },
 
   {

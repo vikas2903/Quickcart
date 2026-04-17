@@ -359,6 +359,9 @@ function Settings() {
   const [shippingBarBgColor, setShippingBarBgColor] = useState("#d6dde7");
   const [shippingBarTextColor, setShippingBarTextColor] = useState("#000000");
   const [shippingBarMessage, setShippingBarMessage] = useState("Free shipping on orders above {{threshold}}");
+  const [cartNoteEnable, setCartNoteEnable] = useState(false);
+  const [deliveryEstimateEnable, setDeliveryEstimateEnable] = useState(false);
+  const [deliveryEstimateDays, setDeliveryEstimateDays] = useState(7);
 
   const [buttonColor, setButtonColor] = useState("#000000");
   const [buttonTextColor, setButtonTextColor] = useState("#fff");
@@ -412,6 +415,12 @@ function Settings() {
   };
   const handleShippingBarTextColor = (color) => {
     setShippingBarTextColor(color.toHexString());
+  };
+  const handleCartNoteEnable = (e) => {
+    setCartNoteEnable(e.target.checked);
+  };
+  const handleDeliveryEstimateEnable = (e) => {
+    setDeliveryEstimateEnable(e.target.checked);
   };
 
   const handleCollectionEnable = (e) => {
@@ -587,6 +596,11 @@ function Settings() {
           setShippingBarBgColor(shippingBar.bgColor || "#d6dde7");
           setShippingBarTextColor(shippingBar.textColor || "#000000");
           setShippingBarMessage(shippingBar.message || "Free shipping on orders above {{threshold}}");
+
+          const cartNoteDeliveryEstimate = data.cartNoteDeliveryEstimate || {};
+          setCartNoteEnable(cartNoteDeliveryEstimate.cartnoteenable ?? false);
+          setDeliveryEstimateEnable(cartNoteDeliveryEstimate.estimatedeliveryenable ?? false);
+          setDeliveryEstimateDays(cartNoteDeliveryEstimate.estimatedeliverydate ?? 7);
         }
       } catch (error) {
         // Step 4: Handle errors gracefully
@@ -631,6 +645,9 @@ function Settings() {
       shippingBarBgColor,
       shippingBarTextColor,
       shippingBarMessage,
+      cartNoteEnable,
+      deliveryEstimateEnable,
+      deliveryEstimateDays,
     }),
     [
       countdownBackgroundColor,
@@ -662,6 +679,9 @@ function Settings() {
       shippingBarBgColor,
       shippingBarTextColor,
       shippingBarMessage,
+      cartNoteEnable,
+      deliveryEstimateEnable,
+      deliveryEstimateDays,
     ],
   );
 
@@ -738,6 +758,11 @@ function Settings() {
         bgColor: shippingBarBgColor,
         textColor: shippingBarTextColor,
         message: shippingBarMessage,
+      },
+      cartNoteDeliveryEstimate: {
+        cartnoteenable: cartNoteEnable,
+        estimatedeliveryenable: deliveryEstimateEnable,
+        estimatedeliverydate: deliveryEstimateDays,
       },
     };
 
@@ -908,6 +933,13 @@ function Settings() {
                 >
                   <span className="tab-icon">🚚</span>
                   {t("Free Shipping Bar")}
+                </button>
+                <button
+                  className={`settings-tab-btn ${tabsbutton === 7 ? "active" : ""}`}
+                  onClick={() => settabsbutton(7)}
+                >
+                  <span className="tab-icon">CE</span>
+                  Cart Note & Delivery
                 </button>
               </div>
             </Layout.Section>
@@ -1625,6 +1657,66 @@ function Settings() {
                               value={shippingBarMessage}
                               onChange={(e) => setShippingBarMessage(e.target.value)}
                               className=""
+                            />
+                          </div>
+                        </div>
+                      </LegacyCard>
+                    </BlockStack>
+                  </Grid.Cell>
+                </Grid>
+              </Layout.Section>
+            )}
+
+            {tabsbutton === 7 && (
+              <Layout.Section>
+                <Grid>
+                  <Grid.Cell
+                    columnSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                    gap="small"
+                  >
+                    <BlockStack gap="200">
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Cart Note Enable</div>
+                          <InfoBanner text="Enable or disable the cart note block in the cart drawer." />
+                          <div className="color-picker-container">
+                            <Checkbox
+                              checked={cartNoteEnable}
+                              onChange={handleCartNoteEnable}
+                            >
+                              {" "}
+                              Enable Cart Note
+                            </Checkbox>
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">Cart Estimate Enable</div>
+                          <InfoBanner text="Enable or disable the estimated delivery block in the cart drawer." />
+                          <div className="color-picker-container">
+                            <Checkbox
+                              checked={deliveryEstimateEnable}
+                              onChange={handleDeliveryEstimateEnable}
+                            >
+                              {" "}
+                              Enable Delivery Estimate
+                            </Checkbox>
+                          </div>
+                        </div>
+                      </LegacyCard>
+
+                      <LegacyCard sectioned>
+                        <div className="grid-item">
+                          <div className="column-title">No. of Days</div>
+                          <InfoBanner text="Set how many days to add for the estimated delivery date." />
+                          <div className="color-picker-container">
+                            <InputNumber
+                              value={deliveryEstimateDays}
+                              onChange={(value) => setDeliveryEstimateDays(value || 0)}
+                              min={0}
+                              max={365}
                             />
                           </div>
                         </div>
