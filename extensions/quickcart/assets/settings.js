@@ -61,6 +61,52 @@
   // Apply settings to the page dynamically
   function applySettings(settings) {
 
+    const cartnotenable = settings.cartNoteDeliveryEstimate.cartnoteenable;
+
+    if(!cartnotenable){
+      document.querySelector("#upCartNote").style.display = 'none';
+    }
+
+    if(settings.cartNoteDeliveryEstimate){
+
+        const deliveryDays = settings.cartNoteDeliveryEstimate.estimatedeliverydate;
+        const deliverEnable = settings.cartNoteDeliveryEstimate.estimatedeliveryenable;
+
+        if(!deliverEnable){
+          document.querySelector("#deliveryInfoBox").style.display = 'none';
+        }
+
+        const textEl = document.getElementById("deliveryText");
+        if (!textEl) return;
+
+        function formatDate(date) {
+          return date.toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            weekday: 'short'
+          });
+        }
+
+
+        function getDeliveryDate(days) {
+          const d = new Date();
+          d.setDate(d.getDate() + days);
+          return formatDate(d);
+        }
+
+
+        function renderDelivery() {
+          const deliveryDate = getDeliveryDate(deliveryDays);
+          const type = deliveryDays <= 3 ? "⚡ Express" : "🚚 Standard";
+
+          textEl.innerText = `${type} Delivery by ${deliveryDate}`;
+        }
+
+        renderDelivery();
+        document.addEventListener("cart:updated", renderDelivery);
+
+    }
+
     if (settings.thirdPartyIntegration.enabled == true) {
       document.querySelector(".cdp-footer-right").classList.add("thirdPartyIntegration_true");
     } else {
