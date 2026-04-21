@@ -31,7 +31,8 @@ export default function App() {
         <Link to="/app" rel="home"> Upcart</Link>
         <Link to="/app/settings">Styling </Link>
         <Link to="/app/progressbar">Prices Based ProgressBar</Link>
-        <Link to="/app/progressbaron1">BxGy-ProgressBar</Link>
+        <Link to= "/app/quantitytrieddiscount">Quanity Based ProgressBar</Link>
+        <Link to="/app/progressbaron1">BxGy Discount ProgressBar</Link>
         <Link to="/app/giftproduct">Free Gift Product</Link>
         <Link to="/app/help">Support</Link>
         <Link to="/app/documentation">Documentation</Link>

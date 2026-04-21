@@ -60,69 +60,22 @@
 
   // Apply settings to the page dynamically
   function applySettings(settings) {
-
-    const cartNoteSettings = settings.cartNoteDeliveryEstimate;
-    const cartNoteElement = document.querySelector("#upCartNote");
-    const deliveryInfoBox = document.querySelector("#deliveryInfoBox");
-    const cartnotenable = cartNoteSettings?.cartnoteenable;
-
-    if(cartNoteSettings){
-
-        const deliveryDays = Number(cartNoteSettings.estimatedeliverydate ?? 7);
-        const deliverEnable = cartNoteSettings.estimatedeliveryenable;
-
-        if (cartNoteElement) {
-          cartNoteElement.style.display = cartnotenable ? 'block' : 'none';
-        }
-
-        if (deliveryInfoBox) {
-          deliveryInfoBox.style.display = deliverEnable ? 'block' : 'none';
-        }
-
-        
-
-        const textEl = document.getElementById("deliveryText");
-        if (!textEl || !deliverEnable) return;
-
-        function formatDate(date) {
-          return date.toLocaleDateString('en-IN', {
-            day: 'numeric',
-            month: 'short',
-            weekday: 'short'
-          });
-        }
-
-
-        function getDeliveryDate(days) {
-          const d = new Date();
-          d.setDate(d.getDate() + days);
-          return formatDate(d);
-        }
-
-
-        function renderDelivery() {
-          const deliveryDate = getDeliveryDate(deliveryDays);
-          const type = deliveryDays <= 3 ? "⚡ Express" : "🚚 Standard";
-
-          textEl.innerText = `${type} Delivery by ${deliveryDate}`;
-        }
-
-        renderDelivery();
-        document.addEventListener("cart:updated", renderDelivery);
-
-    }
-
-    
-    if (settings.thirdPartyIntegration.enabled == true) {
-      document.querySelector(".cdp-footer-right").classList.add("thirdPartyIntegration_true");
-    } else {
-      document.querySelector(".cdp-footer-right").classList.remove("thirdPartyIntegration_true");
-    }
-
-
     const root = document.documentElement;
     const drawer = document.getElementById("CartDrawerPremium");
     if (!drawer) return;
+    const footerRight = document.querySelector(".cdp-footer-right");
+    const checkoutButton = document.querySelector(".cdp-checkout");
+    const cartLines = document.querySelector(".cdp-lines");
+    const announcementBarNode = document.querySelector("[data-announcement-bar]");
+    const contentNode = document.querySelector(".cdp-content");
+    const combinedOfferBadge = document.querySelector(".combined-offer-badge");
+    const mobileUpsell = document.querySelector(".mob_upsell");
+
+    if (settings.thirdPartyIntegration?.enabled === true) {
+      footerRight?.classList.add("thirdPartyIntegration_true");
+    } else {
+      footerRight?.classList.remove("thirdPartyIntegration_true");
+    }
 
     // Store settings globally
     window.QuickCartSettings.data = settings;
@@ -219,19 +172,24 @@
         );
 
 
-        document.querySelector(".cdp-checkout").style.borderRadius =
-          settings.cartDrawer.button_border_radius + "px";
+        if (checkoutButton) {
+          checkoutButton.style.borderRadius =
+            (settings.cartDrawer.button_border_radius ?? settings.cartDrawer.border_radius) + "px";
+        }
 
 
-        document.querySelector(".cdp-lines").style.borderRadius =
-          settings.cartDrawer.border_radius + "px";
+        if (cartLines) {
+          cartLines.style.borderRadius = settings.cartDrawer.border_radius + "px";
+        }
 
 
-        document.querySelector("[data-announcement-bar]").style.borderRadius =
-          settings.cartDrawer.border_radius + "px";
+        if (announcementBarNode) {
+          announcementBarNode.style.borderRadius = settings.cartDrawer.border_radius + "px";
+        }
 
-        document.querySelector(".cdp-content").style.borderRadius =
-          settings.cartDrawer.border_radius + "px";
+        if (contentNode) {
+          contentNode.style.borderRadius = settings.cartDrawer.border_radius + "px";
+        }
 
         function applyLineRadius() {
           document.querySelectorAll(".cdp-line").forEach((item) => {
@@ -243,7 +201,7 @@
         applyLineRadius();
 
         // Watch for cart item add/remove
-        const cartContainer = document.querySelector(".cdp-lines");
+        const cartContainer = cartLines;
 
         if (cartContainer) {
           const observer = new MutationObserver(() => {
@@ -266,18 +224,19 @@
 
       if (settings.cartDrawer.button_color) {
 
-        document.querySelector(".cdp-checkout").style.backgroundColor =
-          settings.cartDrawer.button_color;
+        if (checkoutButton) {
+          checkoutButton.style.backgroundColor = settings.cartDrawer.button_color;
+          checkoutButton.style.color = settings.cartDrawer.button_text_color || "";
+        }
 
         document.querySelectorAll('.mob_upsell .cdp-u-final').forEach((item) => {
           item.style.color = settings.cartDrawer.button_color;
         });
 
 
-        document.querySelector('.cdp-checkout').style.color = settings.cartDrawer.button_text_color;
-
-        document.querySelector(".combined-offer-badge").style.backgroundColor =
-          settings.cartDrawer.button_color;
+        if (combinedOfferBadge) {
+          combinedOfferBadge.style.backgroundColor = settings.cartDrawer.button_color;
+        }
         document.querySelectorAll(" .ball").forEach((ball) => {
           ball.style.backgroundColor =
             settings.cartDrawer.button_color;
@@ -289,8 +248,9 @@
           "--checkout_text_color",
           settings.cartDrawer.button_text_color,
         );
-        document.querySelector(".combined-offer-badge").style.color =
-          settings.cartDrawer.button_text_color;
+        if (combinedOfferBadge) {
+          combinedOfferBadge.style.color = settings.cartDrawer.button_text_color;
+        }
       }
 
       if (settings.cartDrawer.button_border_radius !== undefined) {
@@ -324,7 +284,7 @@
               settings.announcementBar.text_color;
           }
 
-          if (settings.cartDrawer.border_radius !== undefined) {
+          if (settings.cartDrawer?.border_radius !== undefined) {
             announcementBarElement.style.borderRadius =
               settings.cartDrawer.border_radius + "px";
           }
@@ -448,8 +408,7 @@
 
 
     if (settings.thirdPartyIntegration) {
-      const existingCheckout = document.querySelector(".cdp-checkout");
-      const footerRight = document.querySelector(".cdp-footer-right");
+      const existingCheckout = checkoutButton;
 
       if (settings.thirdPartyIntegration.enabled == false) {
         {
@@ -459,7 +418,9 @@
           }
         }
       } else {
-        document.querySelector(".cdp-checkout").style.display = "block";
+        if (existingCheckout) {
+          existingCheckout.style.display = "block";
+        }
       }
 
       if (settings.thirdPartyIntegration.enabled) {
@@ -526,14 +487,71 @@
 
 
       if (settings.collection.enabled == true) {
-        document.querySelector('.mob_upsell').style.display = '';
+        if (mobileUpsell) {
+          mobileUpsell.style.display = '';
+        }
 
       } else {
-        document.querySelector('.mob_upsell').style.display = 'none';
+        if (mobileUpsell) {
+          mobileUpsell.style.display = 'none';
+        }
         // upsell_next_insert.insertAdjacentHTML('afterend', emptyContent);
       }
     }
 
+
+    //  ################ CartNote & Estimation ################
+
+    const cartNoteSettings = settings.cartNoteDeliveryEstimate;
+    const cartNoteElement = document.querySelector("#upCartNote");
+    const deliveryInfoBox = document.querySelector("#deliveryInfoBox");
+    const cartnotenable = cartNoteSettings?.cartnoteenable;
+
+    if(cartNoteSettings){
+
+        const deliveryDays = Number(cartNoteSettings.estimatedeliverydate ?? 7);
+        const deliverEnable = cartNoteSettings.estimatedeliveryenable;
+
+        if (cartNoteElement) {
+          cartNoteElement.style.display = cartnotenable ? 'block' : 'none';
+        }
+
+        if (deliveryInfoBox) {
+          deliveryInfoBox.style.display = deliverEnable ? 'block' : 'none';
+        }
+
+
+        const textEl = document.getElementById("deliveryText");
+
+        function formatDate(date) {
+          return date.toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            weekday: 'short'
+          });
+        }
+
+
+        function getDeliveryDate(days) {
+          const d = new Date();
+          d.setDate(d.getDate() + days);
+          return formatDate(d);
+        }
+
+        function renderDelivery() {
+          const deliveryDate = getDeliveryDate(deliveryDays);
+          const type = deliveryDays <= 3 ? "⚡ Express" : "🚚 Standard";
+
+          textEl.innerText = `${type} Delivery by ${deliveryDate}`;
+        }
+        if (textEl && deliverEnable) {
+          renderDelivery();
+          document.addEventListener("cart:updated", renderDelivery);
+        }
+
+    }
+ 
+    // ################ artNote & Estimation ################
 
 
     // Dispatch event to notify other scripts that settings have been applied

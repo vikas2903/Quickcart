@@ -28,11 +28,11 @@
 
     function fireConfettiFromDrawerBottom(drawerSelector) {
       const drawer = document.querySelector(drawerSelector);
-      if (!drawer || typeof confetti !== "function") return;
+      if (!drawer || typeof window.confetti !== "function") return;
 
       const rect = drawer.getBoundingClientRect();
 
-      confetti({
+      window.confetti({
         position: {
           x: rect.right - 250,   // center of drawer
           y: rect.bottom - 150               // bottom edge of drawer
@@ -289,8 +289,8 @@
       const safeCents = isFinite(cents) ? cents : 0;
       let result;
 
-      if (window.Shopify && typeof Shopify.formatMoney === "function") {
-        result = Shopify.formatMoney(safeCents, moneyFormat);
+      if (window.Shopify && typeof window.Shopify.formatMoney === "function") {
+        result = window.Shopify.formatMoney(safeCents, moneyFormat);
       } else {
         const amount = safeCents / 100;
         result = amount.toLocaleString(undefined, {
@@ -1161,8 +1161,8 @@
   function formatPriceWithHTML(price, moneyFormat, drawerEl) {
     let formattedPrice = "";
 
-    if (window.Shopify && typeof Shopify.formatMoney === "function") {
-      formattedPrice = Shopify.formatMoney(price, moneyFormat);
+    if (window.Shopify && typeof window.Shopify.formatMoney === "function") {
+      formattedPrice = window.Shopify.formatMoney(price, moneyFormat);
 
       // Check if the result contains HTML tags
       const tempDiv = document.createElement("div");
@@ -1308,8 +1308,8 @@
       const safeCents = isFinite(cents) ? cents : 0;
       let result;
 
-      if (window.Shopify && typeof Shopify.formatMoney === "function") {
-        result = Shopify.formatMoney(safeCents, moneyFormat);
+      if (window.Shopify && typeof window.Shopify.formatMoney === "function") {
+        result = window.Shopify.formatMoney(safeCents, moneyFormat);
       } else {
         const amount = safeCents / 100;
         result = amount.toLocaleString(undefined, {
@@ -1641,7 +1641,7 @@
 
   (() => {
     const themes = ["Horizon", "Tinker", "Savor", "Atelier", "Heritage", "Fabric", "Ritual"];
-    if (!themes.includes(Shopify?.theme?.schema_name)) return;
+    if (!themes.includes(window.Shopify?.theme?.schema_name)) return;
 
     let lock = false;
 

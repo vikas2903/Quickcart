@@ -147,15 +147,13 @@
         <button class="cdp-close" aria-label="{{ 'quickcart.close' | t }}" data-close>&#10005;</button>
       </header>
 
-      {% render 'timer', show_countdown: block.settings.show_countdown, backgroundcolor: block.settings.count_down_bg %}
-      {% render 'announcementbar',
-        show_announcementbar: block.settings.show_announcementbar_text,
-        announcementbar_text: block.settings.announcementbar_text
-      %}
+      {%- render 'timer', show_countdown: block.settings.show_countdown, backgroundcolor: block.settings.count_down_bg -%}
+      {%- render 'announcementbar', show_announcementbar: block.settings.show_announcementbar_text, announcementbar_text: block.settings.announcementbar_text -%}
+      {%- render 'quantity-tried-discount-progressbar' -%}
+      {%- render 'progress-bar' -%}
+      {%- render 'progressbar_qty_condition' -%}
+      {%- render 'shipping-bar1' -%}
 
-      {% render 'progress-bar' %}
-      {% render 'progressbar_qty_condition' %}
-      {% render 'shipping-bar1' %}
     </div>
     <div class="cdp-body">
       <!-- Left rail: vertical upsell slider with VARIANT PICKER -->
@@ -428,9 +426,8 @@
       <span>{{ 'quickcart.view' | t }}</span>
     </div>
 
-  
-    {% render 'estimatedelivery' %}  
-    {% render 'cartnote' %}
+    {%- render 'estimatedelivery' -%}   
+    {%- render 'cartnote' -%}
     
     <!-- Gift Wrap Section -->
     <div class="cdp-gift-wrap-section">
@@ -644,6 +641,7 @@
     </div>
   </div>
 </section>
+
 <script src="{{ 'cartdrawer-settings.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'settings.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'premimum-cart.js' | asset_url }}" defer="defer"></script>

@@ -2547,10 +2547,7 @@ span.delivery-icon {
   display: block !important;
 }
 
-div#deliveryInfoBox {
-    display: none;
-}
-
+div#deliveryInfoBox {display: none;}
 .up-cart-note{display:none;}
 @keyframes bounce {
   from {

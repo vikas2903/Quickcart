@@ -41,7 +41,9 @@
 
   // ---- THEME NAME (best-effort, used only for logging / special-case hooks) ----
   const themeName =
-    (window.Shopify && Shopify.theme && (Shopify.theme.name || Shopify.theme.schema_name)) ||
+    (window.Shopify &&
+      window.Shopify.theme &&
+      (window.Shopify.theme.name || window.Shopify.theme.schema_name)) ||
     "";
 
   // ---- DOM HOOKS INSIDE DRAWER ----
@@ -114,14 +116,18 @@
   /* ================= AJAX HELPERS ================= */
   const fmtMoney = (cents) => {
     try {
-      if (window.Shopify && typeof Shopify.formatMoney === "function") {
-        return Shopify.formatMoney(
+      if (window.Shopify && typeof window.Shopify.formatMoney === "function") {
+        return window.Shopify.formatMoney(
           cents,
           "{{ shop.money_format | strip_newlines | escape }}"
         );
       }
       // Fallback: use shop currency if available
-      const c = (window.Shopify && Shopify.currency && Shopify.currency.active) || "{{ shop.currency }}";
+      const c =
+        (window.Shopify &&
+          window.Shopify.currency &&
+          window.Shopify.currency.active) ||
+        "{{ shop.currency }}";
       return (cents / 100).toLocaleString(undefined, { style: "currency", currency: c });
     } catch (e) {
       return "₹" + (cents / 100).toFixed(2);
