@@ -142,7 +142,7 @@
             console.warn("shop name not found in DOM or Shopify global");
             applyDefaultMilestones();
             if (progressWrapper) {
-                progressWrapper.style.display = "block";
+                progressWrapper.style.display = "none";
             }
             progressState.milestonesLoaded = true;
             return;
@@ -187,15 +187,7 @@
         progressState.milestonesLoaded = true;
 
         console.log("responseConvertedToJson", responseConvertedToJson);
-        let enableMilestoneProgressBar = hasValidMilestones;
-
-        if (responseConvertedToJson?.ok && responseConvertedToJson?.data) {
-            enableMilestoneProgressBar = responseConvertedToJson.data.enabled || hasValidMilestones;
-        }
-
-        if (!hasValidMilestones) {
-            enableMilestoneProgressBar = true;
-        }
+        const enableMilestoneProgressBar = !!(responseConvertedToJson?.ok && responseConvertedToJson?.data?.enabled);
 
         if (progressWrapper) {
             progressWrapper.style.display = enableMilestoneProgressBar ? "block" : "none";
@@ -322,5 +314,4 @@
         };
     }
 })();
-
 

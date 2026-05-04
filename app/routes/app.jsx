@@ -33,10 +33,10 @@ export default function App() {
         <Link to="/app/progressbar">Prices Based ProgressBar</Link>
         <Link to= "/app/quantitytrieddiscount">Quanity Based ProgressBar</Link>
         <Link to="/app/progressbaron1">BxGy Discount ProgressBar</Link>
-
+        <Link to="/app/collection-based-progressbar-qty-price-based-modals">Collection Separate ProgressBar</Link>
         <Link to="/app/giftproduct">Free Gift Product</Link>
-        <Link to="/app/help">Support</Link>
         <Link to="/app/documentation">Documentation</Link>
+        <Link to="/app/help">Support</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

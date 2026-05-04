@@ -2,14 +2,21 @@
     const progressState = window.__collectionBasedProgressBarState || {
         productCache: {},
         domReadyBound: false,
-        updateTimeout: null
+        updateTimeout: null,
+        configLoaded: false
     };
 
     window.__collectionBasedProgressBarState = progressState;
 
-    const TARGET_TAG = "test-collection-vs";
+    const drawerEl = document.getElementById("CartDrawerPremium");
+    const appUrl = drawerEl?.getAttribute("data-app-url") || "";
+    const shopDomain = document.querySelector("#shop-primary-url")?.value || window.Shopify?.shop || "";
+    const progressWrapper = document.querySelector(".cw-progress-shell");
+    const DEFAULT_TARGET_TAG = "test-collection-vs";
 
     let progressConfig = {
+        enabled: false,
+        collectionTag: DEFAULT_TARGET_TAG,
         mode: "quantity",
         currentPrice: 0,
         currentQuantity: 0,
@@ -44,6 +51,75 @@
             ]
         }
     };
+
+    function sanitizeMilestones(rawMilestones) {
+        if (!Array.isArray(rawMilestones)) {
+            return [];
+        }
+
+        return rawMilestones
+            .map(function (milestone) {
+                return {
+                    value: Number(milestone?.value || 0),
+                    text: String(milestone?.text || "").trim()
+                };
+            })
+            .filter(function (milestone) {
+                return Number.isFinite(milestone.value) && milestone.value >= 0 && milestone.text;
+            })
+            .sort(function (a, b) {
+                return a.value - b.value;
+            });
+    }
+
+    async function loadProgressConfig() {
+        if (progressState.configLoaded) {
+            return;
+        }
+
+        if (!shopDomain) {
+            if (progressWrapper) {
+                progressWrapper.style.display = "none";
+            }
+            progressState.configLoaded = true;
+            return;
+        }
+
+        try {
+            const endpoint = (appUrl || "") + "/app/quickcart/collection-based-progressbar-qty-price-based";
+            const response = await fetch(endpoint, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Shopify-Shop-Domain": shopDomain,
+                    Accept: "application/json"
+                }
+            });
+
+            const result = await response.json();
+            const data = result?.data;
+
+            if (response.ok && data) {
+                const priceMilestones = sanitizeMilestones(data?.milestones?.price);
+                const quantityMilestones = sanitizeMilestones(data?.milestones?.quantity);
+
+                progressConfig = {
+                    ...progressConfig,
+                    enabled: !!data.progressbarEnabled,
+                    collectionTag: String(data.collectionTag || DEFAULT_TARGET_TAG).trim() || DEFAULT_TARGET_TAG,
+                    mode: data.mode === "quantity" ? "quantity" : "price",
+                    milestones: {
+                        price: priceMilestones.length ? priceMilestones : progressConfig.milestones.price,
+                        quantity: quantityMilestones.length ? quantityMilestones : progressConfig.milestones.quantity
+                    }
+                };
+            }
+        } catch (error) {
+            console.error("Collection progress config fetch failed:", error);
+        }
+
+        progressState.configLoaded = true;
+    }
 
     const MILESTONE_ICONS = [
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>',
@@ -90,7 +166,9 @@
             (cart?.items || []).map(async function (item) {
                 const product = await getProduct(item.handle);
 
-                if (!product || !Array.isArray(product.tags) || !product.tags.includes(TARGET_TAG)) {
+                const targetTag = progressConfig.collectionTag || DEFAULT_TARGET_TAG;
+
+                if (!product || !Array.isArray(product.tags) || !product.tags.includes(targetTag)) {
                     return;
                 }
 
@@ -167,6 +245,10 @@
             return;
         }
 
+        if (progressWrapper) {
+            progressWrapper.style.display = progressConfig.enabled && milestones.length ? "block" : "none";
+        }
+
         if (!milestones.length) {
             stepsContainer.innerHTML = "";
             return;
@@ -197,6 +279,16 @@
         const currentValue = progressSettings.currentValue;
 
         if (!fill || !message || !milestones.length) {
+            if (progressWrapper) {
+                progressWrapper.style.display = "none";
+            }
+            return;
+        }
+
+        if (!progressConfig.enabled) {
+            if (progressWrapper) {
+                progressWrapper.style.display = "none";
+            }
             return;
         }
 
@@ -287,6 +379,8 @@
 
     async function onCartUpdate() {
         try {
+            await loadProgressConfig();
+
             const cart = await getCart();
             const taggedCartData = await getTaggedCartData(cart);
 

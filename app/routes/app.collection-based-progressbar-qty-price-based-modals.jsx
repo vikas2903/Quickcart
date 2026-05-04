@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { json } from "@remix-run/node";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { Form, Input, InputNumber, Button, Card, Select, Row, Col, Typography, Space } from "antd";
+import { Form, Input, InputNumber, Button, Card, Select, Row, Col, Typography, Space, Checkbox, Alert } from "antd";
 import { StyleProvider } from "@ant-design/cssinjs";
 import { authenticate } from "../shopify.server.js";
+import { useLoaderData } from "@remix-run/react";
 
 const { Title, Text } = Typography;
 
 const milestoneIndexes = [0, 1, 2];
+const API_URL = "/api/app/collection-based-progressbar-qty-price-based";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
@@ -15,14 +17,18 @@ export const loader = async ({ request }) => {
 };
 
 export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
+  const { shop } = useLoaderData();
   const [form] = Form.useForm();
   const [styleContainer, setStyleContainer] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState(null);
 
   useEffect(() => {
     setStyleContainer(document.head || document.body || null);
   }, []);
 
   const initialValues = {
+    progressbarEnabled: false,
     collectionTag: "test-collection-vs",
     mode: "quantity",
     priceMilestones: [
@@ -37,8 +43,137 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
     ],
   };
 
-  const handleFinish = (values) => {
-    console.log("collection-based-progressbar-qty-price-based payload:", values);
+  const watchedMode = Form.useWatch("mode", form) || initialValues.mode;
+  const watchedPriceMilestones = Form.useWatch("priceMilestones", form) || initialValues.priceMilestones;
+  const watchedQuantityMilestones = Form.useWatch("quantityMilestones", form) || initialValues.quantityMilestones;
+
+  const priceTierCount = useMemo(
+    () =>
+      milestoneIndexes.filter((index) => {
+        const milestone = watchedPriceMilestones?.[index];
+        return String(milestone?.text || "").trim() !== "" && milestone?.value !== undefined && milestone?.value !== null && String(milestone.value).trim() !== "";
+      }).length,
+    [watchedPriceMilestones],
+  );
+
+  const quantityTierCount = useMemo(
+    () =>
+      milestoneIndexes.filter((index) => {
+        const milestone = watchedQuantityMilestones?.[index];
+        return String(milestone?.text || "").trim() !== "" && milestone?.value !== undefined && milestone?.value !== null && String(milestone.value).trim() !== "";
+      }).length,
+    [watchedQuantityMilestones],
+  );
+
+  const hasTierGap = (milestones) =>
+    milestoneIndexes.some((index) => {
+      if (index === 0) return false;
+      const current = milestones?.[index];
+      const previous = milestones?.[index - 1];
+      const isCurrentFilled =
+        String(current?.text || "").trim() !== "" &&
+        current?.value !== undefined &&
+        current?.value !== null &&
+        String(current.value).trim() !== "";
+      const isPreviousFilled =
+        String(previous?.text || "").trim() !== "" &&
+        previous?.value !== undefined &&
+        previous?.value !== null &&
+        String(previous.value).trim() !== "";
+
+      return isCurrentFilled && !isPreviousFilled;
+    });
+
+  const hasPriceTierGap = hasTierGap(watchedPriceMilestones);
+  const hasQuantityTierGap = hasTierGap(watchedQuantityMilestones);
+
+  useEffect(() => {
+    async function loadSavedData() {
+      try {
+        const response = await fetch(API_URL, {
+          method: "GET",
+          headers: {
+            "X-Shopify-Shop-Domain": shop,
+            Accept: "application/json",
+          },
+        });
+
+        const result = await response.json();
+        const data = result?.data;
+
+        if (!response.ok || !data) {
+          return;
+        }
+
+        form.setFieldsValue({
+          progressbarEnabled: !!data.progressbarEnabled,
+          collectionTag: data.collectionTag || initialValues.collectionTag,
+          mode: data.mode || initialValues.mode,
+          priceMilestones: milestoneIndexes.map((index) => ({
+            value: data.milestones?.price?.[index]?.value ?? initialValues.priceMilestones[index].value,
+            text: data.milestones?.price?.[index]?.text ?? "",
+          })),
+          quantityMilestones: milestoneIndexes.map((index) => ({
+            value: data.milestones?.quantity?.[index]?.value ?? initialValues.quantityMilestones[index].value,
+            text: data.milestones?.quantity?.[index]?.text ?? "",
+          })),
+        });
+      } catch (error) {
+        console.warn("Failed to load collection-based progress bar config:", error);
+      }
+    }
+
+    loadSavedData();
+  }, [form, shop]);
+
+  function normalizeMilestones(rawMilestones) {
+    if (!Array.isArray(rawMilestones)) return [];
+
+    return rawMilestones
+      .map((milestone) => ({
+        value: Number(milestone?.value),
+        text: String(milestone?.text || "").trim(),
+      }))
+      .filter((milestone) => Number.isFinite(milestone.value) && milestone.value >= 0 && milestone.text);
+  }
+
+  const handleFinish = async (values) => {
+    const payload = {
+      progressbarEnabled: !!values.progressbarEnabled,
+      collectionTag: String(values.collectionTag || "").trim(),
+      mode: values.mode === "quantity" ? "quantity" : "price",
+      priceMilestones: normalizeMilestones(values.priceMilestones),
+      quantityMilestones: normalizeMilestones(values.quantityMilestones),
+    };
+
+    console.log("Submitting payload:", payload);
+
+    setIsSubmitting(true);
+    setStatus(null);
+
+    try {
+      const response = await fetch(`https://quickcart-vf8k.onrender.com/app/api/app/collection-based-progressbar-qty-price-based`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Shop-Domain": shop,
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result?.ok) {
+        throw new Error(result?.error || "Failed to save collection-based progress bar");
+      }
+
+      setStatus({ type: "success", message: "Collection-based progress bar saved successfully." });
+    } catch (error) {
+      setStatus({ type: "error", message: error?.message || "Failed to save collection-based progress bar." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -64,9 +199,17 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                   Collection Based Progressbar Fields
                 </Title>
                 <Text type="secondary">
-                  All fields are required. Save will only print the form payload in the browser console.
+                  Use a single tier, two tiers, or all three tiers depending on your offer structure. Save now stores this configuration in the database.
                 </Text>
               </div>
+
+              {status ? (
+                <Alert
+                  type={status.type}
+                  message={status.message}
+                  showIcon
+                />
+              ) : null}
 
               <Form
                 form={form}
@@ -74,6 +217,14 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                 initialValues={initialValues}
                 onFinish={handleFinish}
               >
+                <Form.Item
+                  label="Enable Collection Based Progress Bar"
+                  name="progressbarEnabled"
+                  valuePropName="checked"
+                >
+                  <Checkbox>Show this progress bar on storefront</Checkbox>
+                </Form.Item>
+
                 <Row gutter={16}>
                   <Col xs={24} md={12}>
                     <Form.Item
@@ -102,11 +253,38 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                   </Col>
                 </Row>
 
+                <Alert
+                  style={{ marginBottom: 20 }}
+                  type="info"
+                  showIcon
+                  message="How tier setup works"
+                  description="For a single-tier bar, fill only milestone 1. For two tiers, fill milestone 1 and 2. For three tiers, fill all three in order. Later milestones are optional, but milestone 1 should always be completed first."
+                />
+
                 <Card
                   size="small"
                   title="Price Milestones"
                   style={{ marginBottom: 20, borderRadius: 12 }}
                 >
+                  <Space direction="vertical" size={12} style={{ width: "100%", marginBottom: 16 }}>
+                    <Alert
+                      type={priceTierCount <= 1 ? "success" : "info"}
+                      showIcon
+                      message={
+                        priceTierCount <= 1
+                          ? "Single-tier price setup detected. Complete Milestone 1 only if you want one price reward."
+                          : `${priceTierCount}-tier price setup detected. Keep values increasing from Milestone 1 onward.`
+                      }
+                    />
+                    {hasPriceTierGap ? (
+                      <Alert
+                        type="warning"
+                        showIcon
+                        message="Complete price milestones in order"
+                        description="Fill Price Milestone 1 first, then Milestone 2, then Milestone 3. Do not skip an earlier price milestone."
+                      />
+                    ) : null}
+                  </Space>
                   <Row gutter={[16, 0]}>
                     {milestoneIndexes.map((index) => (
                       <React.Fragment key={`price-${index}`}>
@@ -114,7 +292,6 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                           <Form.Item
                             label={`Price Milestone ${index + 1} Value`}
                             name={["priceMilestones", index, "value"]}
-                            rules={[{ required: true, message: "Value is required" }]}
                           >
                             <InputNumber
                               min={0}
@@ -127,7 +304,11 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                           <Form.Item
                             label={`Price Milestone ${index + 1} Text`}
                             name={["priceMilestones", index, "text"]}
-                            rules={[{ required: true, message: "Text is required" }]}
+                            extra={
+                              index === 0
+                                ? "Required for any price-based setup."
+                                : `Optional. Fill this only if you want Price Milestone ${index + 1}.`
+                            }
                           >
                             <Input placeholder="Enter milestone text" />
                           </Form.Item>
@@ -142,6 +323,25 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                   title="Quantity Milestones"
                   style={{ marginBottom: 20, borderRadius: 12 }}
                 >
+                  <Space direction="vertical" size={12} style={{ width: "100%", marginBottom: 16 }}>
+                    <Alert
+                      type={quantityTierCount <= 1 ? "success" : "info"}
+                      showIcon
+                      message={
+                        quantityTierCount <= 1
+                          ? "Single-tier quantity setup detected. Complete Milestone 1 only if you want one quantity reward."
+                          : `${quantityTierCount}-tier quantity setup detected. Keep values increasing from Milestone 1 onward.`
+                      }
+                    />
+                    {hasQuantityTierGap ? (
+                      <Alert
+                        type="warning"
+                        showIcon
+                        message="Complete quantity milestones in order"
+                        description="Fill Quantity Milestone 1 first, then Milestone 2, then Milestone 3. Do not skip an earlier quantity milestone."
+                      />
+                    ) : null}
+                  </Space>
                   <Row gutter={[16, 0]}>
                     {milestoneIndexes.map((index) => (
                       <React.Fragment key={`quantity-${index}`}>
@@ -149,7 +349,6 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                           <Form.Item
                             label={`Quantity Milestone ${index + 1} Value`}
                             name={["quantityMilestones", index, "value"]}
-                            rules={[{ required: true, message: "Value is required" }]}
                           >
                             <InputNumber
                               min={0}
@@ -162,7 +361,11 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                           <Form.Item
                             label={`Quantity Milestone ${index + 1} Text`}
                             name={["quantityMilestones", index, "text"]}
-                            rules={[{ required: true, message: "Text is required" }]}
+                            extra={
+                              index === 0
+                                ? "Required for any quantity-based setup."
+                                : `Optional. Fill this only if you want Quantity Milestone ${index + 1}.`
+                            }
                           >
                             <Input placeholder="Enter milestone text" />
                           </Form.Item>
@@ -173,7 +376,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                 </Card>
 
                 <Form.Item style={{ marginBottom: 0 }}>
-                  <Button type="primary" htmlType="submit">
+                  <Button type="primary" htmlType="submit" loading={isSubmitting}>
                     Save
                   </Button>
                 </Form.Item>

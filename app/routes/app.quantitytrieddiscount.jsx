@@ -114,6 +114,22 @@ export default function QuantityTriedDiscountPage() {
     [steps],
   );
 
+  const configuredTierCount = useMemo(
+    () =>
+      steps.filter((step) => {
+        return String(step.label || "").trim() !== "";
+      }).length,
+    [steps],
+  );
+
+  const hasTierGap = useMemo(() => {
+    const completedTiers = steps.map((step) => String(step.label || "").trim() !== "");
+
+    return completedTiers.some((isComplete, index) => {
+      return index > 0 && isComplete && !completedTiers[index - 1];
+    });
+  }, [steps]);
+
   const previewQtyNumber = Math.max(0, Number(previewQty) || 0);
   const maxQty = normalizedSteps.length
     ? Math.max(...normalizedSteps.map((step) => step.qty))
@@ -237,12 +253,41 @@ export default function QuantityTriedDiscountPage() {
                       Configure up to 3 quantity-based discount milestones for the cart drawer progress bar.
                     </Banner>
 
+                    <Banner tone="info" title="How tier setup works">
+                      <p>
+                        For a single-tier quantity progress bar, fill only <strong>Tier 1</strong>.
+                        If you want 2 tiers, fill <strong>Tier 1</strong> and <strong>Tier 2</strong>.
+                        If you want 3 tiers, fill all three tiers in order.
+                      </p>
+                      <p>
+                        Tier 2 and Tier 3 are optional, but Tier 1 should always be filled first.
+                      </p>
+                    </Banner>
+
+                    <Banner tone={configuredTierCount <= 1 ? "success" : "info"}>
+                      {configuredTierCount <= 1
+                        ? "Single-tier setup detected. Complete Tier 1 only, then save."
+                        : `${configuredTierCount}-tier setup detected. Make sure quantity values increase from Tier 1 to Tier ${configuredTierCount}.`}
+                    </Banner>
+
+                    {hasTierGap ? (
+                      <Banner tone="warning" title="Complete tiers in order">
+                        Fill Tier 1 first, then Tier 2, then Tier 3. Do not skip an earlier tier if you want to use a later quantity milestone.
+                      </Banner>
+                    ) : null}
+
                     <BlockStack gap="400">
                       {steps.map((step, index) => (
                         <LegacyCard key={index} sectioned>
                           <BlockStack gap="300">
                             <Text as="h3" variant="headingSm">
                               Tier {index + 1}
+                            </Text>
+
+                            <Text as="p" variant="bodySm" tone="subdued">
+                              {index === 0
+                                ? "Required for every quantity progress bar setup. Use only this tier if you want a single-tier progress bar."
+                                : `Optional. Fill Tier ${index + 1} only if you want a ${index + 1}-tier progress bar.`}
                             </Text>
 
                             <InlineStack gap="300" align="start" wrap>
@@ -253,6 +298,11 @@ export default function QuantityTriedDiscountPage() {
                                   autoComplete="off"
                                   value={String(step.qty)}
                                   onChange={(value) => updateStep(index, "qty", value)}
+                                  helpText={
+                                    index === 0
+                                      ? "Example: 1 or 2. This is the first quantity target customers will unlock."
+                                      : `Leave label empty if you do not want Tier ${index + 1}.`
+                                  }
                                 />
                               </div>
                               <div style={{ flex: 1, minWidth: "220px" }}>
@@ -261,6 +311,11 @@ export default function QuantityTriedDiscountPage() {
                                   autoComplete="off"
                                   value={step.label}
                                   onChange={(value) => updateStep(index, "label", value)}
+                                  helpText={
+                                    index === 0
+                                      ? "Example: 10% OFF or Free Gift."
+                                      : `Add reward text only when using Tier ${index + 1}.`
+                                  }
                                 />
                               </div>
                             </InlineStack>

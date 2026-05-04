@@ -151,9 +151,9 @@ export default function ProgressBar() {
     const getapidata = await retrive_saved_data.json();
     const getted_data = getapidata?.data;
 
-    console.log("############### -------------- ###############");
-    console.log("getted_data", getted_data);
-    console.log("############### -------------- ###############");
+    // console.log("############### -------------- ###############");
+    // console.log("getted_data", getted_data);
+    // console.log("############### -------------- ###############");
 
     return getted_data;
   };
@@ -176,6 +176,24 @@ export default function ProgressBar() {
       })),
     [pNums, texts, icons]
   );
+
+  const configuredMilestoneCount = useMemo(
+    () =>
+      Array.from({ length: MILESTONE_COUNT }, (_, i) => {
+        return String(prices[i] ?? "").trim() !== "" && String(texts[i] ?? "").trim() !== "";
+      }).filter(Boolean).length,
+    [prices, texts]
+  );
+
+  const hasTierGap = useMemo(() => {
+    const completedMilestones = Array.from({ length: MILESTONE_COUNT }, (_, i) => {
+      return String(prices[i] ?? "").trim() !== "" && String(texts[i] ?? "").trim() !== "";
+    });
+
+    return completedMilestones.some((isComplete, index) => {
+      return index > 0 && isComplete && !completedMilestones[index - 1];
+    });
+  }, [prices, texts]);
 
   const maxPrice = useMemo(() => Math.max(...pNums, 0), [pNums]);
   const fillPercent = useMemo(
@@ -248,7 +266,7 @@ export default function ProgressBar() {
     async function fetchData() {
       const progressbardata = await saveddata_progressbar();
 
-      console.log("progressbardata", progressbardata);
+      // console.log("progressbardata", progressbardata);
 
       let milestones = Array.isArray(progressbardata?.milestones)
         ? progressbardata.milestones
@@ -397,6 +415,29 @@ export default function ProgressBar() {
 
                     <Banner tone="info">{t("settings.main-message")}</Banner>
 
+                    <Banner tone="info" title="How tier setup works">
+                      <p>
+                        For a single-tier progress bar, fill only <strong>Milestone 1</strong>.
+                        If you want 2 tiers, fill <strong>Milestone 1</strong> and <strong>Milestone 2</strong>.
+                        If you want 3 tiers, fill all three milestones in order.
+                      </p>
+                      <p>
+                        Milestone 2 and Milestone 3 are optional, but Milestone 1 should always be filled first.
+                      </p>
+                    </Banner>
+
+                    <Banner tone={configuredMilestoneCount <= 1 ? "success" : "info"}>
+                      {configuredMilestoneCount <= 1
+                        ? "Single-tier setup detected. Complete Milestone 1 only, then save."
+                        : `${configuredMilestoneCount}-tier setup detected. Make sure milestone values increase from Milestone 1 to Milestone ${configuredMilestoneCount}.`}
+                    </Banner>
+
+                    {hasTierGap && (
+                      <Banner tone="warning" title="Complete milestones in order">
+                        Fill Milestone 1 first, then Milestone 2, then Milestone 3. Do not skip an earlier milestone if you want to use a later tier.
+                      </Banner>
+                    )}
+
                     <Checkbox
                       label={t("settings.enable-pricebased-app-progressbar")}
                       checked={enabled}
@@ -436,6 +477,11 @@ export default function ProgressBar() {
                             </span>
                             {t("settings.pricebased-app-progressbar-title-milestone")} {i + 1}
                           </div>
+                          <div style={{ color: "#6b7280", fontSize: "12px", lineHeight: 1.5 }}>
+                            {i === 0
+                              ? "Required for every progress bar setup. Use only this milestone if you want a single-tier progress bar."
+                              : `Optional. Fill Milestone ${i + 1} only if you want a ${i + 1}-tier progress bar.`}
+                          </div>
                           <TextField
                             label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-price")} ${i + 1}*`}
                             type="number"
@@ -444,12 +490,22 @@ export default function ProgressBar() {
                             value={prices[i]}
                             onChange={onPriceChange(i)}
                             autoComplete="off"
+                            helpText={
+                              i === 0
+                                ? "Example: 499. This is the first reward customers will unlock."
+                                : `Leave blank if you do not want Milestone ${i + 1}.`
+                            }
                           />
                           <TextField
                             label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-text")} ${i + 1} * `}
                             value={texts[i]}
                             onChange={onTextChange(i)}
                             autoComplete="off"
+                            helpText={
+                              i === 0
+                                ? "Example: Free Shipping or Free Gift."
+                                : `Add reward text only when using Milestone ${i + 1}.`
+                            }
                           />
                           <TextField
                             label={`Use Svg code Only Milestone ${i + 1} (optional)`}
@@ -457,6 +513,7 @@ export default function ProgressBar() {
                             onChange={onIconChange(i)}
                             autoComplete="off"
                             placeholder="https://example.com/icon.png"
+                            helpText="Optional. If left empty, the default QuickCart icon will be used."
                           />
                         </BlockStack>
                       </LegacyCard>

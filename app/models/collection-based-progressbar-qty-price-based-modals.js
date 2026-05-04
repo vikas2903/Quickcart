@@ -13,6 +13,7 @@ const milestonesSchema = new Schema({
 
 const collectionSchema = new Schema({
     storeName: { type: String, required: true },
+    collectionTag: { type: String, required: true, trim: true },
     progressbarEnabled: { type: Boolean, required: true },
     mode: { type: String,  enum: ['price', 'quantity'], required: true},
     milestones: milestonesSchema

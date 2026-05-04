@@ -22,6 +22,17 @@
         steps: []
     };
 
+    function applyQuantityTierClasses() {
+        if (!quantityProgressWrapper) {
+            return;
+        }
+
+        quantityProgressWrapper.classList.toggle(
+            "quantity-tier-progress--single",
+            quantityTierConfig.steps.length === 1
+        );
+    }
+
     function sanitizeQuantitySteps(rawSteps) {
         if (!Array.isArray(rawSteps)) return [];
 
@@ -112,16 +123,17 @@
             const result = await response.json();
             const data = result?.data;
 
-        
-
             quantityTierConfig.enabled = !!data?.enabled;
             quantityTierConfig.color = data?.color || "#000000";
             quantityTierConfig.steps = sanitizeQuantitySteps(data?.steps);
+            console.log("Quantity tier config loaded:", quantityTierConfig.steps);
+            applyQuantityTierClasses();
         } catch (error) {
             console.warn("Quantity tier config fetch failed:", error);
             quantityTierConfig.enabled = false;
             quantityTierConfig.color = "#000000";
             quantityTierConfig.steps = [];
+            applyQuantityTierClasses();
         }
     }
 

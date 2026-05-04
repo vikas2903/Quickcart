@@ -151,14 +151,13 @@
       {%- render 'announcementbar', show_announcementbar: block.settings.show_announcementbar_text, announcementbar_text: block.settings.announcementbar_text -%}
       {%- render 'quantity-tried-discount-progressbar' -%}
       {%- render 'price-tired-discount-progressbar' -%}
-
+      {%- render 'collection-based-progressbar-qty-price-based' -%}
       {%- render 'progressbar_qty_condition' -%}
       {%- render 'shipping-bar1' -%}
       
     </div>
     <div class="cdp-body">
       <!-- Left rail: vertical upsell slider with VARIANT PICKER -->
-`
       <!-- Right pane: scrollable contenxt -->
       <main class="cdp-content">
         <!-- Cart line items (AJAX-render target) -->
@@ -650,7 +649,7 @@
 <script src="{{ 'progressbar_qty_condition.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'bxfreeproduct.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'shippingbar.js' | asset_url }}" defer="defer"></script>
-
+<script src="{{'collection-based-progressbar-qty-price-based.js'  | asset_url}}" defer="defer"></script>
 <script src="{{'price-tired-discount-progressbar.js' | asset_url}}" defer="defer"></script>
 
 {% schema %}
