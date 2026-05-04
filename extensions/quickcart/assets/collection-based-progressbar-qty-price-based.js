@@ -3,7 +3,9 @@
         productCache: {},
         domReadyBound: false,
         updateTimeout: null,
-        configLoaded: false
+        configLoaded: false,
+        configLoadedAt: 0,
+        configLoadingPromise: null
     };
 
     window.__collectionBasedProgressBarState = progressState;
@@ -72,9 +74,22 @@
             });
     }
 
-    async function loadProgressConfig() {
-        if (progressState.configLoaded) {
+    function getConfigEndpoint() {
+        return (appUrl || "") + "/app/quickcart/collection-based-progressbar-qty-price-based";
+    }
+
+    async function loadProgressConfig(forceRefresh) {
+        const shouldUseCachedConfig =
+            !forceRefresh &&
+            progressState.configLoaded &&
+            Date.now() - progressState.configLoadedAt < 5000;
+
+        if (shouldUseCachedConfig) {
             return;
+        }
+
+        if (progressState.configLoadingPromise) {
+            return progressState.configLoadingPromise;
         }
 
         if (!shopDomain) {
@@ -82,43 +97,51 @@
                 progressWrapper.style.display = "none";
             }
             progressState.configLoaded = true;
+            progressState.configLoadedAt = Date.now();
             return;
         }
 
-        try {
-            const endpoint = (appUrl || "") + "/app/quickcart/collection-based-progressbar-qty-price-based";
-            const response = await fetch(endpoint, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Shopify-Shop-Domain": shopDomain,
-                    Accept: "application/json"
-                }
-            });
-
-            const result = await response.json();
-            const data = result?.data;
-
-            if (response.ok && data) {
-                const priceMilestones = sanitizeMilestones(data?.milestones?.price);
-                const quantityMilestones = sanitizeMilestones(data?.milestones?.quantity);
-
-                progressConfig = {
-                    ...progressConfig,
-                    enabled: !!data.progressbarEnabled,
-                    collectionTag: String(data.collectionTag || DEFAULT_TARGET_TAG).trim() || DEFAULT_TARGET_TAG,
-                    mode: data.mode === "quantity" ? "quantity" : "price",
-                    milestones: {
-                        price: priceMilestones.length ? priceMilestones : progressConfig.milestones.price,
-                        quantity: quantityMilestones.length ? quantityMilestones : progressConfig.milestones.quantity
+        progressState.configLoadingPromise = (async function () {
+            try {
+                const response = await fetch(getConfigEndpoint(), {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Shopify-Shop-Domain": shopDomain,
+                        Accept: "application/json"
                     }
-                };
-            }
-        } catch (error) {
-            console.error("Collection progress config fetch failed:", error);
-        }
+                });
 
-        progressState.configLoaded = true;
+                const result = await response.json();
+                const data = result?.data;
+
+                console.log("Collection progress config fetched:", data);
+
+                if (response.ok && data) {
+                    const priceMilestones = sanitizeMilestones(data?.milestones?.price);
+                    const quantityMilestones = sanitizeMilestones(data?.milestones?.quantity);
+
+                    progressConfig = {
+                        ...progressConfig,
+                        enabled: !!data.progressbarEnabled,
+                        collectionTag: String(data.collectionTag || DEFAULT_TARGET_TAG).trim() || DEFAULT_TARGET_TAG,
+                        mode: data.mode === "quantity" ? "quantity" : "price",
+                        milestones: {
+                            price: priceMilestones.length ? priceMilestones : progressConfig.milestones.price,
+                            quantity: quantityMilestones.length ? quantityMilestones : progressConfig.milestones.quantity
+                        }
+                    };
+                }
+            } catch (error) {
+                console.error("Collection progress config fetch failed:", error);
+            } finally {
+                progressState.configLoaded = true;
+                progressState.configLoadedAt = Date.now();
+                progressState.configLoadingPromise = null;
+            }
+        })();
+
+        return progressState.configLoadingPromise;
     }
 
     const MILESTONE_ICONS = [
@@ -249,6 +272,11 @@
             progressWrapper.style.display = progressConfig.enabled && milestones.length ? "block" : "none";
         }
 
+        if (!progressConfig.enabled) {
+            stepsContainer.innerHTML = "";
+            return;
+        }
+
         if (!milestones.length) {
             stepsContainer.innerHTML = "";
             return;
@@ -358,10 +386,19 @@
             return;
         }
 
+        const nextPriceMilestones = sanitizeMilestones(nextConfig?.milestones?.price);
+        const nextQuantityMilestones = sanitizeMilestones(nextConfig?.milestones?.quantity);
+
         progressConfig = {
             ...progressConfig,
             ...nextConfig,
-            milestones: nextConfig.milestones || progressConfig.milestones
+            enabled: typeof nextConfig.enabled === "boolean" ? nextConfig.enabled : progressConfig.enabled,
+            collectionTag: String(nextConfig.collectionTag || progressConfig.collectionTag || DEFAULT_TARGET_TAG).trim() || DEFAULT_TARGET_TAG,
+            mode: nextConfig.mode === "quantity" ? "quantity" : (nextConfig.mode === "price" ? "price" : progressConfig.mode),
+            milestones: {
+                price: nextPriceMilestones.length ? nextPriceMilestones : progressConfig.milestones.price,
+                quantity: nextQuantityMilestones.length ? nextQuantityMilestones : progressConfig.milestones.quantity
+            }
         };
 
         ensureDomRefresh();

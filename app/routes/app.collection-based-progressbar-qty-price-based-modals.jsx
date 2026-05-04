@@ -9,7 +9,8 @@ import { useLoaderData } from "@remix-run/react";
 const { Title, Text } = Typography;
 
 const milestoneIndexes = [0, 1, 2];
-const API_URL = "/api/app/collection-based-progressbar-qty-price-based";
+const API_URL = "/app/api/collection-based-progressbar-qty-price-based";
+
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
@@ -152,7 +153,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
     setStatus(null);
 
     try {
-      const response = await fetch(`https://quickcart-vf8k.onrender.com/app/api/app/collection-based-progressbar-qty-price-based`, {
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -178,7 +179,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <TitleBar title="Collection Based Progressbar Modal" />
+      <TitleBar title="Collection Based Progress Bar" />
 
       {!styleContainer ? (
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: 24 }}>
@@ -196,10 +197,10 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
             <Space direction="vertical" size={24} style={{ width: "100%" }}>
               <div>
                 <Title level={3} style={{ marginBottom: 4 }}>
-                  Collection Based Progressbar Fields
+                  Collection Based Progress Bar
                 </Title>
                 <Text type="secondary">
-                  Use a single tier, two tiers, or all three tiers depending on your offer structure. Save now stores this configuration in the database.
+                  Use this setting to show a progress bar only for products that match your collection tag. The progress bar works with one, two, or three milestones in both price mode and quantity mode.
                 </Text>
               </div>
 
@@ -222,17 +223,26 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                   name="progressbarEnabled"
                   valuePropName="checked"
                 >
-                  <Checkbox>Show this progress bar on storefront</Checkbox>
+                  <Checkbox>Show this progress bar in the cart drawer</Checkbox>
                 </Form.Item>
+
+                <Alert
+                  style={{ marginBottom: 20 }}
+                  type="info"
+                  showIcon
+                  message="How this progress bar works"
+                  description="First choose which products should be counted by adding a collection tag. Then choose how customers should unlock rewards: by total price or by total quantity. The progress bar will only count products with that tag, and it will still work even if you fill only one milestone."
+                />
 
                 <Row gutter={16}>
                   <Col xs={24} md={12}>
                     <Form.Item
-                      label="Collection Tag"
+                      label="Product Tag"
                       name="collectionTag"
                       rules={[{ required: true, message: "Collection tag is required" }]}
+                      extra="Only products with this tag will be counted in the progress bar."
                     >
-                      <Input placeholder="Enter collection tag" />
+                      <Input placeholder="Example: summer-offer or test-collection-vs" />
                     </Form.Item>
                   </Col>
 
@@ -241,13 +251,14 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                       label="Mode"
                       name="mode"
                       rules={[{ required: true, message: "Mode is required" }]}
+                      extra="Choose Price if rewards depend on cart value. Choose Quantity if rewards depend on how many tagged items are added."
                     >
                       <Select
                         options={[
-                          { label: "Price", value: "price" },
-                          { label: "Quantity", value: "quantity" },
+                          { label: "Price Based", value: "price" },
+                          { label: "Quantity Based", value: "quantity" },
                         ]}
-                        placeholder="Select mode"
+                        placeholder="Select how rewards should work"
                       />
                     </Form.Item>
                   </Col>
@@ -258,12 +269,12 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                   type="info"
                   showIcon
                   message="How tier setup works"
-                  description="For a single-tier bar, fill only milestone 1. For two tiers, fill milestone 1 and 2. For three tiers, fill all three in order. Later milestones are optional, but milestone 1 should always be completed first."
+                  description="If you fill only Milestone 1, the progress bar will still work as a single-milestone setup. If you want more rewards, then fill Milestone 2 and Milestone 3 in order. Milestone 2 and 3 are optional, but Milestone 1 should always be completed first."
                 />
 
                 <Card
                   size="small"
-                  title="Price Milestones"
+                  title="Price Based Rewards"
                   style={{ marginBottom: 20, borderRadius: 12 }}
                 >
                   <Space direction="vertical" size={12} style={{ width: "100%", marginBottom: 16 }}>
@@ -272,8 +283,8 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                       showIcon
                       message={
                         priceTierCount <= 1
-                          ? "Single-tier price setup detected. Complete Milestone 1 only if you want one price reward."
-                          : `${priceTierCount}-tier price setup detected. Keep values increasing from Milestone 1 onward.`
+                          ? "Single price milestone setup detected. Yes, only Milestone 1 is enough for the price progress bar to work."
+                          : `${priceTierCount}-tier price setup detected. Keep milestone values increasing from Milestone 1 onward.`
                       }
                     />
                     {hasPriceTierGap ? (
@@ -281,7 +292,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                         type="warning"
                         showIcon
                         message="Complete price milestones in order"
-                        description="Fill Price Milestone 1 first, then Milestone 2, then Milestone 3. Do not skip an earlier price milestone."
+                        description="Fill Price Milestone 1 first, then Milestone 2, then Milestone 3. Do not skip an earlier reward tier."
                       />
                     ) : null}
                   </Space>
@@ -292,6 +303,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                           <Form.Item
                             label={`Price Milestone ${index + 1} Value`}
                             name={["priceMilestones", index, "value"]}
+                            extra={index === 0 ? "Example: 499 or 999" : "Optional if you want more reward tiers"}
                           >
                             <InputNumber
                               min={0}
@@ -306,7 +318,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                             name={["priceMilestones", index, "text"]}
                             extra={
                               index === 0
-                                ? "Required for any price-based setup."
+                                ? "Example: Free Shipping, Free Gift, or 10% Off. Only this first milestone is enough if you want a single price milestone bar."
                                 : `Optional. Fill this only if you want Price Milestone ${index + 1}.`
                             }
                           >
@@ -320,7 +332,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
 
                 <Card
                   size="small"
-                  title="Quantity Milestones"
+                  title="Quantity Based Rewards"
                   style={{ marginBottom: 20, borderRadius: 12 }}
                 >
                   <Space direction="vertical" size={12} style={{ width: "100%", marginBottom: 16 }}>
@@ -329,8 +341,8 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                       showIcon
                       message={
                         quantityTierCount <= 1
-                          ? "Single-tier quantity setup detected. Complete Milestone 1 only if you want one quantity reward."
-                          : `${quantityTierCount}-tier quantity setup detected. Keep values increasing from Milestone 1 onward.`
+                          ? "Single quantity milestone setup detected. Yes, only Milestone 1 is enough for the quantity progress bar to work."
+                          : `${quantityTierCount}-tier quantity setup detected. Keep milestone values increasing from Milestone 1 onward.`
                       }
                     />
                     {hasQuantityTierGap ? (
@@ -338,7 +350,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                         type="warning"
                         showIcon
                         message="Complete quantity milestones in order"
-                        description="Fill Quantity Milestone 1 first, then Milestone 2, then Milestone 3. Do not skip an earlier quantity milestone."
+                        description="Fill Quantity Milestone 1 first, then Milestone 2, then Milestone 3. Do not skip an earlier reward tier."
                       />
                     ) : null}
                   </Space>
@@ -349,6 +361,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                           <Form.Item
                             label={`Quantity Milestone ${index + 1} Value`}
                             name={["quantityMilestones", index, "value"]}
+                            extra={index === 0 ? "Example: 2, 3, or 5 items" : "Optional if you want more reward tiers"}
                           >
                             <InputNumber
                               min={0}
@@ -363,7 +376,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
                             name={["quantityMilestones", index, "text"]}
                             extra={
                               index === 0
-                                ? "Required for any quantity-based setup."
+                                ? "Example: Free Gift, Buy More Save More, or 15% Off. Only this first milestone is enough if you want a single quantity milestone bar."
                                 : `Optional. Fill this only if you want Quantity Milestone ${index + 1}.`
                             }
                           >
@@ -377,7 +390,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
 
                 <Form.Item style={{ marginBottom: 0 }}>
                   <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                    Save
+                    Save Settings
                   </Button>
                 </Form.Item>
               </Form>
