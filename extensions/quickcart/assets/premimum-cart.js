@@ -6,6 +6,239 @@
   const quickCartI18n = window.QuickCartI18n || {};
   const discountOffLabel = quickCartI18n.discountOffLabel || 'OFF';
 
+  if (!window.__upcartCartAddDedupPatched) {
+    window.__upcartCartAddDedupPatched = true;
+
+    const originalFetch = window.fetch.bind(window);
+    const pendingCartAdds = new Map();
+    const recentCartAdds = new Map();
+    const DUPLICATE_COOLDOWN_MS = 1200;
+
+    function getRequestUrl(input) {
+      return typeof input === "string" ? input : input?.url || "";
+    }
+
+    function isCartAddRequest(input, init) {
+      const url = getRequestUrl(input);
+      return /\/cart\/add(?:\.js)?(?:\?|$)/.test(url);
+    }
+
+    function normalizeRequestUrl(url) {
+      try {
+        const parsedUrl = new URL(url, window.location.origin);
+        return parsedUrl.pathname.replace(/\.js$/, "");
+      } catch (error) {
+        return String(url || "").split("?")[0].replace(/\.js$/, "");
+      }
+    }
+
+    function serializeEntries(entries) {
+      return entries
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, value]) => `${key}=${value}`)
+        .join("&");
+    }
+
+    function normalizeProperties(properties) {
+      if (!properties || typeof properties !== "object") {
+        return "";
+      }
+
+      return Object.keys(properties)
+        .sort()
+        .map((key) => `${key}:${String(properties[key])}`)
+        .join(",");
+    }
+
+    function normalizeItemPayload(item) {
+      return {
+        id: String(item?.id ?? ""),
+        quantity: String(item?.quantity ?? 1),
+        sellingPlan: String(item?.selling_plan ?? ""),
+        properties: normalizeProperties(item?.properties)
+      };
+    }
+
+    function serializeCartAddPayload(items) {
+      return items
+        .map((item) => normalizeItemPayload(item))
+        .sort((a, b) => {
+          const left = `${a.id}:${a.quantity}:${a.sellingPlan}:${a.properties}`;
+          const right = `${b.id}:${b.quantity}:${b.sellingPlan}:${b.properties}`;
+          return left.localeCompare(right);
+        })
+        .map((item) => `id=${item.id}&quantity=${item.quantity}&selling_plan=${item.sellingPlan}&properties=${item.properties}`)
+        .join("|");
+    }
+
+    function normalizeStructuredBody(body) {
+      if (!body || typeof body !== "object") {
+        return "";
+      }
+
+      if (Array.isArray(body.items) && body.items.length) {
+        return serializeCartAddPayload(body.items);
+      }
+
+      if (body.id != null) {
+        return serializeCartAddPayload([body]);
+      }
+
+      return "";
+    }
+
+    function normalizeEntryBody(entries) {
+      const normalizedEntries = entries.map(([key, value]) => [
+        String(key),
+        value instanceof File ? value.name : String(value)
+      ]);
+
+      const itemMap = new Map();
+      let singleItem = null;
+
+      normalizedEntries.forEach(([key, value]) => {
+        if (key === "id") {
+          singleItem = singleItem || { properties: {} };
+          singleItem.id = value;
+          return;
+        }
+
+        if (key === "quantity") {
+          singleItem = singleItem || { properties: {} };
+          singleItem.quantity = value;
+          return;
+        }
+
+        if (key === "selling_plan") {
+          singleItem = singleItem || { properties: {} };
+          singleItem.selling_plan = value;
+          return;
+        }
+
+        const propertyMatch = key.match(/^properties\[(.+)\]$/);
+        if (propertyMatch) {
+          singleItem = singleItem || { properties: {} };
+          singleItem.properties[propertyMatch[1]] = value;
+          return;
+        }
+
+        const itemMatch = key.match(/^items\[(\d+)\]\[(id|quantity|selling_plan)\]$/);
+        if (itemMatch) {
+          const itemIndex = itemMatch[1];
+          const itemKey = itemMatch[2];
+          const item = itemMap.get(itemIndex) || { properties: {} };
+          item[itemKey] = value;
+          itemMap.set(itemIndex, item);
+          return;
+        }
+
+        const itemPropertyMatch = key.match(/^items\[(\d+)\]\[properties\]\[(.+)\]$/);
+        if (itemPropertyMatch) {
+          const itemIndex = itemPropertyMatch[1];
+          const propertyKey = itemPropertyMatch[2];
+          const item = itemMap.get(itemIndex) || { properties: {} };
+          item.properties[propertyKey] = value;
+          itemMap.set(itemIndex, item);
+        }
+      });
+
+      const structuredItems = Array.from(itemMap.values());
+      if (singleItem?.id != null) {
+        structuredItems.push(singleItem);
+      }
+
+      if (structuredItems.length) {
+        return serializeCartAddPayload(structuredItems);
+      }
+
+      return serializeEntries(normalizedEntries);
+    }
+
+    function normalizeRequestBody(body) {
+      if (!body) return "";
+
+      if (body instanceof FormData) {
+        return normalizeEntryBody(Array.from(body.entries()));
+      }
+
+      if (body instanceof URLSearchParams) {
+        return normalizeEntryBody(Array.from(body.entries()));
+      }
+
+      if (typeof body === "string") {
+        try {
+          const parsed = JSON.parse(body);
+          const normalizedParsedBody = normalizeStructuredBody(parsed);
+          if (normalizedParsedBody) {
+            return normalizedParsedBody;
+          }
+        } catch (e) { }
+
+        const params = new URLSearchParams(body);
+        if (Array.from(params.keys()).length) {
+          return normalizeEntryBody(Array.from(params.entries()));
+        }
+
+        return body;
+      }
+
+      const normalizedObjectBody = normalizeStructuredBody(body);
+      if (normalizedObjectBody) {
+        return normalizedObjectBody;
+      }
+
+      return String(body);
+    }
+
+    function getCartAddKey(input, init) {
+      const url = normalizeRequestUrl(getRequestUrl(input));
+      const method = (init?.method || (typeof input !== "string" ? input?.method : "") || "GET").toUpperCase();
+      const body = normalizeRequestBody(init?.body);
+      return `${method}:${url}:${body}`;
+    }
+
+    window.fetch = function (...args) {
+      const [input, init] = args;
+
+      if (!isCartAddRequest(input, init)) {
+        return originalFetch(...args);
+      }
+
+      const key = getCartAddKey(input, init);
+      const now = Date.now();
+      const recentEntry = recentCartAdds.get(key);
+
+      if (recentEntry && now - recentEntry.timestamp < DUPLICATE_COOLDOWN_MS) {
+        return recentEntry.responsePromise.then((response) => response.clone());
+      }
+
+      const pendingEntry = pendingCartAdds.get(key);
+      if (pendingEntry) {
+        return pendingEntry.responsePromise.then((response) => response.clone());
+      }
+
+      const fetchPromise = originalFetch(...args);
+      const responsePromise = fetchPromise.then((response) => response.clone());
+
+      pendingCartAdds.set(key, { responsePromise });
+
+      return fetchPromise.finally(() => {
+        pendingCartAdds.delete(key);
+        recentCartAdds.set(key, {
+          timestamp: Date.now(),
+          responsePromise
+        });
+
+        setTimeout(() => {
+          const activeRecentEntry = recentCartAdds.get(key);
+          if (activeRecentEntry && activeRecentEntry.responsePromise === responsePromise) {
+            recentCartAdds.delete(key);
+          }
+        }, DUPLICATE_COOLDOWN_MS);
+      });
+    };
+  }
+
   // console.log("Upcart: Progressbar + Upsell products initialize...");
   function loadCDNScript(url, callback) {
     const script = document.createElement('script');

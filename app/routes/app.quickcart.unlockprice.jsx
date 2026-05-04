@@ -85,9 +85,14 @@ export const action = async ({ request }) => {
     .map((m) => ({
       price: Number.parseFloat(m?.price),
       text: String(m?.text || "").trim(),
+      icon_url: String(m?.icon_url || "").trim(),
     }))
     .filter(
-      (m) => Number.isFinite(m.price) && m.price >= 0 && m.text.length > 0
+      (m) =>
+        Number.isFinite(m.price) &&
+        m.price >= 0 &&
+        m.text.length > 0 &&
+        m.icon_url.length > 0
     );
 
   if (milestones.length === 0) {
@@ -96,15 +101,13 @@ export const action = async ({ request }) => {
       { status: 400, headers: cors(request) }
     );
   }
-
   await connectDatabase();
-
   try {
     const saved = await DiscountMilestone.findOneAndUpdate(
       { shopName: shop },
       {
         $set: { enabled, milestones, progressBarColor },
-        $setOnInsert: { shopName: shop }, // 👈 persist shopName in schema
+        $setOnInsert: { shopName: shop }, 
       },
       {
         upsert: true,

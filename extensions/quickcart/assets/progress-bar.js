@@ -15,49 +15,7 @@ let enabled_unlock = false;
 let price_range_text_one = "";
 let price_range_text_two = "";
 let price_range_text_three = "";
-let progressBarColor = "#000000";
-
-// let shopNamee = document.querySelector("#shop-primary-url").value;
-
-// async function getUnlockPrice(shop) {
-//   try {
-//     const url_unlock_price = `https://complete-uh-jpg-theoretical.trycloudflare.com/app/quickcart/unlockprice?shop=${encodeURIComponent(shop)}`;
-//     const response = await fetch(url_unlock_price, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//         "X-Shopify-Shop-Domain": shop,
-//         Accept: "application/json",
-//       },
-//     });
-
-//     if (!response.ok) {
-//       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-//     }
-
-//     const json = await response.json();
-
-//     if (json?.ok === false) {
-//       throw new Error(json.error || "Endpoint returned error");
-//     }
-
-//     const data = json?.data || null;
-//     console.log("UnlockPrice data:", data);
-
-//     enabled_unlock = !!data?.enabled;
-
-//      price_range_one   = data?.milestones?.[0]?.price ? data.milestones[0].price : 899;
-//   } catch (err) {
-//     console.error("UnlockPrice fetch failed:", err);
-//     enabled_unlock = false;
-//   }
-// }
-
-// getUnlockPrice(shopNamee);
-
-// getUnlockPrice(shopName);
-// console.log("Vikas_Enabled :", enabled_unlock);
-
+let progressBarColor = "#000000";;
 
 const progressbar = document.querySelector(".progress.progress-bar-js-control");
 const subheading_progressbar = document.querySelector(".milstone_label");    // check: maybe ".milestone_label" in your HTML
@@ -110,9 +68,9 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
     price_range_two = data?.milestones?.[1]?.price ? data.milestones[1].price : 1499;
     price_range_three = data?.milestones?.[2]?.price ? data.milestones[2].price : 2499;
 
-    price_range_text_one = data?.milestones?.[0]?.text ? data.milestones[0].text : "Extra 5% off on ₹899";
-    price_range_text_two = data?.milestones?.[1]?.text ? data.milestones[1].text : "Extra 10% off on ₹1499";
-    price_range_text_three = data?.milestones?.[2]?.text ? data.milestones[2].text : "Extra 15% off on ₹2499";
+    price_range_text_one = data?.milestones?.[0]?.text ? data.milestones[0].text : "";
+    price_range_text_two = data?.milestones?.[1]?.text ? data.milestones[1].text : "";
+    price_range_text_three = data?.milestones?.[2]?.text ? data.milestones[2].text : "";
 
     if (milestone_text_one) milestone_text_one.innerHTML = price_range_text_one;
     if (milestone_text_two) milestone_text_two.innerHTML = price_range_text_two;
@@ -121,13 +79,15 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
     // Apply progress bar color
     if (progressbar) {
       progressbar.style.backgroundColor = progressBarColor;
-    }
+    } 
     // Also set CSS variable for consistency
     document.documentElement.style.setProperty('--sr-progress-bar-bg-color', progressBarColor);
   }
   if (enabled_unlock) {
     document.querySelector('#mini-cart-progress-section').style.display = 'unset';
 
+
+    
     async function onCartUpdate() {
       try {
         const res = await fetch("/cart.js", { headers: { Accept: "application/json" } });
@@ -212,6 +172,9 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
         console.error("Error fetching cart", err);
       }
     }
+
+
+
 
     // Update when the cart changes (AJAX)
     document.addEventListener("cart:updated", onCartUpdate);

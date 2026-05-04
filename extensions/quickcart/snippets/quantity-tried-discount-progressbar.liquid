@@ -127,6 +127,39 @@
 .step.active .step-label,
 .step.unlocked .step-label { color: var(--primary-color-progressbar); }
 
+
+reward-progress .reward-progress-step{
+  text-align: end;
+}
+.reward-progress-step.active .icon,
+span.fill{
+  background: #034c29 !important;
+}
+.reward-progress-text{
+  font-family: "Montserrat", sans-serif !important;
+}
+.discount-progress-wrap{display:none;}
+
+
+
+@media(max-width: 768px){
+  .progress-track-wrap {
+      margin-inline: -30px !important;
+  }
+  .progress-message{
+    font-size: 12px;
+  }
+  .step-label,
+  .step-label small{
+    font-size: 12px;
+
+  }
+  .step-label small{
+        margin-top: -2px !important;
+  }
+}
+
+
 </style>
   
   

@@ -23,6 +23,8 @@ import { useTranslation } from "react-i18next";
 
 // must match the API route file above
 const API_URL = "/app/quickcart/unlockprice";
+const DEFAULT_MILESTONE_ICON =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>';
 
 /** Loader: get shop from admin session */
 export const loader = async ({ request }) => {
@@ -51,9 +53,7 @@ export const loader = async ({ request }) => {
 
 export default function ProgressBar() {
   const { shop, primaryLocale } = useLoaderData();
- 
-  console.log("vss_primaryLocale", primaryLocale);
-
+  // console.log("vss_primaryLocale", primaryLocale);
   const { t, i18n: reactI18n } = useTranslation();
   const defaultTextsRef = useRef([]);
 
@@ -96,6 +96,7 @@ export default function ProgressBar() {
   const [enabled, setEnabled] = useState(true);
   const [prices, setPrices] = useState(["799", "1499", "2499"]);
   const [texts, setTexts] = useState(defaultTexts);
+  const [icons, setIcons] = useState(["", "", ""]);
   const [progressBarColor, setProgressBarColor] = useState("#000000");
 
   const [previewTotal, setPreviewTotal] = useState("999");
@@ -108,6 +109,8 @@ export default function ProgressBar() {
     milestones: [],
     progressBarColor: "#000000"
   });
+
+  const MILESTONE_COUNT = 3;
 
   useEffect(() => {
     const previousDefaultTexts = defaultTextsRef.current;
@@ -147,6 +150,11 @@ export default function ProgressBar() {
     );
     const getapidata = await retrive_saved_data.json();
     const getted_data = getapidata?.data;
+
+    console.log("############### -------------- ###############");
+    console.log("getted_data", getted_data);
+    console.log("############### -------------- ###############");
+
     return getted_data;
   };
 
@@ -164,8 +172,9 @@ export default function ProgressBar() {
       pNums.map((price, i) => ({
         price,
         text: (texts[i] || "").replace("{{price}}", String(price)),
+        icon_url: String(icons[i] || "").trim() || DEFAULT_MILESTONE_ICON,
       })),
-    [pNums, texts]
+    [pNums, texts, icons]
   );
 
   const maxPrice = useMemo(() => Math.max(...pNums, 0), [pNums]);
@@ -214,8 +223,21 @@ export default function ProgressBar() {
             ? json.data.milestones
             : [];
           if (ms.length) {
-            setPrices(ms.map((m) => String(m.price)));
-            setTexts(ms.map((m) => String(m.text || "")));
+            setPrices(
+              Array.from({ length: MILESTONE_COUNT }, (_, idx) =>
+                String(ms[idx]?.price ?? "")
+              )
+            );
+            setTexts(
+              Array.from({ length: MILESTONE_COUNT }, (_, idx) =>
+                String(ms[idx]?.text || defaultTexts[idx] || "")
+              )
+            );
+            setIcons(
+              Array.from({ length: MILESTONE_COUNT }, (_, idx) =>
+                String(ms[idx]?.icon_url || "")
+              )
+            );
           }
         }
       } catch (e) {
@@ -228,7 +250,9 @@ export default function ProgressBar() {
 
       console.log("progressbardata", progressbardata);
 
-      let milestones = progressbardata?.milestones;
+      let milestones = Array.isArray(progressbardata?.milestones)
+        ? progressbardata.milestones
+        : [];
       let enalbled = progressbardata?.enabled;
 
       const savedColor = progressbardata?.progressBarColor || "#000000";
@@ -240,9 +264,23 @@ export default function ProgressBar() {
 
   /* ---------- INPUT HANDLERS ---------- */
   const onPriceChange = (i) => (val) =>
-    setPrices((arr) => arr.map((v, idx) => (idx === i ? val : v)));
+    setPrices((arr) =>
+      Array.from({ length: MILESTONE_COUNT }, (_, idx) =>
+        idx === i ? val : String(arr[idx] ?? "")
+      )
+    );
   const onTextChange = (i) => (val) =>
-    setTexts((arr) => arr.map((v, idx) => (idx === i ? val : v)));
+    setTexts((arr) =>
+      Array.from({ length: MILESTONE_COUNT }, (_, idx) =>
+        idx === i ? val : String(arr[idx] ?? "")
+      )
+    );
+  const onIconChange = (i) => (val) =>
+    setIcons((arr) =>
+      Array.from({ length: MILESTONE_COUNT }, (_, idx) =>
+        idx === i ? val : String(arr[idx] ?? "")
+      )
+    );
 
   /* ---------- SAVE ---------- */
   const handleSubmit = async () => {
@@ -256,16 +294,29 @@ export default function ProgressBar() {
       return;
     }
 
+    const sanitizedMilestones = Array.from({ length: MILESTONE_COUNT }, (_, i) => {
+      const rawPrice = String(prices[i] ?? "").trim();
+      const rawText = String(texts[i] ?? "").trim();
+      const rawIcon = String(icons[i] ?? "").trim();
+      return {
+        price: Number(rawPrice) || 0,
+        text: rawText.replace("{{price}}", String(Number(rawPrice) || 0)),
+        icon_url: rawIcon || DEFAULT_MILESTONE_ICON,
+        hasPrice: rawPrice !== "",
+        hasText: rawText !== "",
+      };
+    }).filter((m) => m.hasPrice && m.hasText)
+      .map(({ price, text, icon_url }) => ({ price, text, icon_url }));
+
     const payload = {
       // you can include shopName in body too, but header is the source of truth
       shopName: shop,
       enabled,
       progressBarColor,
-      milestones: milestones.map((m) => ({
-        price: Number(m.price) || 0,
-        text: String(m.text || "").trim(),
-      })),
+      milestones: sanitizedMilestones,
     };
+
+    console.log("Submitting payload:", payload);
 
     setIsSubmitting(true);
     setSubmitStatus(null);
@@ -321,6 +372,21 @@ export default function ProgressBar() {
               <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
                 <LegacyCard sectioned>
                   <BlockStack gap="500">
+                    <div
+                      style={{
+                        borderRadius: "14px",
+                        padding: "16px",
+                        background: "linear-gradient(135deg, #f5f9ff 0%, #ffffff 100%)",
+                        border: "1px solid #dbe7ff",
+                      }}
+                    >
+                      <div style={{ fontSize: "18px", fontWeight: 700, color: "#1f2937", marginBottom: "6px" }}>
+                        {t("settings.page-title")}
+                      </div>
+                      <div style={{ color: "#4b5563", fontSize: "13px" }}>
+                        Configure milestone prices and messages for your cart progress bar.
+                      </div>
+                    </div>
                     {submitStatus && (
                       <Banner
                         tone={submitStatus.type === "success" ? "success" : "critical"}
@@ -337,14 +403,41 @@ export default function ProgressBar() {
                       onChange={setEnabled}
                     />
 
-                    {[0, 1, 2].map((i) => (
-                      <LegacyCard key={i} sectioned>
+                    {Array.from({ length: MILESTONE_COUNT }).map((_, i) => (
+                      <LegacyCard
+                        key={i}
+                        sectioned
+                        style={{ borderRadius: "14px", border: "1px solid #e5e7eb", background: "#fcfdff" }}
+                      >
                         <BlockStack gap="300">
-                          <strong>
+                          <div
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              fontWeight: 700,
+                              color: "#111827",
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: "28px",
+                                height: "28px",
+                                borderRadius: "999px",
+                                background: "#e8f0ff",
+                                color: "#1d4ed8",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {i + 1}
+                            </span>
                             {t("settings.pricebased-app-progressbar-title-milestone")} {i + 1}
-                          </strong>
+                          </div>
                           <TextField
-                            label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-price")} ${i + 1}`}
+                            label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-price")} ${i + 1}*`}
                             type="number"
                             inputMode="numeric"
                             min={0}
@@ -353,17 +446,24 @@ export default function ProgressBar() {
                             autoComplete="off"
                           />
                           <TextField
-                            label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-text")} ${i + 1}`}
+                            label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-text")} ${i + 1} * `}
                             value={texts[i]}
                             onChange={onTextChange(i)}
                             autoComplete="off"
+                          />
+                          <TextField
+                            label={`Use Svg code Only Milestone ${i + 1} (optional)`}
+                            value={icons[i]}
+                            onChange={onIconChange(i)}
+                            autoComplete="off"
+                            placeholder="https://example.com/icon.png"
                           />
                         </BlockStack>
                       </LegacyCard>
                     ))}
 
                     <InlineStack gap="300" />
-                    <Button variant="primary" onClick={handleSubmit} loading={isSubmitting}>
+                    <Button variant="primary" size="large" onClick={handleSubmit} loading={isSubmitting}>
                       {t("settings.pricebased-app-progressbar-submit-btn")}
                     </Button>
                   </BlockStack>
@@ -473,7 +573,7 @@ export default function ProgressBar() {
 
                       {savedata.enalbled ? (
                         <div>
-                          <h3>{t("settings.milestones-heading")}</h3>
+                          <h3 style={{ marginTop: "0", marginBottom: "12px", color: "#111827" }}>{t("settings.milestones-heading")}</h3>
                           <table
                             border="1"
                             cellPadding="8"
@@ -484,13 +584,20 @@ export default function ProgressBar() {
                               <tr>
                                 <th>{t("settings.price-column")}</th>
                                 <th>{t("settings.text-column")}</th>
+                                <th>Icon</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {savedata.milestones.map((item, index) => (
+                              {(savedata.milestones || []).map((item, index) => (
                                 <tr key={index}>
                                   <td>{item.price}</td>
                                   <td>{item.text}</td>
+                                  <td>
+                                    <MilestoneIcon
+                                      icon={item.icon_url || DEFAULT_MILESTONE_ICON}
+                                      index={index}
+                                    />
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -556,6 +663,7 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
       left: `${Math.min(100, (m.price / maxPrice) * 100)}%`,
       label: m.text.replace("{{price}}", String(m.price)),
       price: m.price,
+      icon_url: m.icon_url,
       key: idx,
     }));
 
@@ -583,14 +691,9 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
                 justifyContent: "center",
               }}
             >
-              <img
-                src="https://pickrr.s3.amazonaws.com/2025-08-01T06:57:59.706663_party_icon_colored.png"
-                alt={t("settings.party-icon-alt")}
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  objectFit: "contain",
-                }}
+              <MilestoneIcon
+                icon={m.icon_url || DEFAULT_MILESTONE_ICON}
+                index={m.key}
               />
             </div>
           ))}
@@ -606,6 +709,39 @@ function Preview({ mode, enabled, milestones, fillPercent, awayText, nf, maxPric
         </div>
       </div>
     </div>
+  );
+}
+
+function MilestoneIcon({ icon, index }) {
+  const safeIcon = String(icon || "").trim();
+  const isSvgMarkup = safeIcon.startsWith("<svg");
+
+  if (isSvgMarkup) {
+    return (
+      <span
+        aria-label={`Milestone ${index + 1} icon`}
+        style={{
+          width: "24px",
+          height: "24px",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        dangerouslySetInnerHTML={{ __html: safeIcon }}
+      />
+    );
+  }
+
+  return (
+    <img
+      src={safeIcon}
+      alt={`Milestone ${index + 1} icon`}
+      style={{
+        width: "24px",
+        height: "24px",
+        objectFit: "contain",
+      }}
+    />
   );
 }
  

@@ -23,6 +23,7 @@ const DEFAULT_STEPS = [
   { qty: 2, label: "15% OFF" },
   { qty: 3, label: "20% OFF" },
 ];
+const TIER_COUNT = 3;
 
 const API_URL = "/app/quickcart/quantitytrieddiscount";
 
@@ -60,12 +61,16 @@ export default function QuantityTriedDiscountPage() {
         const data = result?.data;
 
         if (response.ok && data) {
-          const loadedSteps = Array.isArray(data.steps) && data.steps.length
+          const loadedRawSteps = Array.isArray(data.steps) && data.steps.length
             ? data.steps.map((step) => ({
                 qty: Number(step.qty) || 1,
                 label: String(step.label || ""),
               }))
-            : DEFAULT_STEPS;
+            : [];
+          const loadedSteps = Array.from({ length: TIER_COUNT }, (_, index) => ({
+            qty: Number(loadedRawSteps[index]?.qty) || DEFAULT_STEPS[index].qty,
+            label: String(loadedRawSteps[index]?.label ?? ""),
+          }));
 
           setEnabled(!!data.enabled);
           setColor(data.color || "#000000");
@@ -152,6 +157,17 @@ export default function QuantityTriedDiscountPage() {
       }
 
       const latest = result.data || payload;
+      const latestStepsRaw = Array.isArray(latest.steps) && latest.steps.length
+        ? latest.steps.map((step) => ({
+            qty: Math.max(1, Number(step.qty) || 1),
+            label: String(step.label || ""),
+          }))
+        : [];
+      const latestSteps = Array.from({ length: TIER_COUNT }, (_, index) => ({
+        qty: Number(latestStepsRaw[index]?.qty) || DEFAULT_STEPS[index].qty,
+        label: String(latestStepsRaw[index]?.label ?? ""),
+      }));
+      setSteps(latestSteps);
       setSavedData(latest);
       setStatus({
         tone: "success",

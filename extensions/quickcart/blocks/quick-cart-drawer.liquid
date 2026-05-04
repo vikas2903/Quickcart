@@ -150,14 +150,15 @@
       {%- render 'timer', show_countdown: block.settings.show_countdown, backgroundcolor: block.settings.count_down_bg -%}
       {%- render 'announcementbar', show_announcementbar: block.settings.show_announcementbar_text, announcementbar_text: block.settings.announcementbar_text -%}
       {%- render 'quantity-tried-discount-progressbar' -%}
-      {%- render 'progress-bar' -%}
+      {%- render 'price-tired-discount-progressbar' -%}
+
       {%- render 'progressbar_qty_condition' -%}
       {%- render 'shipping-bar1' -%}
-
+      
     </div>
     <div class="cdp-body">
       <!-- Left rail: vertical upsell slider with VARIANT PICKER -->
-
+`
       <!-- Right pane: scrollable contenxt -->
       <main class="cdp-content">
         <!-- Cart line items (AJAX-render target) -->
@@ -627,11 +628,11 @@
           <button class="cdp-popup-qty-btn" data-popup-qty-down>−</button>
           <input type="number" class="cdp-popup-qty-input" id="popupQty" value="1" min="1">
           <button class="cdp-popup-qty-btn" data-popup-qty-up>+</button>
-          <button class="cdp-popup-add-btn" id="popupAddBtn" data-variant-id="">
+          <button type="button" class="cdp-popup-add-btn" id="popupAddBtn" data-variant-id="">
             {{ 'quickcart.add_to_cart' | t }}
           </button>
         </div>
-        <button class="cdp-popup-view-btn" id="popupViewBtn">
+        <button type="button" class="cdp-popup-view-btn" id="popupViewBtn">
           <span>{{ 'quickcart.view_details' | t }}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="6 9 12 15 18 9"></polyline>
@@ -649,6 +650,8 @@
 <script src="{{ 'progressbar_qty_condition.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'bxfreeproduct.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'shippingbar.js' | asset_url }}" defer="defer"></script>
+
+<script src="{{'price-tired-discount-progressbar.js' | asset_url}}" defer="defer"></script>
 
 {% schema %}
 {

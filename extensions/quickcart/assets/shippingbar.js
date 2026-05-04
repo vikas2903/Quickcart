@@ -112,7 +112,7 @@
             const result = await response.json();
             const data = result?.data;
 
-            console.log("/app/quickcart/quantitytrieddiscount", data);
+        
 
             quantityTierConfig.enabled = !!data?.enabled;
             quantityTierConfig.color = data?.color || "#000000";
