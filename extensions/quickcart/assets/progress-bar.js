@@ -208,7 +208,7 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
     // First paint
     onCartUpdate();
   } else {
-    document.querySelector('#mini-cart-progress-section').style.display = 'none';
+      document.querySelector('#mini-cart-progress-section')?.style.setProperty('display', 'none');
   }
 })();
 

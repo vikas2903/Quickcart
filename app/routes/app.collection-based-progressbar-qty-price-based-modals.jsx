@@ -147,7 +147,7 @@ export default function CollectionBasedProgressbarQtyPriceBasedModalsPage() {
       quantityMilestones: normalizeMilestones(values.quantityMilestones),
     };
 
-    console.log("Submitting payload:", payload);
+    // console.log("Submitting payload:", payload);
 
     setIsSubmitting(true);
     setStatus(null);

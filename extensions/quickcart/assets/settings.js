@@ -5,6 +5,7 @@
   "use strict";
 
 
+
   function upcart_loader(show = true) {
     const loader = document.getElementById('upcart_loader');
     if (!loader) {
@@ -387,10 +388,10 @@
             settings.product.enabled &&
             settings.product.selectedProduct?.handle
           ) {
-            console.log(
-              "Gift product enabled:",
-              settings.product.selectedProduct.handle,
-            );
+            // console.log(
+            //   "Gift product enabled:",
+            //   settings.product.selectedProduct.handle,
+            // );
           }
         }
       } catch (err) {
@@ -648,7 +649,7 @@
       if (data.ok && data.data) {
         const settings = data.data; 
 
-        console.log("_UpcartData", settings)
+        // console.log("_UpcartData", settings)
 
         // Apply settings to the page
         applySettings(settings);

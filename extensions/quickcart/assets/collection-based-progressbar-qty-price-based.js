@@ -115,7 +115,7 @@
                 const result = await response.json();
                 const data = result?.data;
 
-                console.log("Collection progress config fetched:", data);
+                // console.log("Collection progress config fetched:", data);
 
                 if (response.ok && data) {
                     const priceMilestones = sanitizeMilestones(data?.milestones?.price);
@@ -424,8 +424,8 @@
             progressConfig.currentPrice = taggedCartData.price;
             progressConfig.currentQuantity = taggedCartData.qty;
 
-            console.log("collectionProgressTaggedQty:", taggedCartData.qty);
-            console.log("collectionProgressTaggedPrice:", taggedCartData.price);
+            // console.log("collectionProgressTaggedQty:", taggedCartData.qty);
+            // console.log("collectionProgressTaggedPrice:", taggedCartData.price);
 
             ensureDomRefresh();
         } catch (error) {

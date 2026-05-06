@@ -1320,6 +1320,7 @@
       ".cart-count-wrapper",                   // Cart count wrapper (often clickable)
       ".cart-bubble",                          // Cart bubble
       ".cart-drawer-toggle",
+      ".header-icon-cart",
       "[aria-controls='CartDrawer']"  
                         // Cart drawer toggle
     ].join(", ");

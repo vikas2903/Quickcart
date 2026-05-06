@@ -575,6 +575,34 @@ export default function Documentation() {
   const detailRef = useRef(null);
 
   const selected = FEATURES.find((f) => f.id === activeFeature);
+  const extraFaqItems = [
+    {
+      q: "My theme custom code needs to open the QuickCart drawer",
+      a: (
+        <>
+          If your theme custom work is not opening the drawer automatically, run this code after your custom action:
+          <div
+            style={{
+              marginTop: 10,
+              padding: "12px 14px",
+              borderRadius: 10,
+              background: "#0f172a",
+              color: "#e2e8f0",
+              fontFamily: "monospace",
+              fontSize: 12,
+              lineHeight: 1.6,
+              overflowX: "auto",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+{`if (window.CartDrawerPremium && typeof window.CartDrawerPremium.open === "function") {
+  window.CartDrawerPremium.open();
+}`}
+          </div>
+        </>
+      ),
+    },
+  ];
 
   // Scroll to detail panel when a feature card is clicked
   useEffect(() => {
@@ -732,7 +760,7 @@ export default function Documentation() {
         {/* ─── FAQ ─── */}
         <SectionHeader icon="❓" bg="#fef3c7" title="Common Questions" />
         <div>
-          {FAQ_DATA.map((item, i) => (
+          {[...FAQ_DATA, ...extraFaqItems].map((item, i) => (
             <FAQItem key={i} q={item.q} a={item.a} />
           ))}
         </div>

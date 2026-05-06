@@ -132,7 +132,7 @@
             return;
         }
 
-        console.log("fetching milestones from server for shop", progressState.milestoneIcons);
+        // console.log("fetching milestones from server for shop", progressState.milestoneIcons);
         const getShopName = document.querySelector("#shop-primary-url")?.value || window.Shopify?.shop || "";
         const progressWrapper = document.querySelector(".page-shell-upcartapp_progoressbar-wrapper");
 
@@ -186,7 +186,7 @@
 
         progressState.milestonesLoaded = true;
 
-        console.log("responseConvertedToJson", responseConvertedToJson);
+        // console.log("responseConvertedToJson", responseConvertedToJson);
         const enableMilestoneProgressBar = !!(responseConvertedToJson?.ok && responseConvertedToJson?.data?.enabled);
 
         if (progressWrapper) {
@@ -261,8 +261,8 @@
             const cartTotalPriceCents = cart?.total_price || 0;
             updateMilestoneProgress(cartTotalPriceCents / 100);
 
-            console.log("current price", cartTotalPriceCents / 100);
-            console.log("cart", cart);
+            // console.log("current price", cartTotalPriceCents / 100);
+            // console.log("cart", cart);
 
         } catch (err) {
             console.error("Cart update failed:", err);

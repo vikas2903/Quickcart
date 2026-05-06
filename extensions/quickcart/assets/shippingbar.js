@@ -126,7 +126,7 @@
             quantityTierConfig.enabled = !!data?.enabled;
             quantityTierConfig.color = data?.color || "#000000";
             quantityTierConfig.steps = sanitizeQuantitySteps(data?.steps);
-            console.log("Quantity tier config loaded:", quantityTierConfig.steps);
+            // console.log("Quantity tier config loaded:", quantityTierConfig.steps);
             applyQuantityTierClasses();
         } catch (error) {
             console.warn("Quantity tier config fetch failed:", error);
