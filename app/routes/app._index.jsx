@@ -2,7 +2,7 @@
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigation } from "@remix-run/react";
 import "./assests/style.css";
-import { Page, Layout, BlockStack, Banner, Grid, LegacyCard, Button, Box, Link, Select, InlineStack, Text } from "@shopify/polaris";
+import { Page, Layout, BlockStack, Banner, Grid, LegacyCard, Button, Box, Select, InlineStack } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { useState, useEffect } from "react";
@@ -13,14 +13,204 @@ import 'antd/dist/reset.css'
 import { useTranslation } from "react-i18next";
 
 
-export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
-  const shopName = session.shop;
-  const accessToken = session.accessToken;
+// export const loader = async ({ request }) => {
+//   const { session ,admin} = await authenticate.admin(request);
+//   const shopName = session.shop;
 
+//   const accessToken = session.accessToken;
+
+
+//   if (!shopName) {
+//     console.error("Missing shopName in session during dashboard loader", { session });
+//     throw new Response(JSON.stringify({ error: "Missing shop in session" }), {
+//       status: 400,
+//       headers: { "Content-Type": "application/json" },
+//     });
+//   }
+
+//   try {
+//     await connectDatabase();
+
+
+//     await Store.updateOne(
+//       { shopName: shopName },
+//       {
+//         $set: { shopName: shopName, shop: shopName, accessToken, uninstalledAt: null },
+//         $setOnInsert: { installedAt: new Date() },
+//         $currentDate: { updatedAt: true },
+//       },
+//       { upsert: true }
+//     );
+//   } catch (e) {
+//     console.error("Database operation failed", { shopName, error: e && e.message, stack: e && e.stack });
+
+//     throw new Response(JSON.stringify({ error: "Failed to connect to database or upsert store", details: e && e.message }), {
+//       status: 500,
+//       headers: { "Content-Type": "application/json" },
+//     });
+//   }
+
+//   const storeDoc = await Store.findOne({ shopName }).lean();
+//   const installedAt = storeDoc?.installedAt || storeDoc?.createdAt;
+//   const sinceISO = new Date(installedAt).toISOString().replace(/\.\d{3}Z$/, "Z");
+
+//   // GraphQL query with aliases
+//   const query = `#graphql
+//     query OrdersData($since: String!, $today: String!) {
+//       totalOrders: ordersCount(query: $since) { count }
+//       totalOrdersList: orders(first: 250, query: $since) {
+//         edges { node { totalPrice } }
+//       }
+//       todayOrders: ordersCount(query: $today) { count }
+//       todayOrdersList: orders(first: 250, query: $today) {
+//         edges { node { totalPrice } }
+//       }
+//     }
+//   `;
+
+//   const variables = {
+//     since: `created_at:>=${sinceISO} status:any`,
+//     today: `created_at:>=${new Date().toISOString().slice(0, 10)} status:any`,
+//   };
+
+//   const API_VERSION = "2025-07";
+//   const endpoint = `https://${shopName}/admin/api/${API_VERSION}/graphql.json`;
+
+//   const res = await fetch(endpoint, {
+//     method: "POST",
+//     headers: {
+//       "X-Shopify-Access-Token": accessToken,
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ query, variables }),
+//   });
+
+
+//   const payload = await res.json();
+
+//   console.log("payload", payload);
+
+//   if (payload.errors) {
+//     return new Response(
+//       JSON.stringify({ error: payload.errors, sinceISO }),
+//       { status: 500, headers: { "Content-Type": "application/json" } }
+//     );
+//   }
+
+//   // Extract data
+//   const totalOrders = payload?.data?.totalOrders?.count ?? 0;
+//   const totalAmount = payload?.data?.totalOrdersList?.edges?.reduce(
+//     (acc, { node }) => acc + parseFloat(node.totalPrice || 0),
+//     0
+//   ) ?? 0;
+
+//   const todayCount = payload?.data?.todayOrders?.count ?? 0;
+//   const todayAmount = payload?.data?.todayOrdersList?.edges?.reduce(
+//     (acc, { node }) => acc + parseFloat(node.totalPrice || 0),
+//     0
+//   ) ?? 0;
+
+//   // Theme logic (unchanged)
+//   const url = new URL(request.url);
+//   const host = url.searchParams.get("host") ?? "";
+//   const shop = url.searchParams.get("shop") ?? "";
+
+//   // ---- Fetch main theme safely ----
+//   const api = `https://${shopName}/admin/api/2023-10`;
+//   const headers = {
+//     "Content-Type": "application/json",
+//     "X-Shopify-Access-Token": accessToken,
+//   };
+
+//   let themes = [];
+//   let mainThemeId = null;
+
+//   // Fetch ALL themes (published + preview) for the theme selector
+//   try {
+//     const resAll = await fetch(`${api}/themes.json`, { method: "GET", headers });
+//     if (!resAll.ok) {
+//       throw new Error(`HTTP ${resAll.status}: ${resAll.statusText}`);
+//     }
+//     const dataAll = await resAll.json();
+//     const arrAll = Array.isArray(dataAll?.themes) ? dataAll.themes : [];
+//     themes = arrAll;
+//     const main = arrAll.find((t) => t.role === "main") ||
+//       arrAll.find((t) => t.role === "live") ||
+//       arrAll[0];
+//     mainThemeId = main?.id ?? null;
+//   } catch (e) {
+//     console.warn("❌ Themes fetch failed:", e.message);
+//   }
+
+//   // Normalize themes for UI: { id, name, role, roleLabel }
+//   const roleLabels = { main: "Published", live: "Published", unpublished: "Preview" };
+//   const themesForSelect = themes.map((t) => ({
+//     id: t.id,
+//     name: t.name || `Theme ${t.id}`,
+//     role: t.role || "unpublished",
+//     roleLabel: roleLabels[t.role] || "Preview",
+//   }));
+
+//   const themeIds = themes.map((t) => t.id).filter(Boolean);
+
+//   // Graphql query for get curecny code 
+
+//   const shopRes = await fetch(`https://${shopName}/admin/api/${API_VERSION}/shop.json`, {
+//     method: "GET",
+//     headers: {
+//       "X-Shopify-Access-Token": accessToken,
+//       "Content-Type": "application/json",
+//     },
+//   });
+
+
+
+//   const shopData = await shopRes.json();
+//   console.log("shopData", shopData);
+//   const currency = shopData?.shop?.currency || "USD";
+//   const primaryLocale = shopData?.shop?.primary_locale || "en";
+
+
+//   const currencySymbolMap = {
+//     "INR": "₹",
+//     "USD": "$",
+//     "EUR": "€",
+//     "GBP": "£",
+//     "AUD": "A$",
+//     "CAD": "C$",
+//     "JPY": "¥",
+//     "SGD": "S$",
+//   };
+
+//   const currencySymbol = currencySymbolMap[currency] || currency
+
+
+//   // Combine order data with theme data
+//   return json({
+//     host,
+//     shop,
+//     mainThemeId,
+//     themeIds,
+//     themes: themesForSelect,
+//     totalOrders,
+//     totalAmount,
+//     todayCount,
+//     todayAmount,
+//     sinceISO,
+//     currency,
+//     currencySymbol,
+//     primaryLocale,
+//     payload
+//   });
+
+// };
+
+export const loader = async ({ request }) => {
+  // ✅ Destructure admin too
+  const { session, admin } = await authenticate.admin(request);
+  const shopName = session.shop;
 
   if (!shopName) {
-    console.error("Missing shopName in session during dashboard loader", { session });
     throw new Response(JSON.stringify({ error: "Missing shop in session" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
@@ -29,31 +219,26 @@ export const loader = async ({ request }) => {
 
   try {
     await connectDatabase();
-
-
     await Store.updateOne(
-      { shopName: shopName },
+      { shopName },
       {
-        $set: { shopName: shopName, shop: shopName, accessToken, uninstalledAt: null },
+        $set: { shopName, shop: shopName, uninstalledAt: null },
         $setOnInsert: { installedAt: new Date() },
         $currentDate: { updatedAt: true },
       },
       { upsert: true }
     );
   } catch (e) {
-    console.error("Database operation failed", { shopName, error: e && e.message, stack: e && e.stack });
-
-    throw new Response(JSON.stringify({ error: "Failed to connect to database or upsert store", details: e && e.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    throw new Response(
+      JSON.stringify({ error: "DB error", details: e?.message }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   const storeDoc = await Store.findOne({ shopName }).lean();
   const installedAt = storeDoc?.installedAt || storeDoc?.createdAt;
   const sinceISO = new Date(installedAt).toISOString().replace(/\.\d{3}Z$/, "Z");
 
-  // GraphQL query with aliases
   const query = `#graphql
     query OrdersData($since: String!, $today: String!) {
       totalOrders: ordersCount(query: $since) { count }
@@ -72,21 +257,9 @@ export const loader = async ({ request }) => {
     today: `created_at:>=${new Date().toISOString().slice(0, 10)} status:any`,
   };
 
-  const API_VERSION = "2025-07";
-  const endpoint = `https://${shopName}/admin/api/${API_VERSION}/graphql.json`;
-
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "X-Shopify-Access-Token": accessToken,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query, variables }),
-  });
-
-  const payload = await res.json();
-
-  console.log("payload", payload);
+  // ✅ Use admin.graphql — auto handles token refresh
+  const response = await admin.graphql(query, { variables });
+  const payload = await response.json();
 
   if (payload.errors) {
     return new Response(
@@ -95,116 +268,99 @@ export const loader = async ({ request }) => {
     );
   }
 
-  // Extract data
   const totalOrders = payload?.data?.totalOrders?.count ?? 0;
   const totalAmount = payload?.data?.totalOrdersList?.edges?.reduce(
-    (acc, { node }) => acc + parseFloat(node.totalPrice || 0),
-    0
+    (acc, { node }) => acc + parseFloat(node.totalPrice || 0), 0
   ) ?? 0;
-
   const todayCount = payload?.data?.todayOrders?.count ?? 0;
   const todayAmount = payload?.data?.todayOrdersList?.edges?.reduce(
-    (acc, { node }) => acc + parseFloat(node.totalPrice || 0),
-    0
+    (acc, { node }) => acc + parseFloat(node.totalPrice || 0), 0
   ) ?? 0;
 
-  // Theme logic (unchanged)
-  const url = new URL(request.url);
-  const host = url.searchParams.get("host") ?? "";
-  const shop = url.searchParams.get("shop") ?? "";
-
-  // ---- Fetch main theme safely ----
-  const api = `https://${shopName}/admin/api/2023-10`;
-  const headers = {
-    "Content-Type": "application/json",
-    "X-Shopify-Access-Token": accessToken,
-  };
-
+  // ✅ Use admin.rest for themes — auto handles token refresh
   let themes = [];
   let mainThemeId = null;
-
-  // Fetch ALL themes (published + preview) for the theme selector
   try {
-    const resAll = await fetch(`${api}/themes.json`, { method: "GET", headers });
-    if (!resAll.ok) {
-      throw new Error(`HTTP ${resAll.status}: ${resAll.statusText}`);
-    }
-    const dataAll = await resAll.json();
-    const arrAll = Array.isArray(dataAll?.themes) ? dataAll.themes : [];
-    themes = arrAll;
-    const main = arrAll.find((t) => t.role === "main") ||
-      arrAll.find((t) => t.role === "live") ||
-      arrAll[0];
+    const themesResponse = await admin.graphql(`#graphql
+      query DashboardThemes {
+        themes(first: 20) {
+          nodes {
+            id
+            name
+            role
+          }
+        }
+      }
+    `);
+    const themesPayload = await themesResponse.json();
+    const themeNodes = themesPayload?.data?.themes?.nodes ?? [];
+
+    themes = themeNodes
+      .map((theme) => {
+        const legacyId = String(theme.id || "").match(/\/(\d+)$/)?.[1] ?? null;
+        return {
+          id: legacyId,
+          name: theme.name || (legacyId ? `Theme ${legacyId}` : "Theme"),
+          role: theme.role || "UNPUBLISHED",
+        };
+      })
+      .filter((theme) => theme.id);
+
+    const main = themes.find((t) => t.role === "MAIN") ||
+      themes.find((t) => t.role === "LIVE") ||
+      themes[0];
     mainThemeId = main?.id ?? null;
   } catch (e) {
     console.warn("❌ Themes fetch failed:", e.message);
   }
 
-  // Normalize themes for UI: { id, name, role, roleLabel }
-  const roleLabels = { main: "Published", live: "Published", unpublished: "Preview" };
+  const roleLabels = {
+    MAIN: "Published",
+    LIVE: "Published",
+    UNPUBLISHED: "Preview",
+    DEVELOPMENT: "Preview",
+    DEMO: "Preview",
+  };
   const themesForSelect = themes.map((t) => ({
     id: t.id,
     name: t.name || `Theme ${t.id}`,
-    role: t.role || "unpublished",
+    role: t.role || "UNPUBLISHED",
     roleLabel: roleLabels[t.role] || "Preview",
   }));
-
   const themeIds = themes.map((t) => t.id).filter(Boolean);
 
-  // Graphql query for get curecny code 
-
-  const shopRes = await fetch(`https://${shopName}/admin/api/${API_VERSION}/shop.json`, {
-    method: "GET",
-    headers: {
-      "X-Shopify-Access-Token": accessToken,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const shopData = await shopRes.json();
-  console.log("shopData", shopData);
-  const currency = shopData?.shop?.currency || "USD";
-  const primaryLocale = shopData?.shop?.primary_locale || "en";
-
+  // ✅ Use admin.rest for shop data
+  const shopResponse = await admin.graphql(`#graphql
+    query DashboardShop {
+      shop {
+        currencyCode
+      }
+    }
+  `);
+  const shopPayload = await shopResponse.json();
+  const currency = shopPayload?.data?.shop?.currencyCode || "USD";
+  const primaryLocale = "en";
 
   const currencySymbolMap = {
-    "INR": "₹",
-    "USD": "$",
-    "EUR": "€",
-    "GBP": "£",
-    "AUD": "A$",
-    "CAD": "C$",
-    "JPY": "¥",
-    "SGD": "S$",
+    INR: "₹", USD: "$", EUR: "€", GBP: "£",
+    AUD: "A$", CAD: "C$", JPY: "¥", SGD: "S$",
   };
+  const currencySymbol = currencySymbolMap[currency] || currency;
 
-  const currencySymbol = currencySymbolMap[currency] || currency
+  const url = new URL(request.url);
+  const host = url.searchParams.get("host") ?? "";
+  const shop = url.searchParams.get("shop") ?? "";
 
-
-  // Combine order data with theme data
   return json({
-    host,
-    shop,
-    mainThemeId,
-    themeIds,
-    themes: themesForSelect,
-    totalOrders,
-    totalAmount,
-    todayCount,
-    todayAmount,
-    sinceISO,
-    currency,
-    currencySymbol,
-    primaryLocale,
-    payload
+    host, shop, mainThemeId, themeIds, themes: themesForSelect,
+    totalOrders, totalAmount, todayCount, todayAmount,
+    sinceISO, currency, currencySymbol, primaryLocale, payload
   });
-
 };
 
 
 export default function Dashboard() {
   const data = useLoaderData();
-  const { payload } = data;
   const navigation = useNavigation();
   const { t, i18n: reactI18n } = useTranslation();
 
@@ -308,6 +464,58 @@ export default function Dashboard() {
     }
   };
 
+  const analyticsCards = [
+    {
+      value: (Number(totalOrders) >= 10000 ? "9999+" : totalOrders) || 0,
+      label: t("dashboard.grid-total-orders"),
+      accent: "Orders since install",
+    },
+    {
+      value: `${currencySymbol || currency || ""}${(Number(totalAmount) || 0).toLocaleString()}`,
+      label: t("dashboard.grid-total-amount"),
+      accent: "Revenue influenced",
+    },
+    {
+      value: (Number(todayCount) || 0).toLocaleString(),
+      label: t("dashboard.grid-today-orders"),
+      accent: "Orders today",
+    },
+    {
+      value: `${currencySymbol || currency || ""}${(Number(todayAmount) || 0).toLocaleString()}`,
+      label: t("dashboard.grid-today-amount"),
+      accent: "Revenue today",
+    },
+  ];
+
+  const quickActions = [
+    {
+      title: "Progress bars",
+      description: "Compare all 4 progress bar types on one page and choose the right setup for your offer.",
+      url: withParams("/app/progressbar-guide"),
+      primary: true,
+      buttonText: "View progress bars",
+    },
+    {
+      title: "Cart customization",
+      description: "Customize your cart drawer design, offers, messages, and customer-facing cart features.",
+      url: withParams("/app/settings"),
+      primary: false,
+      buttonText: "Customize cart",
+    },
+    {
+      title: "Documentation",
+      description: "Read simple setup steps, feature guides, and instructions to use QuickCart correctly.",
+      url: withParams("/app/documentation"),
+      buttonText: "Open docs",
+    },
+    {
+      title: "Help and support",
+      description: "Get help with setup, troubleshooting, videos, and support contact details in one place.",
+      url: withParams("/app/help"),
+      buttonText: "Open help",
+    },
+  ];
+
   return (
     <Page>
       <TitleBar title="Dashboard" />
@@ -329,79 +537,125 @@ export default function Dashboard() {
           )}
 
 
+          {/* <Layout.Section>
+            <LegacyCard sectioned>
+              <div className="dashboard-hero">
+                <div className="dashboard-hero__content">
+                  <div className="dashboard-eyebrow">Quickcart cart drawer</div>
+                  <h1 className="dashboard-hero__title">
+                    Manage your cart drawer in one place.
+                  </h1>
+                  <p className="dashboard-hero__text">
+                    Customize the cart drawer, then open your Shopify theme editor to enable it for customers.
+                  </p>
+                  <div className="dashboard-hero__steps">
+                    <div className="dashboard-hero__step">
+                      <span className="dashboard-hero__step-number">1</span>
+                      <span>Update drawer settings and design.</span>
+                    </div>
+                    <div className="dashboard-hero__step">
+                      <span className="dashboard-hero__step-number">2</span>
+                      <span>Enable the app block in your theme.</span>
+                    </div>
+                  </div>
+                  <InlineStack gap="300" wrap>
+                    <Button variant="primary" url={withParams("/app/settings")}>
+                      Customize drawer
+                    </Button>
+                    <Button onClick={handleOpenSelectedTheme} disabled={!effectiveThemeId || !storeShort}>
+                      Enable in theme
+                    </Button>
+                  </InlineStack>
+                  <div className="dashboard-hero__note">
+                    Use the buttons above to finish setup faster.
+                  </div>
+                </div>
+              </div>
+            </LegacyCard>
+          </Layout.Section> */}
+
           <Layout.Section>
             {dismiss1 && (
-              <Banner
-                tone="warning"
-                title={t("dashboard.enable-app-title")}
-                onDismiss={() => setDismiss1(false)}
+              <LegacyCard sectioned>
+                <div className="dashboard-setup-card">
+                  <div className="dashboard-setup-card__header">
+                    <div>
+                      <div className="dashboard-setup-card__eyebrow">Theme activation</div>
+                      <h2 className="dashboard-setup-card__title">{t("dashboard.enable-app-title")}</h2>
+                      <p className="dashboard-setup-card__text">{t("dashboard.enable-app-integration-info")}</p>
+                    </div>
+                    <Button onClick={() => setDismiss1(false)}>Dismiss</Button>
+                  </div>
 
-              >
-                <BlockStack gap="300">
-                  <Text as="p" fontWeight="medium">
-                    {t("dashboard.enable-app-integration-info")}
-                  </Text>
                   {themesList.length > 0 && (
-                    <InlineStack gap="300" blockAlign="center" wrap>
-                      <div style={{ minWidth: 280 }}>
+                    <div className="dashboard-theme-controls">
+                      <div className="dashboard-theme-controls__select">
                         <Select
                           label="Choose theme (Published or Preview)"
-                          labelInline
                           options={themeOptions}
                           value={effectiveThemeId}
                           onChange={setSelectedThemeId}
                         />
                       </div>
-                      <Button variant="primary" onClick={handleOpenSelectedTheme} disabled={!effectiveThemeId || !storeShort}>
-                        {t("dashboard.enable-app-integration-button")}
-                      </Button>
-
-                      <Button onClick={handleOpenLiveTheme} disabled={!mainThemeId || !storeShort}>
-                        {t("dashboard.enable-app-integration-button-text")}
-                      </Button>
-
-                    </InlineStack>
+                      <div className="dashboard-theme-controls__actions">
+                        <Button variant="primary" onClick={handleOpenSelectedTheme} disabled={!effectiveThemeId || !storeShort}>
+                          Open selected theme
+                        </Button>
+                        <Button onClick={handleOpenLiveTheme} disabled={!mainThemeId || !storeShort}>
+                          Open live theme
+                        </Button>
+                      </div>
+                    </div>
                   )}
-                </BlockStack>
-              </Banner>
+                </div>
+              </LegacyCard>
             )}
           </Layout.Section>
 
           <Layout.Section>
-            <h4 className="i-gs-section-title" style={{ textTransform: "uppercase" }}>{t("dashboard.grid-title")}</h4>
+            <div className="dashboard-section-heading">
+              <div>
+                <div className="dashboard-eyebrow">Performance snapshot</div>
+                <h2 className="dashboard-section-heading__title">Quick overview</h2>
+              </div>
+            </div>
             <Grid>
-              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
-                <LegacyCard sectioned>
-                  <div className="order-analytics-wrapper">
-                    <h5>{(Number(totalOrders) >= 10000 ? '9999+' : totalOrders) || 0}</h5>
-                    <p>{t("dashboard.grid-total-orders")}</p>
-                  </div>
-                </LegacyCard>
-              </Grid.Cell>
-              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
-                <LegacyCard sectioned>
-                  <div className="order-analytics-wrapper">
-                    <h5><span className="curecnySymbol">{currencySymbol || currency || ""}</span>{(Number(totalAmount) || 0).toLocaleString()}</h5>
-                    <p>{t("dashboard.grid-total-amount")}</p>
-                  </div>
-                </LegacyCard>
-              </Grid.Cell>
-              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
-                <LegacyCard sectioned>
-                  <div className="order-analytics-wrapper">
-                    <h5>{(Number(todayCount) || 0).toLocaleString()}</h5>
-                    <p>{t("dashboard.grid-today-orders")}</p>
-                  </div>
-                </LegacyCard>
-              </Grid.Cell>
-              <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
-                <LegacyCard sectioned>
-                  <div className="order-analytics-wrapper">
-                    <h5><span className="curecnySymbol">{currencySymbol || currency || ""}</span>{(Number(todayAmount) || 0).toLocaleString()}</h5>
-                    <p>{t("dashboard.grid-today-amount")}</p>
-                  </div>
-                </LegacyCard>
-              </Grid.Cell>
+              {analyticsCards.map((card) => (
+                <Grid.Cell key={card.label} columnSpan={{ xs: 12, sm: 6, md: 3, lg: 3, xl: 3 }}>
+                  <LegacyCard sectioned>
+                    <div className="dashboard-metric-card">
+                      <div className="dashboard-metric-card__accent">{card.accent}</div>
+                      <h3 className="dashboard-metric-card__value">{card.value}</h3>
+                      <p className="dashboard-metric-card__label">{card.label}</p>
+                    </div>
+                  </LegacyCard>
+                </Grid.Cell>
+              ))}
+            </Grid>
+          </Layout.Section>
+
+          <Layout.Section>
+            <div className="dashboard-section-heading">
+              <div>
+                <div className="dashboard-eyebrow">Workspace</div>
+                <h2 className="dashboard-section-heading__title">Next steps</h2>
+              </div>
+            </div>
+            <Grid>
+              {quickActions.map((action) => (
+                <Grid.Cell key={action.title} columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                  <LegacyCard sectioned>
+                    <div className="dashboard-action-card">
+                      <div className="dashboard-action-card__icon">{action.title.charAt(0)}</div>
+                      <h3 className="dashboard-action-card__title">{action.title}</h3>
+                      <p className="dashboard-action-card__text">{action.description}</p>
+                      <Button variant={action.primary ? "primary" : undefined} url={action.url}>
+                        {action.buttonText}
+                      </Button>
+                    </div>
+                  </LegacyCard>
+                </Grid.Cell>
+              ))}
             </Grid>
           </Layout.Section>
 
@@ -593,10 +847,10 @@ export default function Dashboard() {
             </Grid>
           </Layout.Section> */}
 
-          <Layout.Section>
+          {/* <Layout.Section>
             {dismiss &&
-              <div style={{ marginBottom: 16 }}>
-                <Box marginBlockEnd="400">
+              <Box marginBlockEnd="400">
+                <div className="dashboard-help-shell">
                   <Banner
                     tone="info"
                     title="Need help?"
@@ -604,7 +858,7 @@ export default function Dashboard() {
                     action={{
                       content: t("dashboard.help-title-button"),
                       url: withParams(`/app/help`),
-                      external: true, // opens in new tab
+                      external: true,
                     }}
                     secondaryAction={{
                       content: t("dashboard.help-title-banner"),
@@ -618,12 +872,10 @@ export default function Dashboard() {
                       <a href="mailto:support@digisidekick.com">support@digisidekick.com</a> or <a href="mailto:vikasprasad@digisidekick.com">vikasprasad@digisidekick.com</a>.
                     </p>
                   </Banner>
-                </Box>
-              </div>}
+                </div>
+              </Box>}
 
-
-
-          </Layout.Section>
+          </Layout.Section> */}
 
 
 

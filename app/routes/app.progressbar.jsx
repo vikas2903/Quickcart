@@ -31,31 +31,16 @@ export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const url = new URL(request.url);
   const requestLocale = url.searchParams.get("locale");
-  // const primaryLocale = requestLocale || session?.primaryLocale || "en-US";
-  const accessToken = session.accessToken; 
+  const primaryLocale = requestLocale || session.locale || "en";
 
-  const API_VERSION = "2025-07";
-  const shopRes = await fetch(`https://${session.shop}/admin/api/${API_VERSION}/shop.json`, {
-      method: "GET",
-      headers: {
-        "X-Shopify-Access-Token": accessToken,
-        "Content-Type": "application/json",
-      },
-    });
-  
-    const shopData = await shopRes.json();
-    console.log("shopData", shopData);
-    const currency = shopData?.shop?.currency || "USD";
-    const primaryLocale = shopData?.shop?.primary_locale || "en";
-
-  return json({ shop: session.shop, primaryLocale: primaryLocale }); 
+  return json({ shop: session.shop, primaryLocale });
 };
 
 export default function ProgressBar() {
   const { shop, primaryLocale } = useLoaderData();
   // console.log("vss_primaryLocale", primaryLocale);
   const { t, i18n: reactI18n } = useTranslation();
-  const defaultTextsRef = useRef([]);
+  const defaultTextsRef = useRef([]); 
 
   const targetLanguage = useMemo(() => {
     if (!primaryLocale) return "en";

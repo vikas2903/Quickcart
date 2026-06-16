@@ -343,9 +343,9 @@
       const parentTag = parent?.tagName || parent?.className || "unknown";
       // Move drawer to body to ensure fixed positioning works correctly
       document.body.appendChild(drawer);
-     
+
       // console.log("CartDrawerPremium moved from", parentTag, "to document.body for proper positioning");
-      
+
       return true;
     }
     return false;
@@ -972,7 +972,25 @@
   /* ============ CART LEVEL DISCOUNT ROW ============ */
   function handleCartDiscountRow(cart) {
     try {
-      const title = cart?.cart_level_discount_applications?.[0]?.title;
+      const titleSet = new Set();
+      (cart?.cart_level_discount_applications || []).forEach((discount) => {
+        const title = String(discount?.title || "").trim();
+        if (title) titleSet.add(title);
+      });
+
+      (cart?.items || []).forEach((item) => {
+        (item?.discounts || []).forEach((discount) => {
+          const title = String(discount?.title || discount?.discount_application?.title || "").trim();
+          if (title) titleSet.add(title);
+        });
+
+        (item?.line_level_discount_allocations || []).forEach((discount) => {
+          const title = String(discount?.discount_application?.title || "").trim();
+          if (title) titleSet.add(title);
+        });
+      });
+
+      const combinedTitle = Array.from(titleSet).join(" + ");
       const total_discount = (cart?.total_discount || 0) / 100;
       const currency = cart?.currency || "INR";
       const target = document.querySelector(".discount-applied-at-cartdrawer");
@@ -981,8 +999,8 @@
       if (total_discount > 0) {
         const formatted = convertToCurrency(total_discount, currency);
         let text = "Discount applied";
-        if (title) {
-          text += ` (${title})`;
+        if (combinedTitle) {
+          text += ` (${combinedTitle})`;
         }
         target.innerHTML = `${text}
           <span class="discounted-value">-${formatted}</span>`;
@@ -1321,8 +1339,8 @@
       ".cart-bubble",                          // Cart bubble
       ".cart-drawer-toggle",
       ".header-icon-cart",
-      "[aria-controls='CartDrawer']"  
-                        // Cart drawer toggle
+      "[aria-controls='CartDrawer']"
+      // Cart drawer toggle
     ].join(", ");
 
     const icon = e.target.closest(cartIconSelectors);
@@ -1871,7 +1889,7 @@
     });
   }
   // console.log("Upcart: Progressbar + Upsell App Initialized");
-  
+
 
   (() => {
     const themes = ["Horizon", "Tinker", "Savor", "Atelier", "Heritage", "Fabric", "Ritual"];
@@ -1896,6 +1914,19 @@
 
 })();
 
+
+
+const cartButton = document.querySelector('[aria-controls="cart-drawer"]');
+
+if (cartButton) {
+  cartButton.addEventListener('click', function () {
+    setTimeout(() => {
+      if (window.CartDrawerPremium?.open) {
+        window.CartDrawerPremium.open();
+      }
+    }, 300);
+  });
+}
 document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("click", function (e) {
     if (e.target.closest(".view-cart")) {

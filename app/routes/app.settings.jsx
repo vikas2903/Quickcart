@@ -878,10 +878,22 @@ function Settings() {
     <Page fullWidth>
       <TitleBar title={t("settingsPage.page-title")} />
       <ToastContainer position="top-right" autoClose={3000} />
+      <div className="settings-page-shell">
+
+        {/* <div className="settings-page-header">
+          <div className="settings-page-header__eyebrow">Cart Drawer Builder</div>
+          <h1 className="settings-page-header__title">{t("settingsPage.page-title")}</h1>
+          <p className="settings-page-header__text">
+            Customize the cart drawer design, messages, upsells, and storefront experience from one place.
+          </p>
+        </div> */}
+        
+
       <Layout>
 
         <Grid>
           <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 8, lg: 8, xl: 8 }} gap="small">
+            <div className="settings-panel-shell">
 
             <Layout.Section>
               <div className="settings-tab-bar">
@@ -1709,7 +1721,7 @@ function Settings() {
 
                       <LegacyCard sectioned>
                         <div className="grid-item">
-                          <div className="column-title">No. of Days</div>
+                          <div className="column-title">Number of Days</div>
                           <InfoBanner text="Set how many days to add for the estimated delivery date." />
                           <div className="color-picker-container">
                             <InputNumber
@@ -1735,14 +1747,7 @@ function Settings() {
                     gap="small"
                   >
                     <Button
-                      style={{
-                        backgroundColor: "#0755d2ff",
-                        color: "#ffffff",
-                        fontWeight: "bold",
-                        display: "block",
-
-                        width: "100%",
-                      }}
+                      className="settings-save-button"
                       primary
                       onClick={handleSave}
                       loading={isSaving}
@@ -1758,10 +1763,17 @@ function Settings() {
                 </Grid>
               </div>
             </Layout.Section>
+            </div>
 
           </Grid.Cell>
 
           <Grid.Cell columnSpan={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }} gap="small">
+            <div className="settings-preview-shell">
+              <div className="settings-preview-shell__eyebrow">Live preview</div>
+              <div className="settings-preview-shell__title">Cart drawer preview</div>
+              <div className="settings-preview-shell__text">
+                See how your current selections may look before saving.
+              </div>
 
             <div className="cart-preview-wrapper" style={{ position: 'sticky', top: 0 }}>
 
@@ -1789,13 +1801,24 @@ function Settings() {
                 announcementBartext={anouncmentbartTextarea}
                 announcementBarbg={announcementBarBackgroundColor}
                 announcementBartextcolor={announcementBarTextColor}
+                shippingBarEnable={shippingBarEnable}
+                shippingBarThreshold={shippingBarThreshold}
+                shippingBarFillColor={shippingBarFillColor}
+                shippingBarBgColor={shippingBarBgColor}
+                shippingBarTextColor={shippingBarTextColor}
+                shippingBarMessage={shippingBarMessage}
+                cartNoteEnable={cartNoteEnable}
+                deliveryEstimateEnable={deliveryEstimateEnable}
+                deliveryEstimateDays={deliveryEstimateDays}
               />
+            </div>
             </div>
 
           </Grid.Cell>
         </Grid>
 
       </Layout>
+      </div>
     </Page>
   );
 }

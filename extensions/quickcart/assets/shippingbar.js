@@ -81,7 +81,8 @@
 
             const labelEl = el.querySelector(".step-label");
             if (labelEl) {
-                labelEl.innerHTML = `${step.label}<br><small>Buy ${step.qty}</small>`;
+                // labelEl.innerHTML = `${step.label}<br><small>Buy ${step.qty}</small>`;
+                labelEl.innerHTML = `${step.label}`;
             }
 
             const unlocked = totalQty >= step.qty;

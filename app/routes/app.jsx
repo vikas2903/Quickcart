@@ -8,17 +8,7 @@ import { authenticate } from "../shopify.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
-
-  // Authenticate Shopify Admin
   await authenticate.admin(request);
-  const { session } = await authenticate.admin(request);
-
-  const shop = session.shop;
-  const accessToken = session.accessToken;
-
-  // console.log("#StoreName:", shop);
-  // console.log("#StoreAccessToken:", accessToken);
-
   return { apiKey: process.env.SHOPIFY_API_KEY || "" };
 };
 
@@ -28,15 +18,16 @@ export default function App() {
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
-        <Link to="/app" rel="home"> Upcart</Link>
-        <Link to="/app/settings">Appearance</Link>
-        <Link to="/app/progressbar">Prices Based ProgressBar</Link>
-        <Link to= "/app/quantitytrieddiscount">Quanity Based ProgressBar</Link>
-        <Link to="/app/progressbaron1">BxGy Discount ProgressBar</Link>
-        <Link to="/app/collection-based-progressbar-qty-price-based-modals">Collection Separate ProgressBar</Link>
-        <Link to="/app/giftproduct">Free Gift Product</Link>
+        <Link to="/app" rel="home">Dashboard</Link>
+        <Link to="/app/settings">Cart customization</Link>
+        <Link to="/app/progressbar-guide">Progress bar guide</Link>
+        <Link to="/app/progressbar">Price based progress bar</Link>
+        <Link to="/app/quantitytrieddiscount">Quantity based progress bar</Link>
+        <Link to="/app/progressbaron1">Buy X Get Y progress bar</Link>
+        <Link to="/app/collection-based-progressbar-qty-price-based-modals">Collection based progress bar</Link>
+        <Link to="/app/giftproduct">Free gift setup</Link>
         <Link to="/app/documentation">Documentation</Link>
-        <Link to="/app/help">Support</Link>
+        <Link to="/app/help">Help and support</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

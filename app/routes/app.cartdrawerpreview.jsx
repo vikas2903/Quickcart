@@ -80,6 +80,36 @@ const ShippingBanner = styled.div`
   color: ${({ $carouselTextcolor }) => $carouselTextcolor || "#fff"};
 `;
 
+const FreeShippingWrap = styled.div`
+  display: ${({ $enabled }) => ($enabled ? "block" : "none")};
+  background: #fff;
+  padding: 14px 16px 8px;
+  border-bottom: 1px solid #f1f5f9;
+`;
+
+const FreeShippingText = styled.div`
+  color: ${({ $textColor }) => $textColor || "#000"};
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+`;
+
+const FreeShippingTrack = styled.div`
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: ${({ $bgColor }) => $bgColor || "#d6dde7"};
+  overflow: hidden;
+`;
+
+const FreeShippingFill = styled.div`
+  height: 100%;
+  width: ${({ $width }) => `${$width}%`};
+  background: ${({ $fillColor }) => $fillColor || "#104cc1"};
+  border-radius: inherit;
+  transition: width 0.25s ease;
+`;
+
 const CartItem = styled.div`
   padding: 16px 18px;
   border-bottom: 1px solid #f0f0f0;
@@ -225,6 +255,47 @@ const GiftWrapRow = styled.div`
   display: ${({ $gifteanble }) => ($gifteanble ? "block" : "none")};
 `;
 
+const InfoSection = styled.div`
+  padding: 0 16px 12px;
+  background: #fff;
+`;
+
+const InfoCard = styled.div`
+  display: ${({ $enabled }) => ($enabled ? "block" : "none")};
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  padding: 14px;
+  margin-top: 12px;
+`;
+
+const InfoTitle = styled.div`
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+`;
+
+const NoteArea = styled.textarea`
+  width: 100%;
+  min-height: 78px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 12px;
+  resize: none;
+  outline: none;
+  font: inherit;
+  color: #111827;
+  background: #fff;
+  box-sizing: border-box;
+`;
+
+const DeliveryText = styled.div`
+  font-size: 13px;
+  line-height: 1.6;
+  color: #4b5563;
+`;
+
 const CheckoutBar = styled.div`
   position: sticky;
   bottom: 0;
@@ -277,14 +348,24 @@ function Cart({
   announcementBarEnablee,
   announcementBartext,
   announcementBarbg,
-  announcementBartextcolor
+  announcementBartextcolor,
+  shippingBarEnable,
+  shippingBarThreshold,
+  shippingBarFillColor,
+  shippingBarBgColor,
+  shippingBarTextColor,
+  shippingBarMessage,
+  cartNoteEnable,
+  deliveryEstimateEnable,
+  deliveryEstimateDays
 }) {
   const { t } = useTranslation();
   const [qty, setQty] = useState(2);
   const [giftWrap, setGiftWrap] = useState(false);
   const [seconds, setSeconds] = useState(11 * 3600 + 7 * 60 + 13);
+  const [cartNote, setCartNote] = useState("");
 
-  let announcement_bat_text = announcementBartext.split(",");
+  let announcement_bat_text = (announcementBartext || "").split(",");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -298,6 +379,18 @@ function Cart({
   const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
   const secs = String(seconds % 60).padStart(2, "0");
   const total = UNIT_PRICE * qty + (giftWrap ? GIFT_PRICE : 0);
+  const shippingThreshold = Number(shippingBarThreshold) || 0;
+  const shippingProgress = shippingThreshold > 0 ? Math.min((total / shippingThreshold) * 100, 100) : 100;
+  const shippingMessage = total >= shippingThreshold && shippingThreshold > 0
+    ? "Congratulations! You unlocked free shipping."
+    : (shippingBarMessage || "Free shipping on orders above {{threshold}}").replaceAll("{{threshold}}", `Rs.${shippingThreshold}`);
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + (Number(deliveryEstimateDays) || 0));
+  const deliveryDateLabel = deliveryDate.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 
   return (
     <Body>
@@ -329,6 +422,15 @@ function Cart({
         >
           {announcement_bat_text[0]}
         </ShippingBanner>
+
+        <FreeShippingWrap $enabled={shippingBarEnable}>
+          <FreeShippingText $textColor={shippingBarTextColor}>
+            {shippingMessage}
+          </FreeShippingText>
+          <FreeShippingTrack $bgColor={shippingBarBgColor}>
+            <FreeShippingFill $width={shippingProgress} $fillColor={shippingBarFillColor} />
+          </FreeShippingTrack>
+        </FreeShippingWrap>
 
         <CartItem $itemborderradius={cartDrawerItemBorderRadius}>
           <ItemInner>
@@ -394,6 +496,24 @@ function Cart({
             {productInfo}
           </label>
         </GiftWrapRow>
+
+        <InfoSection>
+          <InfoCard $enabled={cartNoteEnable}>
+            <InfoTitle>Cart note</InfoTitle>
+            <NoteArea
+              value={cartNote}
+              onChange={(e) => setCartNote(e.target.value)}
+              placeholder="Add order note, gift message, or delivery instructions"
+            />
+          </InfoCard>
+
+          <InfoCard $enabled={deliveryEstimateEnable}>
+            <InfoTitle>Delivery information</InfoTitle>
+            <DeliveryText>
+              Estimated delivery by <strong>{deliveryDateLabel}</strong>
+            </DeliveryText>
+          </InfoCard>
+        </InfoSection>
 
         <CheckoutBar>
           <TotalBlock>

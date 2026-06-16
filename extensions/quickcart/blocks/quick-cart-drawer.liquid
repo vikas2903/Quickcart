@@ -491,16 +491,35 @@
           style="{% if cart.total_discount > 0 %}display: flex;{% else %}display: none;{% endif %}"
           data-discount-wrapper
         >
-          Discount applied sdsd
+          {% assign applied_discount_titles = '' %}
+          {% for discount_application in cart.cart_level_discount_applications %}
+            {% if discount_application.title != blank %}
+              {% if applied_discount_titles != blank %}
+                {% assign applied_discount_titles = applied_discount_titles | append: ' + ' %}
+              {% endif %}
+              {% assign applied_discount_titles = applied_discount_titles | append: discount_application.title %}
+            {% endif %}
+          {% endfor %}
+          {% for item in cart.items %}
+            {% for discount in item.line_level_discount_allocations %}
+              {% assign discount_title = discount.discount_application.title %}
+              {% if discount_title != blank %}
+                {% unless applied_discount_titles contains discount_title %}
+                {% if applied_discount_titles != blank %}
+                  {% assign applied_discount_titles = applied_discount_titles | append: ' + ' %}
+                {% endif %}
+                {% assign applied_discount_titles = applied_discount_titles | append: discount_title %}
+                {% endunless %}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+          Discount applied{% if applied_discount_titles != blank %} ({{ applied_discount_titles }}){% endif %}
           <span class="discounted-value" data-discounted-value
             >-{{ cart.total_discount | money_without_trailing_zeros -}}
           </span>
         </p>
 
-        <p class="" id="sr-cart-shipping-charges-container">
-          {{ 'quickcart.shipping_charges' | t }}
-          <span class="sr-cart-shipping-charges">{{ 'quickcart.calculated_on_checkout' | t }}</span>
-        </p>
+      
         <p class="bill-grandtotal-row">
           {{ 'quickcart.grand_total' | t }}
           <span class="sr-cart-total" data-total>{{ cart.total_price | money_without_trailing_zeros }}</span>

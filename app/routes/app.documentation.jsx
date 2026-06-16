@@ -470,6 +470,45 @@ const FEATURES = [
     tip: "The bar fills up in real-time as customers add items. At 100% it shows \"🎉 You got Free Shipping!\"",
   },
   {
+    id: "freeshippingbar",
+    icon: "FREE",
+    bg: "#dbeafe",
+    title: "Free Shipping Bar",
+    desc: "Show a free shipping progress bar with custom message and colors.",
+    nav: "Styling page -> Free Shipping Bar tab",
+    color: "#2563eb",
+    steps: [
+      <>Open <strong>Styling</strong> and switch to the <strong>Free Shipping Bar</strong> tab</>,
+      <>Turn on <strong>Enable Shipping Bar</strong></>,
+      <>Set the <strong>Free Shipping Threshold</strong> amount such as <strong>999</strong></>,
+      <>Customize the <strong>Bar Fill Color</strong>, <strong>Bar Background Color</strong>, and <strong>Text Color</strong></>,
+      <>Update the <strong>Shipping Message</strong> if needed. You can use <strong>{"{{threshold}}"}</strong> in the message</>,
+      <>Click <strong>Save Settings</strong> and test on your storefront cart drawer</>,
+    ],
+    tip: "The bar updates automatically as cart value changes, so customers can instantly see how close they are to free shipping.",
+  },
+  {
+    id: "collectionprogressbar",
+    icon: "TAG",
+    bg: "#ede9fe",
+    title: "Collection Based Progress Bar",
+    desc: "Track milestones only for tagged products in price mode or quantity mode.",
+    nav: "Sidebar -> Collection Based Progress Bar",
+    color: "#7c3aed",
+    steps: [
+      <>Open <strong>Collection Based Progress Bar</strong> from the sidebar</>,
+      <>Turn on <strong>Enable Collection Based Progress Bar</strong></>,
+      <>Enter the <strong>Product Tag</strong> that should be counted in this progress bar</>,
+      <>Choose <strong>Mode</strong> as <strong>Price Based</strong> or <strong>Quantity Based</strong></>,
+      <>Fill <strong>Milestone 1</strong> value and text first. Milestone 2 and 3 are optional, but should be completed in order</>,
+      <>For price mode, use milestone values like <strong>499</strong>, <strong>999</strong>, and <strong>1499</strong> with reward text</>,
+      <>For quantity mode, use milestone values like <strong>2</strong>, <strong>3</strong>, and <strong>5</strong> items with reward text</>,
+      <>Click <strong>Save Settings</strong> and test with products that contain the selected tag</>,
+    ],
+    tip: "Only products with the configured tag are counted, which makes this ideal for collection-specific offers.",
+    warn: "If the cart has products without the configured tag, those products will not move this progress bar.",
+  },
+  {
     id: "progressbar",
     icon: "💰",
     bg: "#fef9c3",
@@ -522,6 +561,24 @@ const FEATURES = [
     ],
   },
   {
+    id: "cartnote-delivery",
+    icon: "NOTE",
+    bg: "#ecfccb",
+    title: "Cart Note and Delivery Info",
+    desc: "Show a note box and estimated delivery block inside the cart drawer.",
+    nav: "Styling page -> Cart Note / Delivery Info tab",
+    color: "#65a30d",
+    steps: [
+      <>Open <strong>Styling</strong> and switch to the <strong>Cart Note / Delivery Info</strong> tab</>,
+      <>Turn on <strong>Enable Cart Note</strong> to let customers add special instructions</>,
+      <>Turn on <strong>Enable Delivery Estimate</strong> to show delivery information in the cart drawer</>,
+      <>Set the <strong>No. of Days</strong> field to control the expected delivery timeline</>,
+      <>Click <strong>Save Settings</strong></>,
+      <>Refresh your storefront cart drawer and confirm the cart note box and delivery estimate are visible</>,
+    ],
+    tip: "This is helpful for gift notes, COD instructions, and setting delivery expectations before checkout.",
+  },
+  {
     id: "thirdparty",
     icon: "🔌",
     bg: "#f1f5f9",
@@ -555,6 +612,18 @@ const FAQ_DATA = [
   {
     q: "Upsell products are not showing in the cart",
     a: "Verify: (1) upsell is enabled, (2) a collection is selected, (3) the collection has products. Items already in cart are auto-hidden.",
+  },
+  {
+    q: "Collection based progress bar is not moving",
+    a: "Check that the feature is enabled, the correct product tag is entered, and the cart contains products with that same tag. Products without the configured tag are not counted.",
+  },
+  {
+    q: "Why is the free shipping bar showing the wrong message or amount?",
+    a: "Review the Free Shipping Threshold and Shipping Message in settings. If you use the {{threshold}} placeholder, save the threshold first and then refresh the storefront cart drawer.",
+  },
+  {
+    q: "Cart note or delivery estimate is not visible in the cart drawer",
+    a: "Make sure Cart Note Enable or Cart Estimate Enable is turned on in settings, save the changes, and then refresh the storefront page to load the updated drawer.",
   },
   {
     q: "I see a CORS error in the console",
@@ -794,7 +863,7 @@ export default function Documentation() {
               </a>
             </div>
           </div>
-          <a
+          {/* <a
             href={`/app/help`}
             style={{
               ...S.heroBtn,
@@ -804,7 +873,7 @@ export default function Documentation() {
             }}
           >
             Open Support Page
-          </a>
+          </a> */}
         </div>
       </div>
 
