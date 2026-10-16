@@ -120,7 +120,10 @@
       bxgyProductAway: {{ 'quickcart.bxgy_product_away' | t | json }},
       bxgyCongratulations: {{ 'quickcart.bxgy_congratulations' | t | json }},
       contactSupport: {{ 'quickcart.contact_support' | t | json }},
-      discountOffLabel: {{ 'quickcart.discount_off_label' | t | json }}
+      discountOffLabel: {{ 'quickcart.discount_off_label' | t | json }},
+      progressBarAllMilestonesUnlocked: {{ 'quickcart.progress_bar_all_milestones_unlocked' | t | json }},
+      progressBarAllMilestoneRewards: {{ 'quickcart.progress_bar_all_milestone_rewards' | t | json }},
+      quantityTierMaximumDiscountUnlocked: {{ 'quickcart.quantity_tier_maximum_discount_unlocked' | t | json }}
     };
   </script>
 
@@ -485,39 +488,12 @@
           {{ 'quickcart.subtotal' | t }}
           <span class="sr-sub-total" data-subtotal>{{ cart.original_total_price | money_without_trailing_zeros }}</span>
         </p>
-        <p
-          class="discount-applied-at-cartdrawer"
+        <div
+          class="bill-discount-breakdown"
           id="discount-applied-row"
-          style="{% if cart.total_discount > 0 %}display: flex;{% else %}display: none;{% endif %}"
           data-discount-wrapper
-        >
-          {% assign applied_discount_titles = '' %}
-          {% for discount_application in cart.cart_level_discount_applications %}
-            {% if discount_application.title != blank %}
-              {% if applied_discount_titles != blank %}
-                {% assign applied_discount_titles = applied_discount_titles | append: ' + ' %}
-              {% endif %}
-              {% assign applied_discount_titles = applied_discount_titles | append: discount_application.title %}
-            {% endif %}
-          {% endfor %}
-          {% for item in cart.items %}
-            {% for discount in item.line_level_discount_allocations %}
-              {% assign discount_title = discount.discount_application.title %}
-              {% if discount_title != blank %}
-                {% unless applied_discount_titles contains discount_title %}
-                {% if applied_discount_titles != blank %}
-                  {% assign applied_discount_titles = applied_discount_titles | append: ' + ' %}
-                {% endif %}
-                {% assign applied_discount_titles = applied_discount_titles | append: discount_title %}
-                {% endunless %}
-              {% endif %}
-            {% endfor %}
-          {% endfor %}
-          Discount applied{% if applied_discount_titles != blank %} ({{ applied_discount_titles }}){% endif %}
-          <span class="discounted-value" data-discounted-value
-            >-{{ cart.total_discount | money_without_trailing_zeros -}}
-          </span>
-        </p>
+          style="{% if cart.total_discount > 0 %}display: block;{% else %}display: none;{% endif %}"
+        ></div>
 
       
         <p class="bill-grandtotal-row">

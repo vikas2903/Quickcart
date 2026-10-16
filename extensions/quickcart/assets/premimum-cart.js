@@ -972,40 +972,68 @@
   /* ============ CART LEVEL DISCOUNT ROW ============ */
   function handleCartDiscountRow(cart) {
     try {
-      const titleSet = new Set();
+      const target = drawer.querySelector("[data-discount-wrapper]");
+      if (!target) return;
+
+      const discountRows = [];
+      const pushRow = (label, amount, className = "") => {
+        const cents = Number(amount) || 0;
+        if (cents <= 0) return;
+        const rowClass = ["discount-applied-at-cartdrawer", className].filter(Boolean).join(" ");
+        discountRows.push(`
+          <p class="${rowClass}">
+            <span>${escapeHtml(label)}</span>
+            <span class="discounted-value">-${fmtMoney(cents)}</span>
+          </p>
+        `);
+      };
+
+      const subtotalCents =
+        isFinite(cart?.original_total_price) && cart.original_total_price > 0
+          ? cart.original_total_price
+          : (isFinite(cart?.items_subtotal_price) && cart.items_subtotal_price > 0 ? cart.items_subtotal_price : 0);
+
+      let mrpTotalCents = 0;
+      (cart?.items || []).forEach((item) => {
+        const compareAt = getCompareAtPrice(item);
+        if (compareAt && compareAt > item.price) {
+          mrpTotalCents += compareAt * item.quantity;
+        } else {
+          mrpTotalCents += item.original_line_price || item.price * item.quantity;
+        }
+      });
+
+      if (mrpTotalCents > subtotalCents) {
+        pushRow("Discount on MRP", mrpTotalCents - subtotalCents, "discount-breakdown-mrp");
+      }
+
+      const discountMap = new Map();
+      const addDiscountAmount = (title, amount) => {
+        const cents = Number(amount) || 0;
+        if (!cents) return;
+        const safeTitle = String(title || "").trim() || "Discount applied";
+        discountMap.set(safeTitle, (discountMap.get(safeTitle) || 0) + cents);
+      };
+
       (cart?.cart_level_discount_applications || []).forEach((discount) => {
-        const title = String(discount?.title || "").trim();
-        if (title) titleSet.add(title);
+        addDiscountAmount(discount?.title, discount?.total_allocated_amount);
       });
 
       (cart?.items || []).forEach((item) => {
-        (item?.discounts || []).forEach((discount) => {
-          const title = String(discount?.title || discount?.discount_application?.title || "").trim();
-          if (title) titleSet.add(title);
-        });
-
         (item?.line_level_discount_allocations || []).forEach((discount) => {
-          const title = String(discount?.discount_application?.title || "").trim();
-          if (title) titleSet.add(title);
+          addDiscountAmount(discount?.discount_application?.title, discount?.amount);
         });
       });
 
-      const combinedTitle = Array.from(titleSet).join(" + ");
-      const total_discount = (cart?.total_discount || 0) / 100;
-      const currency = cart?.currency || "INR";
-      const target = document.querySelector(".discount-applied-at-cartdrawer");
-      if (!target) return;
+      discountMap.forEach((amount, title) => {
+        pushRow(`Auto discount (${title})`, amount, "discount-breakdown-auto");
+      });
 
-      if (total_discount > 0) {
-        const formatted = convertToCurrency(total_discount, currency);
-        let text = "Discount applied";
-        if (combinedTitle) {
-          text += ` (${combinedTitle})`;
-        }
-        target.innerHTML = `${text}
-          <span class="discounted-value">-${formatted}</span>`;
-        target.style.display = "flex";
+      if (discountRows.length > 0) {
+        target.innerHTML = discountRows.join("");
+        target.style.display = "block";
       } else {
+        target.innerHTML = "";
         target.style.display = "none";
       }
     } catch (e) {
@@ -1034,6 +1062,7 @@
   // initial totals and hide upsell cards for products already in cart
   fetchCart().then((cart) => {
     renderTotals(cart);
+    handleCartDiscountRow(cart);
     // hideUpsellCardsInCart(cart);
   });
 

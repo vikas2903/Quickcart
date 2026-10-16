@@ -1,4 +1,5 @@
 (async function () {
+    const quickCartI18n = window.QuickCartI18n || {};
     const progressState = window.__collectionBasedProgressBarState || {
         productCache: {},
         domReadyBound: false,
@@ -72,6 +73,24 @@
             .sort(function (a, b) {
                 return a.value - b.value;
             });
+    }
+
+    function renderAllMilestonesUnlockedMessage(message) {
+        const template = quickCartI18n.progressBarAllMilestonesUnlocked || "You have unlocked {{rewards}} for this order.";
+        const rewards = quickCartI18n.progressBarAllMilestoneRewards || "All Milestone rewards";
+        const placeholder = "{{rewards}}";
+        const placeholderIndex = template.indexOf(placeholder);
+
+        if (placeholderIndex === -1) {
+            message.textContent = template;
+            return;
+        }
+
+        message.replaceChildren(
+            document.createTextNode(template.slice(0, placeholderIndex)),
+            Object.assign(document.createElement("strong"), { textContent: rewards }),
+            document.createTextNode(template.slice(placeholderIndex + placeholder.length))
+        );
     }
 
     function getConfigEndpoint() {
@@ -345,7 +364,7 @@
         });
 
         if (!nextMilestone) {
-            message.innerHTML = "You have unlocked <strong>all milestone rewards</strong> for this order.";
+            renderAllMilestonesUnlockedMessage(message);
             return;
         }
 

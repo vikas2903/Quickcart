@@ -2303,6 +2303,22 @@ span.summary-heading-text {
   color: green;
 }
 
+.bill-discount-breakdown {
+  display: grid;
+  gap: 6px;
+}
+
+.discount-applied-at-cartdrawer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  color: #1f8b2c;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
 /* Subtotal when discount applied: actual → after discount */
 .bill-subtotal-values .sr-sub-total-actual {
   text-decoration: line-through;
