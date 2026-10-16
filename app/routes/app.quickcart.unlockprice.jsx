@@ -3,6 +3,12 @@ import { authenticate } from "../shopify.server.js";
 import connectDatabase from "../lib/dbconnect.js";
 import { DiscountMilestone } from "../models/unlockprice.js";
 import { cors } from "../utils/cors.js";
+import {
+  COMPLETION_TEXT_METAFIELDS,
+  normalizeCompletionText,
+  readCompletionTextMetafield,
+  saveCompletionTextMetafield,
+} from "../utils/progressbar-completion-text.server.js";
 
 /** GET /app/quickcart/unloackprice  -> read by shopName */
 export const loader = async ({ request }) => {
@@ -27,8 +33,20 @@ export const loader = async ({ request }) => {
 
   try {
     const cfg = await DiscountMilestone.findOne({ shopName: shop }).lean();
+    let completionText = "";
+
+    try {
+      const { admin } = await authenticate.admin(request);
+      completionText = await readCompletionTextMetafield(
+        admin,
+        COMPLETION_TEXT_METAFIELDS.price,
+      );
+    } catch {
+      // Storefront app-proxy requests do not have an Admin API session.
+    }
+
     return json(
-      { ok: true, data: cfg || null },
+      { ok: true, data: cfg ? { ...cfg, completionText } : null },
       { headers: { ...cors(request), "Cache-Control": "no-store" } }
     );
   } catch (err) {
@@ -53,7 +71,7 @@ export const action = async ({ request }) => {
   }
 
   // Only your app can write (admin auth). Header > session fallback.
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const shopFromSession = (session?.shop || "").toLowerCase().trim();
   const shop = (request.headers.get("x-shopify-shop-domain") || shopFromSession)
     .toLowerCase()
@@ -78,6 +96,7 @@ export const action = async ({ request }) => {
 
   const enabled = !!body.enabled;
   const progressBarColor = String(body.progressBarColor || "#000000").trim();
+  const completionText = normalizeCompletionText(body.completionText);
 
   // sanitize milestones
   const milestonesRaw = Array.isArray(body.milestones) ? body.milestones : [];
@@ -103,6 +122,12 @@ export const action = async ({ request }) => {
   }
   await connectDatabase();
   try {
+    const savedCompletionText = await saveCompletionTextMetafield(
+      admin,
+      COMPLETION_TEXT_METAFIELDS.price,
+      completionText,
+    );
+
     const saved = await DiscountMilestone.findOneAndUpdate(
       { shopName: shop },
       {
@@ -117,10 +142,13 @@ export const action = async ({ request }) => {
       }
     ).lean();
 
-    return json({ ok: true, data: saved }, { headers: cors(request) });
+    return json(
+      { ok: true, data: { ...saved, completionText: savedCompletionText } },
+      { headers: cors(request) },
+    );
   } catch (err) {
     return json(
-      { ok: false, error: err?.message || "DB write failed" },
+      { ok: false, error: err?.message || "Failed to save price progress bar" },
       { status: 500, headers: cors(request) }
     );
   }

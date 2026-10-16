@@ -98,7 +98,9 @@
             const remaining = nextStep.qty - totalQty;
             quantityProgressMessage.innerHTML = `Add <strong>${remaining} item${remaining === 1 ? "" : "s"}</strong> to unlock <strong>${nextStep.label}</strong>!`;
         } else {
-            const completionMessage = quickCartI18n.quantityTierMaximumDiscountUnlocked || "Maximum discount unlocked!";
+            const completionMessage = quickCartI18n.quantityProgressCompletionText ||
+                quickCartI18n.quantityTierMaximumDiscountUnlocked ||
+                "Maximum discount unlocked!";
             quantityProgressMessage.replaceChildren(Object.assign(document.createElement("strong"), {
                 textContent: completionMessage
             }));

@@ -87,6 +87,15 @@
     }
 
     function renderAllMilestonesUnlockedMessage(message) {
+        const completionText = String(quickCartI18n.priceProgressCompletionText || "").trim();
+
+        if (completionText) {
+            message.replaceChildren(Object.assign(document.createElement("strong"), {
+                textContent: completionText
+            }));
+            return;
+        }
+
         const template = quickCartI18n.progressBarAllMilestonesUnlocked || "You have unlocked {{rewards}} for this order.";
         const rewards = quickCartI18n.progressBarAllMilestoneRewards || "All Milestone rewards";
         const placeholder = "{{rewards}}";

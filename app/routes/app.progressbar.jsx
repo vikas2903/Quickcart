@@ -83,6 +83,7 @@ export default function ProgressBar() {
   const [texts, setTexts] = useState(defaultTexts);
   const [icons, setIcons] = useState(["", "", ""]);
   const [progressBarColor, setProgressBarColor] = useState("#000000");
+  const [completionText, setCompletionText] = useState("");
 
   const [previewTotal, setPreviewTotal] = useState("999");
   const [tab, setTab] = useState(0);
@@ -92,7 +93,8 @@ export default function ProgressBar() {
   const [savedata, setsaveddata] = useState({
     enabled: "",
     milestones: [],
-    progressBarColor: "#000000"
+    progressBarColor: "#000000",
+    completionText: "",
   });
 
   const MILESTONE_COUNT = 3;
@@ -195,14 +197,16 @@ export default function ProgressBar() {
 
   const awayText = useMemo(() => {
     if (!enabled) return t("settings.progress-disabled-message");
-    if (!nextMilestone) return t("settings.highest-offer-unlocked-message");
+    if (!nextMilestone) {
+      return completionText.trim() || t("settings.highest-offer-unlocked-message");
+    }
     const diff = Math.max(0, nextMilestone.price - cartTotal);
     return t("settings.away-from-milestone-message", {
       amount: nf.format(diff),
       milestone: nextMilestone.text.replace("{{price}}", String(nextMilestone.price)),
       price: nf.format(nextMilestone.price),
     });
-  }, [enabled, nextMilestone, cartTotal, nf, t]);
+  }, [enabled, nextMilestone, cartTotal, completionText, nf, t]);
 
   /* ---------- LOAD EXISTING (by shopName via header) ---------- */
   useEffect(() => {
@@ -222,6 +226,7 @@ export default function ProgressBar() {
           if (json.data.progressBarColor) {
             setProgressBarColor(json.data.progressBarColor);
           }
+          setCompletionText(String(json.data.completionText || ""));
           const ms = Array.isArray(json.data.milestones)
             ? json.data.milestones
             : [];
@@ -259,7 +264,12 @@ export default function ProgressBar() {
       let enalbled = progressbardata?.enabled;
 
       const savedColor = progressbardata?.progressBarColor || "#000000";
-      setsaveddata({ enalbled, milestones, progressBarColor: savedColor });
+      setsaveddata({
+        enalbled,
+        milestones,
+        progressBarColor: savedColor,
+        completionText: String(progressbardata?.completionText || ""),
+      });
     }
 
     fetchData();
@@ -316,6 +326,7 @@ export default function ProgressBar() {
       shopName: shop,
       enabled,
       progressBarColor,
+      completionText,
       milestones: sanitizedMilestones,
     };
 
@@ -348,6 +359,7 @@ export default function ProgressBar() {
         enalbled: enabled,
         milestones: payload.milestones,
         progressBarColor,
+        completionText,
       });
       toast.success(t("settings.save-success-message"));
     } catch (err) {
@@ -427,6 +439,15 @@ export default function ProgressBar() {
                       label={t("settings.enable-pricebased-app-progressbar")}
                       checked={enabled}
                       onChange={setEnabled}
+                    />
+
+                    <TextField
+                      label="Completion text"
+                      value={completionText}
+                      onChange={setCompletionText}
+                      autoComplete="off"
+                      maxLength={255}
+                      helpText="Shown after the customer unlocks every price milestone. Leave blank to use the default translated message."
                     />
 
                     {Array.from({ length: MILESTONE_COUNT }).map((_, i) => (

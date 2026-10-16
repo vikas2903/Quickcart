@@ -123,7 +123,9 @@
       discountOffLabel: {{ 'quickcart.discount_off_label' | t | json }},
       progressBarAllMilestonesUnlocked: {{ 'quickcart.progress_bar_all_milestones_unlocked' | t | json }},
       progressBarAllMilestoneRewards: {{ 'quickcart.progress_bar_all_milestone_rewards' | t | json }},
-      quantityTierMaximumDiscountUnlocked: {{ 'quickcart.quantity_tier_maximum_discount_unlocked' | t | json }}
+      quantityTierMaximumDiscountUnlocked: {{ 'quickcart.quantity_tier_maximum_discount_unlocked' | t | json }},
+      priceProgressCompletionText: {{ shop.metafields.custom.quickcart_price_progress_completion_text.value | default: '' | json }},
+      quantityProgressCompletionText: {{ shop.metafields.custom.quickcart_quantity_progress_completion_text.value | default: '' | json }}
     };
   </script>
 

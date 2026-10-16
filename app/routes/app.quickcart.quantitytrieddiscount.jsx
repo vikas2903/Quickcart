@@ -3,6 +3,12 @@ import { authenticate } from "../shopify.server.js";
 import connectDatabase from "../lib/dbconnect.js";
 import QuantityBasedProgressBar from "../models/quantity_based_discount.js";
 import { cors } from "../utils/cors.js";
+import {
+  COMPLETION_TEXT_METAFIELDS,
+  normalizeCompletionText,
+  readCompletionTextMetafield,
+  saveCompletionTextMetafield,
+} from "../utils/progressbar-completion-text.server.js";
 
 function normalizeSteps(rawSteps) {
   if (!Array.isArray(rawSteps)) return [];
@@ -38,8 +44,20 @@ export const loader = async ({ request }) => {
 
   try {
     const data = await QuantityBasedProgressBar.findOne({ shop }).lean();
+    let completionText = "";
+
+    try {
+      const { admin } = await authenticate.admin(request);
+      completionText = await readCompletionTextMetafield(
+        admin,
+        COMPLETION_TEXT_METAFIELDS.quantity,
+      );
+    } catch {
+      // Storefront app-proxy requests do not have an Admin API session.
+    }
+
     return json(
-      { ok: true, data: data || null },
+      { ok: true, data: data ? { ...data, completionText } : null },
       { headers: { ...cors(request), "Cache-Control": "no-store" } },
     );
   } catch (error) {
@@ -62,7 +80,7 @@ export const action = async ({ request }) => {
     );
   }
 
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const shopFromSession = (session?.shop || "").toLowerCase().trim();
   const shop = (request.headers.get("x-shopify-shop-domain") || shopFromSession)
     .toLowerCase()
@@ -88,6 +106,7 @@ export const action = async ({ request }) => {
   const enabled = !!body?.enabled;
   const color = String(body?.color || "#000000").trim() || "#000000";
   const steps = normalizeSteps(body?.steps);
+  const completionText = normalizeCompletionText(body?.completionText);
 
   if (steps.length === 0) {
     return json(
@@ -99,6 +118,12 @@ export const action = async ({ request }) => {
   await connectDatabase();
 
   try {
+    const savedCompletionText = await saveCompletionTextMetafield(
+      admin,
+      COMPLETION_TEXT_METAFIELDS.quantity,
+      completionText,
+    );
+
     const saved = await QuantityBasedProgressBar.findOneAndUpdate(
       { shop },
       {
@@ -113,10 +138,13 @@ export const action = async ({ request }) => {
       },
     ).lean();
 
-    return json({ ok: true, data: saved }, { headers: cors(request) });
+    return json(
+      { ok: true, data: { ...saved, completionText: savedCompletionText } },
+      { headers: cors(request) },
+    );
   } catch (error) {
     return json(
-      { ok: false, error: error?.message || "DB write failed" },
+      { ok: false, error: error?.message || "Failed to save quantity progress bar" },
       { status: 500, headers: cors(request) },
     );
   }

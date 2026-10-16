@@ -38,6 +38,7 @@ export default function QuantityTriedDiscountPage() {
   const [enabled, setEnabled] = useState(false);
   const [color, setColor] = useState("#000000");
   const [steps, setSteps] = useState(DEFAULT_STEPS);
+  const [completionText, setCompletionText] = useState("");
   const [savedData, setSavedData] = useState(null);
   const [loadingSavedData, setLoadingSavedData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,10 +76,12 @@ export default function QuantityTriedDiscountPage() {
           setEnabled(!!data.enabled);
           setColor(data.color || "#000000");
           setSteps(loadedSteps);
+          setCompletionText(String(data.completionText || ""));
           setSavedData({
             enabled: !!data.enabled,
             color: data.color || "#000000",
             steps: loadedSteps,
+            completionText: String(data.completionText || ""),
           });
         } else {
           setSavedData(null);
@@ -143,13 +146,14 @@ export default function QuantityTriedDiscountPage() {
     ? "Quantity tier discount is disabled."
     : nextStep
       ? `Add ${nextStep.qty - previewQtyNumber} item${nextStep.qty - previewQtyNumber === 1 ? "" : "s"} to unlock ${nextStep.label}.`
-      : "Maximum discount unlocked!";
+      : completionText.trim() || "Maximum discount unlocked!";
 
   const handleSave = async () => {
     const payload = {
       enabled,
       color,
       steps: normalizedSteps,
+      completionText,
     };
 
     setIsSubmitting(true);
@@ -184,6 +188,7 @@ export default function QuantityTriedDiscountPage() {
         label: String(latestStepsRaw[index]?.label ?? ""),
       }));
       setSteps(latestSteps);
+      setCompletionText(String(latest.completionText || ""));
       setSavedData(latest);
       setStatus({
         tone: "success",
@@ -215,6 +220,15 @@ export default function QuantityTriedDiscountPage() {
                       label="Enable quantity tier discount"
                       checked={enabled}
                       onChange={setEnabled}
+                    />
+
+                    <TextField
+                      label="Completion text"
+                      value={completionText}
+                      onChange={setCompletionText}
+                      autoComplete="off"
+                      maxLength={255}
+                      helpText="Shown after the customer unlocks every quantity tier. Leave blank to use the default translated message."
                     />
 
                     <InlineStack gap="300" align="start" wrap>
