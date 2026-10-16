@@ -4,9 +4,6 @@
 // let price_range_three = 2499;
 // const enabled = true;
 
-// let price_range_text_one   = "Extra 5% off on ₹799";
-// let price_range_text_two   = "Extra 10% off on ₹1499";
-// let price_range_text_three = "Extra 15% off on ₹2499";
 
 let price_range_one = 0;
 let price_range_two = 0;
@@ -25,18 +22,24 @@ const milestone_text_one = document.querySelector("#step-one .mils_text_only");
 const milestone_text_two = document.querySelector("#step-two .mils_text_only");
 const milestone_text_three = document.querySelector("#step-three .mils_text_only");
 
-let shopNamee = document.querySelector("#shop-primary-url").value;
+let shopNamee = document.querySelector("#shop-primary-url")?.value || window.Shopify?.shop || "";
 
-function toMoney(amount, currency = "INR", locale = "en-IN") {
+function getStoreCurrency() {
+  return (
+    document.getElementById("CartDrawerPremium")?.getAttribute("data-currency") ||
+    window.Shopify?.currency?.active ||
+    "USD"
+  );
+}
+
+function toMoney(amount, currency = getStoreCurrency()) {
   const val = Math.max(0, Number(amount) || 0);
-  let formatted = new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat(undefined, {
     style: "currency",
     currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(val);
-  // Replace Rs. with ₹ symbol
-  return formatted.replace(/Rs\.?/g, "₹");
 }
 
 (async function () {
@@ -92,7 +95,7 @@ function toMoney(amount, currency = "INR", locale = "en-IN") {
       try {
         const res = await fetch("/cart.js", { headers: { Accept: "application/json" } });
         const cart = await res.json();
-        const currency = cart?.currency || "INR";
+        const currency = cart?.currency || cart?.currency_code || getStoreCurrency();
         const cartEstimatedPrice = (cart?.total_price || 0) / 100;
 
         if (!progressbar) return;

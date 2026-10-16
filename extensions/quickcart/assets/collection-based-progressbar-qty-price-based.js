@@ -6,7 +6,8 @@
         updateTimeout: null,
         configLoaded: false,
         configLoadedAt: 0,
-        configLoadingPromise: null
+        configLoadingPromise: null,
+        currency: ""
     };
 
     window.__collectionBasedProgressBarState = progressState;
@@ -27,15 +28,15 @@
             price: [
                 { 
                     value: 2000,
-                    text: "Free Gift product Order Above @ ₹2000"
+                    text: "Free Gift product Order Above 2000"
                 },
                 {
                     value: 5000,
-                    text: "Exclusive Discount Order Above @ ₹5000"
+                    text: "Exclusive Discount Order Above 5000"
                 },
                 {
                     value: 10000,
-                    text: "VIP Support Order Above @ ₹10000"
+                    text: "VIP Support Order Above 10000"
                 }
             ],
             quantity: [
@@ -225,13 +226,18 @@
         };
     }
 
-    function getActiveCurrency() {
-        return window.Shopify?.currency?.active || "INR";
+    function getActiveCurrency(cartCurrency) {
+        return (
+            cartCurrency ||
+            drawerEl?.getAttribute("data-currency") ||
+            window.Shopify?.currency?.active ||
+            "USD"
+        );
     }
 
     function formatPrice(price) {
         const amount = Number(price || 0);
-        const currency = getActiveCurrency();
+        const currency = progressState.currency || getActiveCurrency();
 
         try {
             return new Intl.NumberFormat(undefined, {
@@ -241,7 +247,7 @@
                 maximumFractionDigits: 0
             }).format(amount);
         } catch (error) {
-            return currency + " " + amount.toLocaleString("en-IN");
+            return currency + " " + amount.toLocaleString();
         }
     }
 
@@ -440,6 +446,7 @@
             const cart = await getCart();
             const taggedCartData = await getTaggedCartData(cart);
 
+            progressState.currency = getActiveCurrency(cart?.currency || cart?.currency_code);
             progressConfig.currentPrice = taggedCartData.price;
             progressConfig.currentQuantity = taggedCartData.qty;
 

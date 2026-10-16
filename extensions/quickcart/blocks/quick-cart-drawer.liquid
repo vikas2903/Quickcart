@@ -94,6 +94,42 @@
   .cart-empty .cdp-body {
     justify-content: center;
   }
+
+  .quickcart-cart-drawer-bottom-content {
+    flex: 0 0 auto;
+    padding: 7px 16px 9px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    text-align: center;
+  }
+  .quickcart-cart-drawer-bottom-content__text {
+    margin: 0;
+    color: var(--text_color, #111);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+  }
+  .quickcart-cart-drawer-bottom-content__image {
+    display: block;
+    width: auto;
+    max-width: min(220px, 100%);
+    max-height: 24px;
+    margin: 6px auto 0;
+    object-fit: contain;
+  }
+  @media (max-width: 480px) {
+    .quickcart-cart-drawer-bottom-content {
+      padding: 6px 12px 8px;
+    }
+    .quickcart-cart-drawer-bottom-content__text {
+      font-size: 13px;
+    }
+    .quickcart-cart-drawer-bottom-content__image {
+      max-width: min(190px, 100%);
+      max-height: 22px;
+    }
+  }
 </style>
 <style>
   {{block.settings.custom-css-code}}
@@ -107,6 +143,8 @@
   data-open-class="cdp-open"
   data-money-format="{{ shop.money_format | escape }}"
   data-currency="{{ shop.currency }}"
+  data-progress-store-currency="{{ shop.currency }}"
+  data-progress-locale="{{ request.locale.iso_code }}"
   shop-url="{{shop.url}}"
   data-shop="{{ shop.permanent_domain }}"
   data-app-url="https://quickcart-vf8k.onrender.com"
@@ -123,6 +161,10 @@
       discountOffLabel: {{ 'quickcart.discount_off_label' | t | json }},
       progressBarAllMilestonesUnlocked: {{ 'quickcart.progress_bar_all_milestones_unlocked' | t | json }},
       progressBarAllMilestoneRewards: {{ 'quickcart.progress_bar_all_milestone_rewards' | t | json }},
+      progressBarRemainingToUnlock: {{ 'quickcart.progress_bar_remaining_to_unlock' | t | json }},
+      priceProgressDefaultMilestone1: {{ 'quickcart.price_progress_default_milestone_1' | t | json }},
+      priceProgressDefaultMilestone2: {{ 'quickcart.price_progress_default_milestone_2' | t | json }},
+      priceProgressDefaultMilestone3: {{ 'quickcart.price_progress_default_milestone_3' | t | json }},
       quantityTierMaximumDiscountUnlocked: {{ 'quickcart.quantity_tier_maximum_discount_unlocked' | t | json }},
       priceProgressCompletionText: {{ shop.metafields.custom.quickcart_price_progress_completion_text.value | default: '' | json }},
       quantityProgressCompletionText: {{ shop.metafields.custom.quickcart_quantity_progress_completion_text.value | default: '' | json }}
@@ -583,6 +625,24 @@
         </a>
       </div>
     </footer>
+
+    {% assign quickcart_bottom_text = shop.metafields.custom.quickcart_cart_drawer_bottom_text.value | default: '' | strip %}
+    {% assign quickcart_bottom_image_url = shop.metafields.custom.quickcart_cart_drawer_bottom_image_url.value | default: '' | strip %}
+    {% if quickcart_bottom_text != blank or quickcart_bottom_image_url != blank %}
+      <div class="quickcart-cart-drawer-bottom-content">
+        {% if quickcart_bottom_text != blank %}
+          <p class="quickcart-cart-drawer-bottom-content__text">{{ quickcart_bottom_text | escape }}</p>
+        {% endif %}
+        {% if quickcart_bottom_image_url != blank %}
+          <img
+            class="quickcart-cart-drawer-bottom-content__image"
+            src="{{ quickcart_bottom_image_url | escape }}"
+            alt="{{ quickcart_bottom_text | escape }}"
+            loading="lazy"
+          >
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 
   <!-- Upsell Product Popup Modal -->

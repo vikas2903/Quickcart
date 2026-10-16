@@ -6,7 +6,8 @@
         milestonesLoaded: false,
         renderedSignature: "",
         uiBootstrapped: false,
-        updateTimeout: null
+        updateTimeout: null,
+        currency: ""
     };
 
     window.__priceTierDiscountProgressBarState = progressState;
@@ -18,9 +19,9 @@
     ];
 
     const MILESTONE_TEXT_DEFAULT = [
-        {price: 100, text: "Free Shipping @ 1999"},    
-        {price: 500, text: "Free Gift @ 4999"},
-        {price: 1000, text: "20% off @ 9999"}
+        { price: 100, text: quickCartI18n.priceProgressDefaultMilestone1 || "Free Shipping" },
+        { price: 500, text: quickCartI18n.priceProgressDefaultMilestone2 || "Free Gift" },
+        { price: 1000, text: quickCartI18n.priceProgressDefaultMilestone3 || "20% off" }
     ];
 
     function applyDefaultMilestones() {
@@ -66,23 +67,39 @@
         progressState.uiBootstrapped = true;
     }
 
-    function getActiveCurrency() {
-        return window.Shopify?.currency?.active || "INR";
+    function getActiveCurrency(cartCurrency) {
+        const drawer = document.getElementById("CartDrawerPremium");
+
+        return (
+            drawer?.getAttribute("data-progress-store-currency") ||
+            drawer?.getAttribute("data-currency") ||
+            cartCurrency ||
+            window.Shopify?.currency?.active ||
+            "USD"
+        );
+    }
+
+    function getActiveLocale() {
+        return (
+            document.getElementById("CartDrawerPremium")?.getAttribute("data-progress-locale") ||
+            document.documentElement.lang ||
+            undefined
+        );
     }
 
     function formatPrice(price) {
         const amount = Number(price || 0);
-        const currency = getActiveCurrency(); 
+        const currency = progressState.currency || getActiveCurrency();
 
         try {
-            return new Intl.NumberFormat(undefined, {
+            return new Intl.NumberFormat(getActiveLocale(), {
                 style: "currency",
                 currency: currency,
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }).format(amount);
         } catch (error) {
-            return currency + " " + amount.toLocaleString("en-IN");
+            return currency + " " + amount.toLocaleString();
         }
     }
 
@@ -113,10 +130,28 @@
         );
     }
 
+    function renderRemainingToUnlockMessage(message, amount, reward) {
+        const template = quickCartI18n.progressBarRemainingToUnlock || "Spend {{amount}} more to unlock {{reward}}.";
+        const parts = template.split(/(\{\{amount\}\}|\{\{reward\}\})/g);
+
+        message.replaceChildren(...parts.map(function (part) {
+            if (part === "{{amount}}") {
+                return Object.assign(document.createElement("strong"), { textContent: amount });
+            }
+
+            if (part === "{{reward}}") {
+                return Object.assign(document.createElement("strong"), { textContent: reward });
+            }
+
+            return document.createTextNode(part);
+        }));
+    }
+
     function getMilestoneSignature() {
         return JSON.stringify({
             icons: progressState.milestoneIcons,
-            milestones: progressState.milestones
+            milestones: progressState.milestones,
+            currency: progressState.currency || getActiveCurrency()
         });
     }
 
@@ -260,7 +295,7 @@
         }
 
         const remaining = nextMilestone.price - currentPrice;
-        message.innerHTML = "Spend <strong>" + formatPrice(remaining) + " more</strong> to unlock <strong>" + nextMilestone.text + "</strong>.";
+        renderRemainingToUnlockMessage(message, formatPrice(remaining), nextMilestone.text);
     }
 
     async function onCartUpdate() {
@@ -287,6 +322,8 @@
 
             const cart = await res.json();
             const cartTotalPriceCents = cart?.total_price || 0;
+            progressState.currency = getActiveCurrency(cart?.currency || cart?.currency_code);
+            bootstrapUI(renderMilestones);
             updateMilestoneProgress(cartTotalPriceCents / 100);
 
             // console.log("current price", cartTotalPriceCents / 100);

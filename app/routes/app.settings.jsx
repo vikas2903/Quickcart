@@ -339,6 +339,8 @@ function Settings() {
     useState("#f0e5e7");
   const [textColor, setTextColor] = useState("#000");
   const [borderRadius, setBorderRadius] = useState(10);
+  const [cartDrawerBottomText, setCartDrawerBottomText] = useState("");
+  const [cartDrawerBottomImageUrl, setCartDrawerBottomImageUrl] = useState("");
 
   // Announcement bar settings
   const [announcementBarEnable, setannouncementBarEnable] = useState(true);
@@ -530,6 +532,10 @@ function Settings() {
           );
           setTextColor(cartDrawer.text_color || data.text_color || "#000");
           setBorderRadius(cartDrawer.border_radius || data.border_radius || 10);
+
+          const cartDrawerBottomContent = data.cartDrawerBottomContent || {};
+          setCartDrawerBottomText(String(cartDrawerBottomContent.text || ""));
+          setCartDrawerBottomImageUrl(String(cartDrawerBottomContent.imageUrl || ""));
 
           // Button settings (within cartDrawer)
           setButtonColor(
@@ -763,6 +769,10 @@ function Settings() {
         cartnoteenable: cartNoteEnable,
         estimatedeliveryenable: deliveryEstimateEnable,
         estimatedeliverydate: deliveryEstimateDays,
+      },
+      cartDrawerBottomContent: {
+        text: cartDrawerBottomText,
+        imageUrl: cartDrawerBottomImageUrl,
       },
     };
 
@@ -1097,6 +1107,27 @@ function Settings() {
                             />
                           </div>
                         </div>
+                      </LegacyCard>
+                      <LegacyCard sectioned>
+                        <BlockStack gap="300">
+                          <div className="column-title">Cart drawer bottom content</div>
+                          <TextField
+                            label="Text"
+                            value={cartDrawerBottomText}
+                            onChange={setCartDrawerBottomText}
+                            maxLength={255}
+                            autoComplete="off"
+                            helpText="Optional. Shown below the checkout section. Leave blank to hide it."
+                          />
+                          <TextField
+                            label="Image URL"
+                            value={cartDrawerBottomImageUrl}
+                            onChange={setCartDrawerBottomImageUrl}
+                            type="url"
+                            autoComplete="url"
+                            helpText="Optional HTTPS image URL, such as an image uploaded to Shopify Files. The image is displayed in a compact payment-badge size."
+                          />
+                        </BlockStack>
                       </LegacyCard>
                       <LegacyCard sectioned>
                         <div className="grid-item">

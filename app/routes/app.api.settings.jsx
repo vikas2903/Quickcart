@@ -17,6 +17,10 @@ import { authenticate } from "../shopify.server.js";
 import connectDatabase from "../lib/dbconnect.js";
 import Settings from "../models/settings.js";
 import { cors } from "../utils/cors.js";
+import {
+  readCartDrawerBottomContentMetafields,
+  saveCartDrawerBottomContentMetafields,
+} from "../utils/cart-drawer-bottom-content.server.js";
 
 /**
  * ============================================================================
@@ -117,6 +121,14 @@ export const loader = async ({ request }) => {
       // Continue without metafield data
     }
 
+    let cartDrawerBottomContent = { text: "", imageUrl: "" };
+    try {
+      const { admin } = await authenticate.admin(request);
+      cartDrawerBottomContent = await readCartDrawerBottomContentMetafields(admin);
+    } catch (metafieldErr) {
+      console.warn("Error fetching cart drawer bottom content from metafields:", metafieldErr);
+    }
+
     // Step 5: Return settings or default values if not found
     // Merge third-party HTML from metafield into settings
     const finalSettings = settings ? {
@@ -127,7 +139,8 @@ export const loader = async ({ request }) => {
       thirdPartyIntegration: {
         ...settings.thirdPartyIntegration,
         htmlContent: thirdPartyHtmlContent || settings.thirdPartyIntegration?.htmlContent || ""
-      }
+      },
+      cartDrawerBottomContent,
     } : {
       // Default settings structure when no settings exist in database
       shop,
@@ -192,7 +205,8 @@ export const loader = async ({ request }) => {
         cartnoteenable: false,
         estimatedeliveryenable: false,
         estimatedeliverydate: 7
-      }
+      },
+      cartDrawerBottomContent,
     };
 
     return json(
@@ -407,6 +421,10 @@ export const action = async ({ request }) => {
         }
       ).lean(); // Return plain JavaScript object
 
+      const cartDrawerBottomContent = body.cartDrawerBottomContent === undefined
+        ? null
+        : await saveCartDrawerBottomContentMetafields(admin, body.cartDrawerBottomContent);
+
       console.log("Database save successful, proceeding to metafield update...");
 
       // Step 6: Update shop metafields
@@ -557,7 +575,13 @@ export const action = async ({ request }) => {
 
       // Step 7: Return saved settings
       return json(
-        { ok: true, data: saved },
+        {
+          ok: true,
+          data: {
+            ...saved,
+            ...(cartDrawerBottomContent ? { cartDrawerBottomContent } : {}),
+          },
+        },
         { headers: cors(request) }
       );
     } catch (err) {

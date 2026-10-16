@@ -28,16 +28,31 @@ const DEFAULT_MILESTONE_ICON =
 
 /** Loader: get shop from admin session */
 export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const url = new URL(request.url);
   const requestLocale = url.searchParams.get("locale");
   const primaryLocale = requestLocale || session.locale || "en";
+  let currencyCode = "USD";
 
-  return json({ shop: session.shop, primaryLocale });
+  try {
+    const response = await admin.graphql(`
+      query GetShopCurrencyForProgressBar {
+        shop {
+          currencyCode
+        }
+      }
+    `);
+    const payload = await response.json();
+    currencyCode = payload?.data?.shop?.currencyCode || currencyCode;
+  } catch (error) {
+    console.warn("Failed to load the shop currency for the progress bar preview:", error);
+  }
+
+  return json({ shop: session.shop, primaryLocale, currencyCode });
 };
 
 export default function ProgressBar() {
-  const { shop, primaryLocale } = useLoaderData();
+  const { shop, primaryLocale, currencyCode } = useLoaderData();
   // console.log("vss_primaryLocale", primaryLocale);
   const { t, i18n: reactI18n } = useTranslation();
   const defaultTextsRef = useRef([]); 
@@ -115,12 +130,12 @@ export default function ProgressBar() {
 
   const nf = useMemo(
     () =>
-      new Intl.NumberFormat("en-IN", {
+      new Intl.NumberFormat(undefined, {
         style: "currency",
-        currency: "INR",
+        currency: currencyCode || "USD",
         maximumFractionDigits: 0,
       }),
-    []
+    [currencyCode]
   );
 
   const saveddata_progressbar = async () => {
@@ -489,17 +504,18 @@ export default function ProgressBar() {
                               : `Optional. Fill Milestone ${i + 1} only if you want a ${i + 1}-tier progress bar.`}
                           </div>
                           <TextField
-                            label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-price")} ${i + 1}*`}
+                            label={`${t("settings.pricebased-app-progressbar-placeholder-milestone-price")} ${i + 1}* (${currencyCode || "USD"})`}
                             type="number"
                             inputMode="numeric"
                             min={0}
+                            prefix={currencyCode || "USD"}
                             value={prices[i]}
                             onChange={onPriceChange(i)}
                             autoComplete="off"
                             helpText={
                               i === 0
-                                ? "Example: 499. This is the first reward customers will unlock."
-                                : `Leave blank if you do not want Milestone ${i + 1}.`
+                                ? `Example: 60 ${currencyCode || "USD"}. This is the first reward customers will unlock.`
+                                : `Leave blank if you do not want Milestone ${i + 1}. Values use ${currencyCode || "USD"}.`
                             }
                           />
                           <TextField
